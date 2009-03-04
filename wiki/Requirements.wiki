@@ -2,12 +2,17 @@
 
 = Introduction =
 
-The user requirements.
+This page describes the requirements of the software.
 
 
-= Details =
+= First version =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Communication requirements:
+1. the server should support minimum 100 of simultaneous client connections;
+
+Client requirements:
+1. a window with a display panel, a text area and a send button;
+2. possibility to add a reference (a link) to a previous message from the conversation;
+
+Server requirements:
+1. store all the client messages (utterances and control messages like a reference) in a database (or XML file)
