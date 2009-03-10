@@ -1,4 +1,5 @@
 #summary Project's requirements page.
+#labels Phase-Requirements
 
 = Introduction =
 
@@ -8,11 +9,20 @@ This page describes the requirements of the software.
 = First version =
 
 Communication requirements:
-1. the server should support minimum 100 of simultaneous client connections;
+  #. the server should support minimum 100 of simultaneous client connections;
 
 Client requirements:
-1. a window with a display panel, a text area and a send button;
-2. possibility to add a reference (a link) to a previous message from the conversation;
+  #. a window with a primary view and alternate views;
+  #. primary view: a display panel with all the utterances, a text area and a send button;
+  #. possibility to add a reference (a link) to a previous message from the conversation;
+  #. alternate view 1: threaded chat accordingly to the references;
+  #. possibility to create a poll and vote in a poll;
 
 Server requirements:
-1. store all the client messages (utterances and control messages like a reference) in a database (or XML file)
+  #. store all the client messages (utterances and control messages like a reference) in a database (or XML file);
+  #. store the polls and the votes in a database (or XML file)
+
+Design questions:
+  #. which protocol to use? an existing one or a new one? keep in mind the multi-user chat and the need vor various control messages;
+  #. storing the information: DB or XML;
+  #. communication: java sockets;
