@@ -1,0 +1,64 @@
+<project name="TopChatServer" default="run" basedir=".">
+    <description>
+        Build file ${ant.project.name}
+    </description>
+    
+  <property name="src" 			location="src"/>
+  <property name="bin" 			location="bin"/>
+  <property name="lib" 			location="lib"/>
+  <property name="config" 		location="config"/>
+  <property name="doc"			location="doc"/>
+  <property name="log4j.lib" 	value="log4j-1.2.15.jar"/>
+
+  <target name="init" depends="clean">
+    <mkdir dir="${bin}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${bin} -->
+    <echo message="Compiling..." />
+    <javac srcdir="${src}" destdir="${bin}">
+     	<classpath>
+     	  	<pathelement location="${lib}/${log4j.lib}"/>
+       		<pathelement path="${java.class.path}"/>
+     	</classpath>
+  	</javac>
+    <echo message="Compile finished." />
+  </target>
+
+  <target name="run" depends="compile" description="run the program" >
+  		<!-- Run the program in a VM different from the VM ant is running in -->
+  		<echo message="Runnning ${ant.project.name}..." />		
+		<java classname="topchat.server.core.TopChatServer"  fork="true">   		 	    
+         	<classpath>
+         	  	<pathelement location="${bin}"/>
+         		<pathelement location="${lib}/${log4j.lib}"/>
+         		<pathelement location="${config}"/>
+           		<pathelement path="${java.class.path}"/>
+         	</classpath>
+       </java> 
+       <echo message="Finished." />
+  </target>
+	
+  <target name="javadoc" description="creates the javadoc">
+  	  <echo message="Generating the javadoc..." />
+	  <javadoc
+	           destdir="${doc}/${ant.project.name}"
+	           author="true"
+	  		   Private="true"
+	           version="true"
+	           use="true"
+	           windowtitle="TopChatServer doc">
+	    <fileset dir="src" defaultexcludes="yes" />
+	  	<classpath>
+	  	       <pathelement location="${lib}/${log4j.lib}"/>
+	  	</classpath>
+	  </javadoc>
+  </target>
+
+  <target name="clean" description="clean up" >
+  	<echo message="Cleaning up..." />
+    <delete dir="${bin}"/>
+    <echo message="Clean up finished." />
+  </target>
+</project>    
