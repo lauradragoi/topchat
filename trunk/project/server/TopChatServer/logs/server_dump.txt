@@ -1,0 +1,5 @@
+    0 [main      ] INFO  ServerGui      .<init>               [   ?] - GUI initiated
+    7 [main      ] INFO  ServerNet      .<init>               [   ?] - NET initiated
+    8 [main      ] INFO  XMPPProtocol   .<init>               [   ?] - XMPPProtocol initiated
+    8 [main      ] INFO  TopChatServer  .main                 [   ?] - TopChatServer started.
+   38 [AWT-EventQueue-0] INFO  ServerNet      .awaitConnection      [   ?] - Awaiting connection on port 5222
