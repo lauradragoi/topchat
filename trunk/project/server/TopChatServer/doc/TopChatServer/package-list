@@ -1,8 +1,0 @@
-topchat.server.core
-topchat.server.gui
-topchat.server.interfaces
-topchat.server.mediator
-topchat.server.net
-topchat.server.protocol.hello
-topchat.server.protocol.xmpp
-topchat.server.util
