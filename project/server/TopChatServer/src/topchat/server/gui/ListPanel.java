@@ -32,6 +32,9 @@ import javax.swing.JScrollPane;
  */
 public class ListPanel extends JPanel {
 
+	private JList list;
+	private DefaultListModel listModel;
+	
 	/**
 	 * 
 	 * @param list
@@ -41,10 +44,9 @@ public class ListPanel extends JPanel {
 	 * @param width
 	 * @param height
 	 */
-	public ListPanel(JList list, DefaultListModel listModel, int accessMode,
-			String label, int width, int height) {
+	public ListPanel(int accessMode, String label, int width, int height) {
 		listModel = new DefaultListModel();
-
+		
 		list = new JList(listModel);
 		list.setSelectionMode(accessMode);
 
@@ -54,6 +56,16 @@ public class ListPanel extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		add(new JLabel(label));
 		add(scrollPane);
+	}
+	
+	public JList getList()
+	{
+		return list;
+	}
+	
+	public DefaultListModel getListModel()
+	{
+		return listModel;
 	}
 
 }

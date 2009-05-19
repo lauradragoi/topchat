@@ -17,6 +17,8 @@
  */
 package topchat.server.interfaces;
 
+import topchat.server.defaults.DefaultContext;
+
 /**
  * Interface describing the protocol used by the server
  * 
@@ -25,8 +27,12 @@ public interface Protocol {
 	public void setMediator(ProtocolMediator med);
 
 	public int getListeningPort();
+	
+	public void start(Net net);
 
 	public void processRead(byte[] rd);
 
 	public byte[] prepareWrite();
+	
+	public DefaultContext getCurrentContext();
 }

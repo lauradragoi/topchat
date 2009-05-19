@@ -28,11 +28,14 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.NetMediator;
+import topchat.server.interfaces.Protocol;
 
 /**
  * The network module of the server
@@ -43,11 +46,14 @@ import topchat.server.interfaces.NetMediator;
 public class ServerNet implements Net, NetConstants {
 
 	private NetMediator med = null;
+	private Protocol prot = null;
 
 	private ServerSocketChannel serverSocketChannel = null;
 	private Selector selector = null;
 
-	public static ExecutorService pool = Executors
+	private static boolean running = false;
+
+	private static ExecutorService pool = Executors
 			.newFixedThreadPool(DEFAULT_EXECUTOR_THREADS);
 
 	private static Logger logger = Logger.getLogger(ServerNet.class);
@@ -69,8 +75,8 @@ public class ServerNet implements Net, NetConstants {
 		this.med = med;
 	}
 
-	@Override
-	public void awaitConnection(int port) {
+	public void startListening(int port) {
+
 		try {
 			selector = Selector.open();
 		} catch (IOException e) {
@@ -88,6 +94,7 @@ public class ServerNet implements Net, NetConstants {
 			cleanup();
 			return;
 		}
+
 		try {
 			serverSocketChannel.configureBlocking(false);
 		} catch (IOException e) {
@@ -97,6 +104,7 @@ public class ServerNet implements Net, NetConstants {
 			cleanup();
 			return;
 		}
+
 		try {
 			serverSocketChannel.socket().bind(new InetSocketAddress(port));
 		} catch (IOException e) {
@@ -105,6 +113,7 @@ public class ServerNet implements Net, NetConstants {
 			cleanup();
 			return;
 		}
+
 		try {
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 		} catch (ClosedChannelException e) {
@@ -117,8 +126,8 @@ public class ServerNet implements Net, NetConstants {
 		logger.info("Awaiting connection on port " + port);
 	}
 
-	@Override
 	public void update() {
+
 		try {
 			selector.select();
 		} catch (IOException e) {
@@ -134,6 +143,7 @@ public class ServerNet implements Net, NetConstants {
 			it.remove();
 
 			if (key.isAcceptable()) {
+
 				try {
 					accept(key);
 				} catch (IOException e) {
@@ -142,6 +152,7 @@ public class ServerNet implements Net, NetConstants {
 					cleanup();
 					return;
 				}
+
 			} else if (key.isReadable()) {
 
 				try {
@@ -152,7 +163,9 @@ public class ServerNet implements Net, NetConstants {
 					cleanup();
 					return;
 				}
+
 			} else if (key.isWritable()) {
+
 				try {
 					write(key);
 				} catch (IOException e) {
@@ -161,11 +174,11 @@ public class ServerNet implements Net, NetConstants {
 					cleanup();
 					return;
 				}
+
 			}
 		}
 	}
 
-	@Override
 	public void accept(SelectionKey key) throws IOException {
 
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key
@@ -173,14 +186,13 @@ public class ServerNet implements Net, NetConstants {
 		SocketChannel socketChannel = serverSocketChannel.accept();
 		socketChannel.configureBlocking(false);
 
-		ByteBuffer buf = ByteBuffer.allocateDirect(READER_BUFFER_SIZE);
-		socketChannel.register(key.selector(), SelectionKey.OP_READ, buf);
+		DefaultContext context = new DefaultContext(READER_BUFFER_SIZE);
+		socketChannel.register(key.selector(), SelectionKey.OP_READ, context);
 
 		logger.info("Accepted connection from "
 				+ socketChannel.socket().getRemoteSocketAddress());
 	}
 
-	@Override
 	public void read(final SelectionKey key) throws IOException {
 		// remove all interests
 		key.interestOps(0);
@@ -188,7 +200,8 @@ public class ServerNet implements Net, NetConstants {
 		pool.execute(new Runnable() {
 			public void run() {
 				int bytes;
-				ByteBuffer buf = (ByteBuffer) key.attachment();
+				DefaultContext context = (DefaultContext) key.attachment();
+				ByteBuffer buf = context.getBuffer();
 				SocketChannel socketChannel = (SocketChannel) key.channel();
 
 				try {
@@ -219,10 +232,10 @@ public class ServerNet implements Net, NetConstants {
 		});
 	}
 
-	@Override
 	public void write(SelectionKey key) throws IOException {
 		int bytes;
-		ByteBuffer buf = (ByteBuffer) key.attachment();
+		DefaultContext context = (DefaultContext) key.attachment();
+		ByteBuffer buf = context.getBuffer();
 		SocketChannel socketChannel = (SocketChannel) key.channel();
 
 		try {
@@ -264,7 +277,34 @@ public class ServerNet implements Net, NetConstants {
 		buf.get(rd);
 		buf.clear();
 
-		med.processRead(rd);
+		prot.processRead(rd);
 	}
 
+	@Override
+	public void start(int port) {
+		startListening(port);
+
+		// start the main loop in a new thread: we don't want to block the
+		// invoking thread
+		new Thread() {
+			public void run() {
+				mainLoop();
+			}
+		}.start();
+	}
+
+	private void mainLoop() {
+		logger.info("Started network module loop");
+
+		running = true;
+
+		while (running) {
+			update();
+		}
+	}
+
+	@Override
+	public void setProtocol(Protocol prot) {
+		this.prot = prot;
+	}
 }

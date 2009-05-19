@@ -19,6 +19,8 @@ package topchat.server.protocol.hello;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultContext;
+import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;
 import topchat.server.mediator.Mediator;
@@ -26,6 +28,7 @@ import topchat.server.mediator.Mediator;
 public class HelloProtocol implements Protocol {
 
 	private ProtocolMediator med = null;
+	private Net net = null;
 
 	private static Logger logger = Logger.getLogger(HelloProtocol.class);
 
@@ -55,16 +58,33 @@ public class HelloProtocol implements Protocol {
 	@Override
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
-		System.out.println(s);
+		logger.debug(s);
 
 		if (s.startsWith("hello"))
-			med.addUser(s.substring(5));
+			med.addUser(s.substring(5).trim());
 
 		if (s.startsWith("room"))
 			med.addRoom(s.substring(4));
 
 		rd = null;
 		s = null;
+	}
+
+	@Override
+	public void start(Net net) 
+	{			
+		this.net = net;
+		net.setProtocol(this);
+		
+		logger.info("Protocol started");
+		
+		net.start(getListeningPort());
+	}
+
+	@Override
+	public DefaultContext getCurrentContext() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

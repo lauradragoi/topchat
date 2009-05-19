@@ -41,13 +41,17 @@ public class TopChatServer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
 		Mediator med = new Mediator();
+
 		@SuppressWarnings("unused")
 		Gui gui = new ServerGui(med);
+
 		@SuppressWarnings("unused")
 		Net net = new ServerNet(med);
+
 		@SuppressWarnings("unused")
-		Protocol prot = new XMPPProtocol(med);
+		Protocol prot = new XMPPProtocol(med);		
 
 		logger.info("TopChatServer started.");
 
