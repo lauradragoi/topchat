@@ -44,15 +44,10 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 	 * Starts the interaction with the other components of the server
 	 * application
 	 */
-	public void socialize() {
-
-		/** Start net module */
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				int port = prot.getListeningPort();
-				net.awaitConnection(port);
-			}
-		});
+	public void socialize() 
+	{		
+		/** Start protocol */
+		prot.start(net);
 
 		/** Start the GUI */
 		SwingUtilities.invokeLater(new Runnable() {
@@ -60,23 +55,6 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 				gui.show();
 			}
 		});
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new Thread() {
-					public void run() {
-						mainLoop();
-					}
-				}.start();
-			}
-		});
-
-	}
-
-	private void mainLoop() {
-		while (true) {
-			net.update();
-		}
 	}
 
 	/**

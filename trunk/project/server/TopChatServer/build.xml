@@ -1,64 +1,90 @@
 <project name="TopChatServer" default="run" basedir=".">
-    <description>
+	<description>
         Build file ${ant.project.name}
     </description>
-    
-  <property name="src" 			location="src"/>
-  <property name="bin" 			location="bin"/>
-  <property name="lib" 			location="lib"/>
-  <property name="config" 		location="config"/>
-  <property name="doc"			location="doc"/>
-  <property name="log4j.lib" 	value="log4j-1.2.15.jar"/>
 
-  <target name="init" depends="clean">
-    <mkdir dir="${bin}"/>
-  </target>
+	<property name="src.dir" 			location="src"/>
+	<property name="bin.dir" 			location="bin"/>
+	<property name="lib.dir" 			location="lib"/>
+	<property name="config.dir" 		location="config"/>
+	<property name="doc.dir"			location="doc"/>
+	<property name="tests.dir"			location="tests"/>
+		
+	<property name="log4j.lib" 			value="log4j-1.2.15.jar"/>
+	<property name="junit.lib" 			value="junit-4.6.jar"/>
 
-  <target name="compile" depends="init" description="compile the source " >
-    <!-- Compile the java code from ${src} into ${bin} -->
-    <echo message="Compiling..." />
-    <javac srcdir="${src}" destdir="${bin}">
-     	<classpath>
-     	  	<pathelement location="${lib}/${log4j.lib}"/>
-       		<pathelement path="${java.class.path}"/>
-     	</classpath>
-  	</javac>
-    <echo message="Compile finished." />
-  </target>
+	<target name="init" depends="clean">
+		<mkdir dir="${bin.dir}"/>
+	</target>
 
-  <target name="run" depends="compile" description="run the program" >
-  		<!-- Run the program in a VM different from the VM ant is running in -->
-  		<echo message="Runnning ${ant.project.name}..." />		
-		<java classname="topchat.server.core.TopChatServer"  fork="true">   		 	    
-         	<classpath>
-         	  	<pathelement location="${bin}"/>
-         		<pathelement location="${lib}/${log4j.lib}"/>
-         		<pathelement location="${config}"/>
-           		<pathelement path="${java.class.path}"/>
-         	</classpath>
-       </java> 
-       <echo message="Finished." />
-  </target>
-	
-  <target name="javadoc" description="creates the javadoc">
-  	  <echo message="Generating the javadoc..." />
-	  <javadoc
-	           destdir="${doc}/${ant.project.name}"
+	<target name="compile" depends="init" description="compile the source " >
+		<!-- Compile the java code from ${src} into ${bin} -->
+		<echo message="Compiling..." />
+		<javac srcdir="${src.dir}" destdir="${bin.dir}">
+			<classpath>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${junit.lib}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+		</javac>
+		<echo message="Compile finished." />
+	</target>
+
+	<target name="run" depends="compile" description="run the program" >
+		<!-- Run the program in a VM different from the VM ant is running in -->
+		<echo message="Runnning ${ant.project.name}..." />
+		<java classname="topchat.server.core.TopChatServer"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${config.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+		</java>
+		<echo message="Finished." />
+	</target>
+
+	<target name="test" depends="compile" description="Run JUnit tests">
+		<!-- Run defined tests -->
+		<mkdir dir="${tests.dir}" />
+		<junit haltonfailure="false" haltonerror="false" printsummary="withOutAndErr">
+			<classpath>
+				<pathelement location="${lib.dir}/${junit.lib}"/>
+				<pathelement location="${bin.dir}" />
+				<pathelement path="${java.class.path}" />
+			</classpath>
+			<batchtest todir="${tests.dir}">
+				<fileset dir="${src.dir}" includes="**/*Test*.java"/>
+			</batchtest>
+			<formatter type="xml" />
+		</junit>
+		<junitreport todir="${tests.dir}">
+			<fileset dir="${tests.dir}" includes="TEST-*.xml"/>
+			<report format="frames" todir="${tests.dir}"/>
+		</junitreport>
+	</target>
+
+	<target name="javadoc" description="creates the javadoc">
+		<!-- Generate javadoc -->		
+		<echo message="Generating the javadoc..." />
+		<javadoc
+	           destdir="${doc.dir}/${ant.project.name}"
 	           author="true"
 	  		   Private="true"
 	           version="true"
 	           use="true"
-	           windowtitle="TopChatServer doc">
-	    <fileset dir="src" defaultexcludes="yes" />
-	  	<classpath>
-	  	       <pathelement location="${lib}/${log4j.lib}"/>
-	  	</classpath>
-	  </javadoc>
-  </target>
+	           windowtitle="${ant.project.name} doc">
+			<fileset dir="src" defaultexcludes="yes" />
+			<classpath>
+				<pathelement location="${lib.dir}/${log4j.lib.dir}"/>
+			</classpath>
+		</javadoc>
+	</target>
 
-  <target name="clean" description="clean up" >
-  	<echo message="Cleaning up..." />
-    <delete dir="${bin}"/>
-    <echo message="Clean up finished." />
-  </target>
-</project>    
+	<target name="clean" description="clean up" >
+		<!-- Remove class files -->
+		<echo message="Cleaning up..." />
+		<delete dir="${bin.dir}"/>
+		<echo message="Clean up finished." />
+	</target>
+</project>

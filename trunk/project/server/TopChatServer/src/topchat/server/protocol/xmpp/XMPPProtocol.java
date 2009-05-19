@@ -19,12 +19,18 @@ package topchat.server.protocol.xmpp;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultContext;
+import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;
+import topchat.server.protocol.xmpp.context.XMPPContext;
 
 public class XMPPProtocol implements Protocol, XMPPConstants {
 
+	@SuppressWarnings("unused")
 	private ProtocolMediator med = null;
+	private Net net = null;
+	private XMPPContext context = null;
 
 	private static Logger logger = Logger.getLogger(XMPPProtocol.class);
 
@@ -59,4 +65,23 @@ public class XMPPProtocol implements Protocol, XMPPConstants {
 		rd = null;
 		s = null;
 	}
+
+	@Override
+	public void start(Net net) 
+	{
+		this.net = net;
+		net.setProtocol(this);
+		
+		context = new XMPPContext();
+		
+		logger.info("Protocol started");
+		
+		net.start(getListeningPort());
+	}
+	
+	@Override
+	public DefaultContext getCurrentContext()
+	{
+		return context;
+	}	
 }

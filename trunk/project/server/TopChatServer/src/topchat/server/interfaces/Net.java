@@ -28,14 +28,8 @@ public interface Net {
 
 	/** Connects to the mediator */
 	public void setMediator(NetMediator med);
-
-	public void awaitConnection(int port);
-
-	public void update();
-
-	public void accept(SelectionKey key) throws IOException;
-
-	public void read(final SelectionKey key) throws IOException;
-
-	public void write(SelectionKey key) throws IOException;
+	
+	public void setProtocol(Protocol prot);
+	
+	public void start(int port);	
 }

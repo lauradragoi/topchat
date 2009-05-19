@@ -40,15 +40,13 @@ import topchat.server.interfaces.GuiMediator;
 public class ServerGui extends JPanel implements Gui, GuiConstants {
 
 	/** Connection to mediator */
+	@SuppressWarnings("unused")
 	private GuiMediator med = null;
 
 	/** List showing connected users */
-	private JList usersList;
-	private DefaultListModel usersModel;
-
-	/** List showing hosted rooms */
-	private JList roomsList;
-	private DefaultListModel roomsModel;
+	private ListPanel usersPanel;
+	/** List showing existing rooms */	
+	private ListPanel roomsPanel;
 
 	/** Label used for showing application status */
 	private JLabel statusLabel;
@@ -60,7 +58,8 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	 * 
 	 * @param med
 	 */
-	public ServerGui(GuiMediator med) {
+	public ServerGui(GuiMediator med) 
+	{
 		init();
 
 		setMediator(med);
@@ -98,16 +97,20 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	 * Initializes the GUI
 	 */
 	private void init() {
-		JPanel usersPanel = new ListPanel(usersList, usersModel,
-				ListSelectionModel.SINGLE_SELECTION, "users", USERS_LIST_MIN_W,
-				USERS_LIST_MIN_H);
+		usersPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION, 
+									"users", 
+									USERS_LIST_MIN_W,
+									USERS_LIST_MIN_H);
 
-		JPanel roomsPanel = new ListPanel(roomsList, roomsModel,
-				ListSelectionModel.SINGLE_SELECTION, "rooms", ROOMS_LIST_MIN_W,
-				ROOMS_LIST_MIN_H);
+		
+		
+		roomsPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION, 
+									"rooms", 
+									ROOMS_LIST_MIN_W,
+									ROOMS_LIST_MIN_H);
 
 		JSplitPane horizSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				roomsPanel, usersPanel);
+											roomsPanel, usersPanel);
 		horizSplitPane.setResizeWeight(1);
 
 		statusLabel = new JLabel(DEFAULT_STATUS);
@@ -124,12 +127,12 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 
 	@Override
 	public void addUser(String user) {
-		SwingUtilities.invokeLater(new AddingRunnable(user, usersModel));
+		SwingUtilities.invokeLater(new AddingRunnable(user, usersPanel.getListModel()));
 	}
 
 	@Override
 	public void addRoom(String room) {
-		SwingUtilities.invokeLater(new AddingRunnable(room, roomsModel));
+		SwingUtilities.invokeLater(new AddingRunnable(room, roomsPanel.getListModel()));
 	}
 
 	private class AddingRunnable implements Runnable {
@@ -141,7 +144,7 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 			this.model = model;
 		}
 
-		public void run() {
+		public void run() {			
 			model.addElement(str);
 		}
 	}
