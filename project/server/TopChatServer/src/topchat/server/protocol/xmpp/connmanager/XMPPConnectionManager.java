@@ -19,7 +19,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	public XMPPConnectionManager()
 	{
-		context  = new InitialContext(READER_BUFFER_SIZE); 
+		context  = new InitialContext(); 
 	}
 	
 	public void processWrite() 
@@ -50,12 +50,12 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof XMPPContext)
 		{
-			nextContext = new InitialContext(READER_BUFFER_SIZE);
+			nextContext = new InitialContext(old);
 			logger.info("Switch to initial context");
 		}
 		if (old instanceof InitialContext)
 		{
-			nextContext = new SecondaryContext(READER_BUFFER_SIZE);
+			nextContext = new SecondaryContext(old);
 			logger.info("Switch to secondary context");
 		}
 									
