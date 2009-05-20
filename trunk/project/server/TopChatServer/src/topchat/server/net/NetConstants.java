@@ -21,6 +21,5 @@ import topchat.server.util.Constants;
 
 public interface NetConstants extends Constants 
 {
-	public static final int READER_BUFFER_SIZE = 100;
 	public static final int DEFAULT_EXECUTOR_THREADS = 5;
 }

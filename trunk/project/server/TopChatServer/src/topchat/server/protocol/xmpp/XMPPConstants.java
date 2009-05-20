@@ -19,4 +19,5 @@ package topchat.server.protocol.xmpp;
 
 public interface XMPPConstants {
 	public static final int XMPP_DEFAULT_SERVER_PORT = 5222;
+	public static final int READER_BUFFER_SIZE = 100;
 }

@@ -24,8 +24,4 @@ package topchat.server.interfaces;
 public interface NetMediator {
 
 	public void setNet(Net net);
-
-	public void processRead(byte[] rd);
-
-	public byte[] prepareWrite();
 }

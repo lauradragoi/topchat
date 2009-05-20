@@ -17,6 +17,7 @@
  */
 package topchat.server.interfaces;
 
+import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
 
 /**
@@ -29,10 +30,7 @@ public interface Protocol {
 	public int getListeningPort();
 	
 	public void start(Net net);
-
-	public void processRead(byte[] rd);
-
-	public byte[] prepareWrite();
 	
-	public DefaultContext getCurrentContext();
+	public DefaultConnectionManager getConnectionManager();
+
 }

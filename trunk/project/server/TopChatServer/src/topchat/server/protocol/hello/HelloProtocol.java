@@ -19,6 +19,7 @@ package topchat.server.protocol.hello;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
@@ -49,13 +50,11 @@ public class HelloProtocol implements Protocol {
 		return 5222;
 	}
 
-	@Override
 	public byte[] prepareWrite() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
 		logger.debug(s);
@@ -82,9 +81,11 @@ public class HelloProtocol implements Protocol {
 	}
 
 	@Override
-	public DefaultContext getCurrentContext() {
+	public DefaultConnectionManager getConnectionManager() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
 
 }
