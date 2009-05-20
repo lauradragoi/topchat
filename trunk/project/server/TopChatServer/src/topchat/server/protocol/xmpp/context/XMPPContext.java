@@ -8,11 +8,18 @@ public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
 	
-	public XMPPContext(int bufferSize)
-	{
-		super(bufferSize);
+	public XMPPContext() {
+			super();
 	}
+	 
 	
+	/**
+	 * @param old
+	 */
+	public XMPPContext(DefaultContext old) {
+		super(old);
+	}
+
 	public void processWrite()
 	{
 		logger.debug("Written");
