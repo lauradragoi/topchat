@@ -80,23 +80,6 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 		this.prot = prot;
 	}
 
-	@Override
-	public void processRead(byte[] rd) {
-		if (rd == null) {
-			logger.warn("Nothing to process on read");
-			return;
-		}
-
-		prot.processRead(rd);
-	}
-
-	@Override
-	public byte[] prepareWrite() {
-
-		byte[] wd = prot.prepareWrite();
-
-		return wd;
-	}
 
 	@Override
 	public void addUser(String user) {

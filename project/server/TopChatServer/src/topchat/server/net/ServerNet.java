@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.NetMediator;
@@ -186,12 +187,16 @@ public class ServerNet implements Net, NetConstants {
 		SocketChannel socketChannel = serverSocketChannel.accept();
 		socketChannel.configureBlocking(false);
 
-		DefaultContext context = new DefaultContext(READER_BUFFER_SIZE);
-		socketChannel.register(key.selector(), SelectionKey.OP_READ, context);
-
+		DefaultConnectionManager connManager = prot.getConnectionManager();
+				
+		// start reading after accept
+		socketChannel.register(key.selector(), SelectionKey.OP_READ, connManager);
+		connManager.setKey(key);
+		
 		logger.info("Accepted connection from "
 				+ socketChannel.socket().getRemoteSocketAddress());
 	}
+	
 
 	public void read(final SelectionKey key) throws IOException {
 		// remove all interests
@@ -200,8 +205,8 @@ public class ServerNet implements Net, NetConstants {
 		pool.execute(new Runnable() {
 			public void run() {
 				int bytes;
-				DefaultContext context = (DefaultContext) key.attachment();
-				ByteBuffer buf = context.getBuffer();
+				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
+				ByteBuffer buf = conn.getReadBuffer();
 				SocketChannel socketChannel = (SocketChannel) key.channel();
 
 				try {
@@ -213,7 +218,7 @@ public class ServerNet implements Net, NetConstants {
 					if (bytes == -1)
 						throw new IOException("EOF");
 
-					processRead(buf);
+					processRead(conn, buf);
 
 					// keep on reading
 					key.interestOps(SelectionKey.OP_READ);
@@ -234,8 +239,8 @@ public class ServerNet implements Net, NetConstants {
 
 	public void write(SelectionKey key) throws IOException {
 		int bytes;
-		DefaultContext context = (DefaultContext) key.attachment();
-		ByteBuffer buf = context.getBuffer();
+		DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
+		ByteBuffer buf = conn.getWriteBuffer();
 		SocketChannel socketChannel = (SocketChannel) key.channel();
 
 		try {
@@ -268,7 +273,7 @@ public class ServerNet implements Net, NetConstants {
 			}
 	}
 
-	private void processRead(ByteBuffer buf) {
+	private void processRead(DefaultConnectionManager conn, ByteBuffer buf) {
 		buf.flip();
 
 		int count = buf.remaining();
@@ -277,7 +282,7 @@ public class ServerNet implements Net, NetConstants {
 		buf.get(rd);
 		buf.clear();
 
-		prot.processRead(rd);
+		conn.processRead(rd);
 	}
 
 	@Override
