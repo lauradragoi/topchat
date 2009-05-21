@@ -12,13 +12,11 @@ public class SecondaryContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(SecondaryContext.class);	
 			
-	/**
-	 * @param old
-	 */
+
 	public SecondaryContext(XMPPConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);
 		
-		writeBuffer.clear();
+		//writeBuffer.clear();
 		Utils.putStringToBuffer("toi", writeBuffer);				
 		writeBuffer.flip();
 		
@@ -33,7 +31,7 @@ public class SecondaryContext extends XMPPContext {
 						
 		s = null;
 		
-		writeBuffer.clear();
+		//writeBuffer.clear();
 		Utils.putStringToBuffer("toi", writeBuffer);				
 		writeBuffer.flip();
 		

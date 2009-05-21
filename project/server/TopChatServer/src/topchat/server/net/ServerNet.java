@@ -28,12 +28,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
-import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.NetMediator;
 import topchat.server.interfaces.Protocol;
@@ -66,11 +63,15 @@ public class ServerNet implements Net, NetConstants {
 	 */
 	public ServerNet(NetMediator med) {
 		setMediator(med);
-		med.setNet(this);
+		this.med.setNet(this);
 
 		logger.info("NET initiated");
 	}
 
+	
+	/**
+	 * Sets the mediator
+	 */
 	@Override
 	public void setMediator(NetMediator med) {
 		this.med = med;
@@ -80,7 +81,7 @@ public class ServerNet implements Net, NetConstants {
 	 * Start waiting for connections
 	 * @param port the port on which the server will be listening on
 	 */
-	public void startListening(int port) {
+	private void startListening(int port) {
 
 		try {
 			selector = Selector.open();
@@ -131,7 +132,10 @@ public class ServerNet implements Net, NetConstants {
 		logger.info("Awaiting connection on port " + port);
 	}
 
-	public void update() {
+	/**
+	 * Handle keys registered with the selector that are ready for operations
+	 */
+	private void update() {
 
 		try {
 			selector.select();
@@ -184,8 +188,14 @@ public class ServerNet implements Net, NetConstants {
 		}
 	}
 
-	public void accept(SelectionKey key) throws IOException 
+	/**
+	 * Accept a new connection and put in read mode
+	 * @param key the key associated with the connection to be accepted
+	 * @throws IOException
+	 */
+	private void accept(SelectionKey key) throws IOException 
 	{
+		
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key
 				.channel();
 		SocketChannel socketChannel = serverSocketChannel.accept();
@@ -204,7 +214,13 @@ public class ServerNet implements Net, NetConstants {
 	}
 	
 
-	public void read(final SelectionKey key) throws IOException {
+	/**
+	 * Handle the read operation on a thread from the pool
+	 * 
+	 * @param key the key associated with the operation
+	 * @throws IOException
+	 */
+	private void read(final SelectionKey key) throws IOException {
 		// remove all interests
 		key.interestOps(0);
 
@@ -243,24 +259,31 @@ public class ServerNet implements Net, NetConstants {
 		});
 	}
 
-	public void write(final SelectionKey key) throws IOException {
+	/**
+	 * Handle the write operation on a thread from the pool
+	 * 
+	 * @param key the key associated with the operation
+	 * @throws IOException
+	 */	
+	private void write(final SelectionKey key) throws IOException {
 		// remove all interests
 		key.interestOps(0);
 
 		pool.execute(new Runnable() {
 			public void run() {		
-				int bytes;
 				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
 				ByteBuffer buf = conn.getWriteBuffer();
 				SocketChannel socketChannel = (SocketChannel) key.channel();
 		
 				try {
-					while ((bytes = socketChannel.write(buf)) > 0)
+					while ((socketChannel.write(buf)) > 0)
 						;
 		
 					if (!buf.hasRemaining()) {
 						buf.clear();
 						
+						processWrite(conn, buf);
+												
 						//keep on reading
 						key.interestOps( SelectionKey.OP_READ);
 						
@@ -268,12 +291,14 @@ public class ServerNet implements Net, NetConstants {
 						key.selector().wakeup();
 					}
 					
-					processWrite(conn, buf);
+					
 		
 				} catch (IOException e) {
 					logger.fatal("Connection closed: " + e.getMessage());
-					try {
+					try 
+					{
 						socketChannel.close();
+						
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -284,6 +309,9 @@ public class ServerNet implements Net, NetConstants {
 		});
 	}
 
+	/**
+	 * Method used to close resources.
+	 */
 	private void cleanup() {
 		if (selector != null)
 			try {
@@ -298,7 +326,14 @@ public class ServerNet implements Net, NetConstants {
 			}
 	}
 
-	private void processRead(DefaultConnectionManager conn, ByteBuffer buf) {
+	/**
+	 * Method executed when a read operation has finished
+	 * @param conn the connection manager associated with the connection on which the operation took place
+	 * @param buf the buffer used for the operation
+	 */
+	private void processRead(DefaultConnectionManager conn, ByteBuffer buf) 
+	{
+		// drain buffer
 		buf.flip();
 
 		int count = buf.remaining();
@@ -311,21 +346,30 @@ public class ServerNet implements Net, NetConstants {
 		conn.processRead(rd);
 	}
 
+	/**
+	 * Method executed when a write operation has finished
+	 * @param conn the connection manager associated with the connection on which the operation took place
+	 * @param buf the buffer used for the operation
+	 */
 	private void processWrite(DefaultConnectionManager conn, ByteBuffer buf) 
 	{
+		// clean buffer
 		buf.clear();	
 		
 		// inform connection manager
 		conn.processWrite();
 	}
 		
+	/**
+	 * Starts listening for connections and the main loop of the network module
+	 * @param port the port on which the server will listen
+	 */
 	@Override
 	public void start(int port) 
 	{
 		startListening(port);
 
-		// start the main loop in a new thread: we don't want to block the
-		// invoking thread
+		// start the main loop in a new thread
 		new Thread() {
 			public void run() {
 				mainLoop();
@@ -333,17 +377,25 @@ public class ServerNet implements Net, NetConstants {
 		}.start();
 	}
 
-	private void mainLoop() {
+	/**
+	 * The main loop of the network module
+	 */
+	private void mainLoop() 
+	{
 		logger.info("Started network module loop");
 
 		running = true;
 
-		while (running) {
+		while (running) 
+		{
 			update();
 		}
 	}
 
-	@Override
+	/**
+	 * Sets the protocol
+	 */	
+	@Override	
 	public void setProtocol(Protocol prot) {
 		this.prot = prot;
 	}

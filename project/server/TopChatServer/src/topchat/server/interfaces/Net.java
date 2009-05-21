@@ -17,9 +17,6 @@
  */
 package topchat.server.interfaces;
 
-import java.io.IOException;
-import java.nio.channels.SelectionKey;
-
 /**
  * Interface describing the network module of the server
  * 
@@ -29,7 +26,9 @@ public interface Net {
 	/** Connects to the mediator */
 	public void setMediator(NetMediator med);
 	
+	/** Connects to the protocol */
 	public void setProtocol(Protocol prot);
 	
+	/** Starts the network module and sets the port for listening */
 	public void start(int port);	
 }

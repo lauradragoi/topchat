@@ -19,7 +19,11 @@ package topchat.server.net;
 
 import topchat.server.util.Constants;
 
+/**
+ * Constants used by the network module
+ */
 public interface NetConstants extends Constants 
 {
+	/** The default number of threads in the executor pool */
 	public static final int DEFAULT_EXECUTOR_THREADS = 5;
 }

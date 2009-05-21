@@ -76,7 +76,9 @@
 	           windowtitle="${ant.project.name} doc">
 			<fileset dir="src" defaultexcludes="yes" />
 			<classpath>
-				<pathelement location="${lib.dir}/${log4j.lib.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}" />
+				<pathelement location="${lib.dir}/${junit.lib}" />
+				<pathelement path="${java.class.path}"/>				
 			</classpath>
 		</javadoc>
 	</target>

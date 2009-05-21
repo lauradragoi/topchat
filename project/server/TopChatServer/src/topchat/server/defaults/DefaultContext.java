@@ -20,13 +20,8 @@ package topchat.server.defaults;
 import java.nio.ByteBuffer;
 
 
-import org.apache.log4j.Logger;
-
-import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-
 /**
  * Describes the state of a connection between the server and a client
- * @author ldragoi
  *
  */
 public abstract class DefaultContext 
@@ -41,7 +36,6 @@ public abstract class DefaultContext
 	// Connection manager handling this context
 	protected DefaultConnectionManager mgr = null;
 		
-	private static Logger	logger		= Logger.getLogger(DefaultContext.class);	
 
 	/**
 	 * Constructs context
@@ -53,6 +47,10 @@ public abstract class DefaultContext
 		writeBuffer = ByteBuffer.allocateDirect(BUF_SIZE);		
 	}
 	
+	/**
+	 * Constructs context controlled by a connection manager
+	 * @param mgr the connection manager controlling the context being created
+	 */
 	public DefaultContext(DefaultConnectionManager mgr)
 	{
 		this();
@@ -72,6 +70,9 @@ public abstract class DefaultContext
 	
 	/**
 	 * Constructs context starting from an existing context
+	 * controlled by a connection manager
+	 * 
+	 * @param mgr the connection manager controlling the context being created 
 	 * @param old
 	 */
 	public DefaultContext(DefaultConnectionManager mgr, DefaultContext old) 
@@ -98,7 +99,14 @@ public abstract class DefaultContext
 		return writeBuffer;
 	}
 
+	/** 
+	 * Method to be executed after a reading operation has completed.
+	 * @param b the data that was read
+	 */
 	public abstract void processRead(byte[] b);
 	
+	/**
+	 * Method to be executed after a writing operation has completed.
+	 */
 	public abstract void processWrite();
 } 

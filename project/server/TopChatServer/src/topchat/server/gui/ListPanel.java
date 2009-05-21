@@ -26,19 +26,19 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-@SuppressWarnings("serial")
+
 /**
  * A panel containing a scrollable list with a title  
+ * 
  */
+@SuppressWarnings("serial")
 public class ListPanel extends JPanel {
 
 	private JList list;
 	private DefaultListModel listModel;
 	
 	/**
-	 * 
-	 * @param list
-	 * @param listModel
+	 * Constructs a ListPanel
 	 * @param accessMode
 	 * @param label
 	 * @param width

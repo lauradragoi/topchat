@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
-import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
 public class XMPPContext extends DefaultContext {
 

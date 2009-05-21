@@ -20,12 +20,14 @@ package topchat.server.protocol.hello;
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
-import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;
 import topchat.server.mediator.Mediator;
 
+/**
+ * Dummy hello protocol
+ */
 public class HelloProtocol implements Protocol {
 
 	private ProtocolMediator med = null;
@@ -73,7 +75,7 @@ public class HelloProtocol implements Protocol {
 	public void start(Net net) 
 	{			
 		this.net = net;
-		net.setProtocol(this);
+		this.net.setProtocol(this);
 		
 		logger.info("Protocol started");
 		
