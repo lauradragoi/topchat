@@ -22,6 +22,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		context  = new InitialContext(); 
 	}
 	
+	@Override
 	public void processWrite() 
 	{
 		logger.debug("Written.");
@@ -31,6 +32,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		switchKeyContext( (XMPPContext) context);				
 	}
 
+	@Override
 	public void processRead(byte[] rd) 
 	{
 		String s = new String(rd);
@@ -48,19 +50,22 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{		
 		XMPPContext nextContext = old;
 		
-		if (old instanceof XMPPContext)
+		if (old instanceof SecondaryContext)
+		{
+			logger.info("Remain in secondary context");
+			return;			
+		} else if (old instanceof InitialContext)
+		{
+			nextContext = new SecondaryContext(this, old);
+			logger.info("Switch to secondary context");
+		} else if (old instanceof XMPPContext)
 		{
 			nextContext = new InitialContext(old);
 			logger.info("Switch to initial context");
 		}
-		if (old instanceof InitialContext)
-		{
-			nextContext = new SecondaryContext(old);
-			logger.info("Switch to secondary context");
-		}
+
 									
 		// enter next context
-		context = nextContext;
-		key.attach(nextContext);		
+		context = nextContext;		
 	}	
 }

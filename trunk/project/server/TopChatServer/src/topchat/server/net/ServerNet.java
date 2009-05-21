@@ -62,7 +62,7 @@ public class ServerNet implements Net, NetConstants {
 	/**
 	 * Constructor for the network module
 	 * 
-	 * @param med
+	 * @param med 
 	 */
 	public ServerNet(NetMediator med) {
 		setMediator(med);
@@ -76,6 +76,10 @@ public class ServerNet implements Net, NetConstants {
 		this.med = med;
 	}
 
+	/**
+	 * Start waiting for connections
+	 * @param port the port on which the server will be listening on
+	 */
 	public void startListening(int port) {
 
 		try {
@@ -180,18 +184,20 @@ public class ServerNet implements Net, NetConstants {
 		}
 	}
 
-	public void accept(SelectionKey key) throws IOException {
-
+	public void accept(SelectionKey key) throws IOException 
+	{
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key
 				.channel();
 		SocketChannel socketChannel = serverSocketChannel.accept();
 		socketChannel.configureBlocking(false);
-
-		DefaultConnectionManager connManager = prot.getConnectionManager();
 				
+		// manage this connection
+		DefaultConnectionManager connManager = prot.getConnectionManager();		
+		
 		// start reading after accept
-		socketChannel.register(key.selector(), SelectionKey.OP_READ, connManager);
-		connManager.setKey(key);
+		SelectionKey newKey = socketChannel.register(key.selector(), SelectionKey.OP_READ, connManager);
+		
+		connManager.setKey(newKey);
 		
 		logger.info("Accepted connection from "
 				+ socketChannel.socket().getRemoteSocketAddress());
@@ -237,26 +243,45 @@ public class ServerNet implements Net, NetConstants {
 		});
 	}
 
-	public void write(SelectionKey key) throws IOException {
-		int bytes;
-		DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
-		ByteBuffer buf = conn.getWriteBuffer();
-		SocketChannel socketChannel = (SocketChannel) key.channel();
+	public void write(final SelectionKey key) throws IOException {
+		// remove all interests
+		key.interestOps(0);
 
-		try {
-			while ((bytes = socketChannel.write(buf)) > 0)
-				;
-
-			if (!buf.hasRemaining()) {
-				buf.clear();
-				key.interestOps(SelectionKey.OP_READ);
+		pool.execute(new Runnable() {
+			public void run() {		
+				int bytes;
+				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
+				ByteBuffer buf = conn.getWriteBuffer();
+				SocketChannel socketChannel = (SocketChannel) key.channel();
+		
+				try {
+					while ((bytes = socketChannel.write(buf)) > 0)
+						;
+		
+					if (!buf.hasRemaining()) {
+						buf.clear();
+						
+						//keep on reading
+						key.interestOps( SelectionKey.OP_READ);
+						
+						// update selector
+						key.selector().wakeup();
+					}
+					
+					processWrite(conn, buf);
+		
+				} catch (IOException e) {
+					logger.fatal("Connection closed: " + e.getMessage());
+					try {
+						socketChannel.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+		
+				}
 			}
-
-		} catch (IOException e) {
-			logger.fatal("Connection closed: " + e.getMessage());
-			socketChannel.close();
-
-		}
+		});
 	}
 
 	private void cleanup() {
@@ -282,11 +307,21 @@ public class ServerNet implements Net, NetConstants {
 		buf.get(rd);
 		buf.clear();
 
+		// inform connection manager
 		conn.processRead(rd);
 	}
 
+	private void processWrite(DefaultConnectionManager conn, ByteBuffer buf) 
+	{
+		buf.clear();	
+		
+		// inform connection manager
+		conn.processWrite();
+	}
+		
 	@Override
-	public void start(int port) {
+	public void start(int port) 
+	{
 		startListening(port);
 
 		// start the main loop in a new thread: we don't want to block the

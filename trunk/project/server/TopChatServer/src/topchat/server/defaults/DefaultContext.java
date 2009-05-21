@@ -1,172 +1,104 @@
+/**
+    TopChatServer 
+    Copyright (C) 2009 Laura Dragoi
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package topchat.server.defaults;
 
-import java.io.EOFException;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+
 
 import org.apache.log4j.Logger;
 
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+
 /**
- * Describes a state of a connection between the server and a client
+ * Describes the state of a connection between the server and a client
  * @author ldragoi
  *
  */
-public class DefaultContext 
+public abstract class DefaultContext 
 {	
+	// Size of the buffers
 	protected static final int BUF_SIZE	= 8192;		// 2^13
 	
+	// Buffers for read and write operations
 	protected ByteBuffer readBuffer = null;
 	protected ByteBuffer writeBuffer = null;
+	
+	// Connection manager handling this context
+	protected DefaultConnectionManager mgr = null;
 		
-	private   int				totalBytes	= 0;
-	
 	private static Logger	logger		= Logger.getLogger(DefaultContext.class);	
-	
+
+	/**
+	 * Constructs context
+	 */
 	public DefaultContext()
 	{		
+		// allocate buffers
 		readBuffer = ByteBuffer.allocateDirect(BUF_SIZE);
 		writeBuffer = ByteBuffer.allocateDirect(BUF_SIZE);		
 	}
 	
+	public DefaultContext(DefaultConnectionManager mgr)
+	{
+		this();
+		this.mgr = mgr;
+	}
+	
 	/**
+	 * Constructs context starting from an existing context
 	 * @param old
 	 */
-	public DefaultContext(DefaultContext old) {
+	public DefaultContext(DefaultContext old) 
+	{		
+		// use old buffers
 		this.readBuffer  = old.readBuffer;		
 		this.writeBuffer = old.writeBuffer;		
 	}
+	
+	/**
+	 * Constructs context starting from an existing context
+	 * @param old
+	 */
+	public DefaultContext(DefaultConnectionManager mgr, DefaultContext old) 
+	{
+		this(old);
+		this.mgr = mgr;
+	}
 
+	/**
+	 * Obtain buffer used for reading on this connection 
+	 * @return read buffer
+	 */	
 	public ByteBuffer getReadBuffer()
 	{
 		return readBuffer;
 	}
 
+	/**
+	 * Obtain buffer used for writing on this connection 
+	 * @return write buffer
+	 */
 	public ByteBuffer getWriteBuffer()
 	{
 		return writeBuffer;
 	}
 
-	/*
-	public void read(ReadableByteChannel socketChannel) throws IOException 
-	{
-		int bytes = 0, transferred = 0;
-		//ReadableByteChannel socketChannel = (ReadableByteChannel)key.channel();
-		
-		
-		if (socketChannel == null)
-		{
-			logger.warn("Socket is null");
-			return ;
-		}
-						
-		if (totalBytes == 0)
-		{
-			crtBuffer = sizeBuffer;
-			sizeBuffer.clear();
-		}
-		
-		if (totalBytes == 4)
-		{
-			logger.debug("Reading data " + sizeBuffer.getInt(0));			
-			crtBuffer = readBuffer;
-			prepareRead(sizeBuffer.getInt(0));			
-		}
-		
-		while ( (bytes = socketChannel.read(crtBuffer)) > 0)
-		{
-			if (bytes == -1)
-			{
-				logger.warn("Read returned EOF");
-				throw new EOFException();
-			}
-			
-			transferred += bytes;	
-			
-			totalBytes += bytes;
-			
-			if (totalBytes == 4)
-			{
-				return ;					
-			}
-		}
-		
-		if (transferred == 0)
-			throw new IOException("0 bytes read.");
-		
-//		if (totalBytes > 4)
-//			progressRead(transferred);
-		
-		if (totalBytes > 4 && totalBytes == sizeBuffer.getInt(0) + 4)
-		{			
-			processRead();
-			totalBytes = 0;
-		}		
-	}
+	public abstract void processRead(byte[] b);
 	
-
-	public void write(WritableByteChannel socketChannel) throws IOException {
-		int bytes = 0, transferred = 0;
-		//WritableByteChannel socketChannel = (WritableByteChannel)key.channel();
-		
-		if (totalBytes == 0)
-		{
-			logger.debug("Writing size " + writeBuffer.limit());
-			sizeBuffer.clear();
-			sizeBuffer.putInt(writeBuffer.limit());		
-			sizeBuffer.flip();
-			crtBuffer = sizeBuffer;			
-		}
-		
-		if (totalBytes == 4)
-		{			
-			crtBuffer = writeBuffer;				
-		}
-	
-		while ( (bytes = socketChannel.write(crtBuffer)) > 0)
-		{									
-			transferred += bytes;
-			
-			totalBytes += bytes;
-			
-			if (totalBytes == 4)
-			{
-				return ;			
-			}		
-		}
-		
-		if (transferred == 0)
-		{
-			logger.debug("exception 0 bytes written");
-			throw new IOException("0 bytes written.");
-		}
-		
-//		if (totalBytes > 4)
-//			progressWrite(transferred);
-
-		
-		if (totalBytes > 4 && totalBytes == sizeBuffer.getInt(0) + 4)
-		{
-			processWrite();
-			totalBytes = 0;
-		}	
-	}
-	*/
-	/**
-	 * Default implementation: reset buffer to receive new message.
-	 * @param messageSize - size of incoming message
-	 */
-	protected void prepareRead(int messageSize) throws IOException {
-		readBuffer.clear();
-		readBuffer.limit(messageSize);
-	}	
-	
-	public void processRead(byte[] b) 
-	{
-	}
-	
-	public void processWrite()
-	{	
-	}
+	public abstract void processWrite();
 } 
