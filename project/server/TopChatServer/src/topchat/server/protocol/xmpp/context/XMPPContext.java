@@ -2,22 +2,26 @@ package topchat.server.protocol.xmpp.context;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
 public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
 	
+	
 	public XMPPContext() {
 			super();
 	}
 	 
-	
-	/**
-	 * @param old
-	 */
+
 	public XMPPContext(DefaultContext old) {
 		super(old);
+	}
+	
+	public XMPPContext(DefaultConnectionManager mgr, DefaultContext old) {
+		super(mgr, old);	
 	}
 
 	public void processWrite()
