@@ -18,7 +18,6 @@
 package topchat.server.interfaces;
 
 import topchat.server.defaults.DefaultConnectionManager;
-import topchat.server.defaults.DefaultContext;
 
 /**
  * Interface describing the protocol used by the server

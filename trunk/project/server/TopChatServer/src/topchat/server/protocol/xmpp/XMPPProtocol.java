@@ -20,16 +20,16 @@ package topchat.server.protocol.xmpp;
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
-import topchat.server.defaults.DefaultContext;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.context.XMPPContext;
 
-public class XMPPProtocol implements Protocol, XMPPConstants {
-
-	@SuppressWarnings("unused")
+/**
+ * Implementation of the XMPP protocol
+ */
+public class XMPPProtocol implements Protocol, XMPPConstants 
+{
 	private ProtocolMediator med = null;
 	private Net net = null;
 
@@ -37,7 +37,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants {
 
 	public XMPPProtocol(ProtocolMediator med) {
 		setMediator(med);
-		med.setProtocol(this);
+		this.med.setProtocol(this);
 
 		logger.info("XMPPProtocol initiated");
 	}
@@ -56,11 +56,11 @@ public class XMPPProtocol implements Protocol, XMPPConstants {
 	public void start(Net net) 
 	{
 		this.net = net;
-		net.setProtocol(this);
+		this.net.setProtocol(this);
 						
 		logger.info("Protocol started");
 		
-		net.start(getListeningPort());
+		this.net.start(getListeningPort());
 	}
 	
 	@Override

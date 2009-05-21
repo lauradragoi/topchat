@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 
 /**
  * Manages a connection between the server and a client
- * @author ldragoi
  *
  */
 public class DefaultConnectionManager 
@@ -80,9 +79,6 @@ public class DefaultConnectionManager
 		
 		// inform the context
 		context.processRead(rd);
-
-		// clean up
-		s = null;
 	}	
 	
 	/**

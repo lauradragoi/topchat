@@ -16,6 +16,7 @@ public class InitialContext extends XMPPContext {
 		super(old);
 	}
 
+	@Override
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
 		logger.debug("Received in initial context: " + s);
