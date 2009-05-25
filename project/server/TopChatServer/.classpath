@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="lib"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
-	<classpathentry exported="true" kind="lib" path="E:/New Folder/topchat/project/server/TopChatServer/lib/junit-4.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="E:/New Folder/topchat/project/server/TopChatServer/lib/log4j-1.2.15.jar"/>
-	<classpathentry exported="true" kind="lib" path="config"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_13"/>
+	<classpathentry exported="true" kind="lib" path="D:/workspace/TopChatServer/lib/junit-4.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="D:/workspace/TopChatServer/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="config"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
