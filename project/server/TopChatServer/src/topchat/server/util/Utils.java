@@ -12,7 +12,6 @@ public class Utils {
 	}
 	
 	public static void putStringToBuffer(String str, ByteBuffer buf) {
-		buf.put((byte)str.length());
 		buf.put(str.getBytes());
 	}
 	

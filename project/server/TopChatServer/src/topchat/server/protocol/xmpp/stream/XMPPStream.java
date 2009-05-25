@@ -33,6 +33,19 @@ package topchat.server.protocol.xmpp.stream;
  */
 public class XMPPStream {
 
-	
+	public static String initialStream()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("<?xml version='1.0'?>");
+		sb.append("<stream:stream ");
+		//TODO : fill in from
+		sb.append("from='example.com' ");
+		//TODO : fill in ID
+		sb.append("id='someid' ");
+		sb.append("xmlns='jabber:client' ");
+		sb.append("xmlns:stream='http://etherx.jabber.org/streams' ");
+		sb.append("version='1.0'> ");
+		return sb.toString();
+	}
 	
 }

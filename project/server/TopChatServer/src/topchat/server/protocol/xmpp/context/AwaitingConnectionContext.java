@@ -4,22 +4,22 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 
-public class InitialContext extends XMPPContext {
+public class AwaitingConnectionContext extends XMPPContext {
 
-	private static Logger logger = Logger.getLogger(InitialContext.class);	
+	private static Logger logger = Logger.getLogger(AwaitingConnectionContext.class);	
 	
-	public InitialContext() {
+	public AwaitingConnectionContext() {
 		super();
 	}
 
-	public InitialContext(DefaultContext old) {
+	public AwaitingConnectionContext(DefaultContext old) {
 		super(old);
 	}
 
 	@Override
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
-		logger.debug("Received in initial context: " + s);
+		logger.debug("Received: " + s);
 				
 		rd = null;
 		s = null;
