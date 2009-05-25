@@ -25,7 +25,7 @@ public class XMPPContext extends DefaultContext {
 
 	public void processWrite()
 	{
-		logger.debug("Written");
+		//logger.debug("Written");
 	}
 	
 	public void processRead(byte[] rd) {

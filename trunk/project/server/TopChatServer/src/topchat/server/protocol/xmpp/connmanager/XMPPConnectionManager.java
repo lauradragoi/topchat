@@ -20,8 +20,8 @@ package topchat.server.protocol.xmpp.connmanager;
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
-import topchat.server.protocol.xmpp.context.InitialContext;
-import topchat.server.protocol.xmpp.context.SecondaryContext;
+import topchat.server.protocol.xmpp.context.AwaitingConnectionContext;
+import topchat.server.protocol.xmpp.context.ReceivedConnectionContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 
 /**
@@ -36,13 +36,13 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	public XMPPConnectionManager()
 	{
-		context  = new InitialContext(); 
+		context  = new AwaitingConnectionContext(); 
 	}
 	
 	@Override
 	public void processWrite() 
 	{
-		logger.debug("Written.");
+		//logger.debug("Written.");
 		
 		context.processWrite();
 		
@@ -68,17 +68,17 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{		
 		XMPPContext nextContext = old;
 		
-		if (old instanceof SecondaryContext)
+		if (old instanceof ReceivedConnectionContext)
 		{
 			logger.info("Remain in secondary context");
 			return;			
-		} else if (old instanceof InitialContext)
+		} else if (old instanceof AwaitingConnectionContext)
 		{
-			nextContext = new SecondaryContext(this, old);
+			nextContext = new ReceivedConnectionContext(this, old);
 			logger.info("Switch to secondary context");
 		} else if (old instanceof XMPPContext)
 		{
-			nextContext = new InitialContext(old);
+			nextContext = new AwaitingConnectionContext(old);
 			logger.info("Switch to initial context");
 		}
 
