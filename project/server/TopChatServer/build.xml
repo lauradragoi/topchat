@@ -25,7 +25,7 @@
 			<classpath>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
 				<pathelement location="${lib.dir}/${junit.lib}"/>
-				<pathelement location="${lib.dir}/${stax.lib}"/>
+				<pathelement location="${lib.dir}/${stax .lib}"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 		</javac>
@@ -51,7 +51,9 @@
 		<mkdir dir="${tests.dir}" />
 		<junit haltonfailure="false" haltonerror="false" printsummary="withOutAndErr">
 			<classpath>
-				<pathelement location="${lib.dir}/${junit.lib}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}" />		
+				<pathelement location="${config.dir}" />
+				<pathelement location="${lib.dir}/${junit.lib}" />
 				<pathelement location="${bin.dir}" />
 				<pathelement path="${java.class.path}" />
 			</classpath>
