@@ -230,6 +230,7 @@ public class ServerNet implements Net, NetConstants {
 				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
 				ByteBuffer buf = conn.getReadBuffer();
 				SocketChannel socketChannel = (SocketChannel) key.channel();
+				
 
 				try {
 					// read as much as you can
