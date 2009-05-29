@@ -10,6 +10,10 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 
+/**
+ * Describes the context in which the server has been contacted by a client
+ * and now initiates the stream that it will used for sending data to the client.
+ */
 public class ReceivedConnectionContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(ReceivedConnectionContext.class);	
@@ -18,7 +22,7 @@ public class ReceivedConnectionContext extends XMPPContext {
 	public ReceivedConnectionContext(XMPPConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);
 		
-	
+		// obtain the start of the stream from the manager
 		XMPPStream stream = null;
 		try {
 			stream = getXMPPManager().getStartStream();
@@ -27,12 +31,14 @@ public class ReceivedConnectionContext extends XMPPContext {
 			e.printStackTrace();			
 		}
 		
+		// prepare the message to be written
 		String msg = XMPPParser.prepareStreamStart(stream);
 		
-		logger.debug("Writing: " + msg);
-		
+		// send it
 		write(msg);			
 		flush();
+		
+		logger.debug("Writing: " + msg);
 	}
 
 	@Override
@@ -42,6 +48,5 @@ public class ReceivedConnectionContext extends XMPPContext {
 		logger.debug("Received: " + s);
 						
 		s = null;
-		
 	}	
 }

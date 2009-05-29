@@ -30,8 +30,19 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+/**
+ * Contains useful methods for parsing
+ */
 public class ParserUtils {
 
+	/**
+	 * Method used to add a start element to an event writer
+	 * @param eventFactory
+	 * @param writer
+	 * @param prefix
+	 * @param namespaceUri
+	 * @param localName
+	 */
 	static void addStartElement(XMLEventFactory eventFactory, XMLEventWriter writer,
 			String prefix, String namespaceUri, String localName)
 	{
@@ -45,6 +56,13 @@ public class ParserUtils {
 		}		
 	}
 
+	/**
+	 * Method used to add a namespace to an event writer
+	 * @param eventFactory
+	 * @param writer
+	 * @param prefix
+	 * @param namespaceUri
+	 */
 	static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
 			String prefix, String namespaceUri)
 	{
@@ -57,6 +75,13 @@ public class ParserUtils {
 		}
 	}
 
+	/**
+	 * Method used to add an attribute to an event writer
+	 * @param eventFactory
+	 * @param writer
+	 * @param name
+	 * @param value
+	 */
 	static void addAttribute(XMLEventFactory eventFactory, XMLEventWriter writer,
 			String name, String value)
 	{
@@ -69,6 +94,10 @@ public class ParserUtils {
 		}
 	}
 
+	/**
+	 * Method used to finish writing to an event writer
+	 * @param writer
+	 */
 	static void endWrite(XMLEventWriter writer)
 	{
 		try {
@@ -86,6 +115,11 @@ public class ParserUtils {
 		}
 	}
 
+	/**
+	 * Method used for creating an event reader for a message that will be parsed
+	 * @param msg
+	 * @return
+	 */
 	public static XMLEventReader createReader(String msg)
 	{
 		XMLInputFactory factory = XMLInputFactory.newInstance();	
@@ -111,6 +145,11 @@ public class ParserUtils {
 		return reader;
 	}
 
+	/**
+	 * Method used for creating an event writer using the provided output stream
+	 * @param baos
+	 * @return
+	 */
 	public static XMLEventWriter createWriter(ByteArrayOutputStream baos)
 	{
 		XMLOutputFactory factory      = XMLOutputFactory.newInstance();
