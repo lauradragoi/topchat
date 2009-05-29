@@ -74,9 +74,45 @@ public class ParserTest extends TestCase {
 		
 		XMPPStream newStream = XMPPParser.parseStreamStart(result);
 		
-		//assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
-		//assertEquals("'to' incorrectly set ", "null", newStream.getTo());
-		//assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
-		//assertEquals("'id' incorrectly set ", "someid", newStream.getId());
+		assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
+		assertEquals("'to' incorrectly set ", null, newStream.getTo());
+		assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
+		assertEquals("'id' incorrectly set ", "someid", newStream.getId());
 	}
+	
+	public void testParseEndStream() throws Exception {
+		
+		setName("Testing correct parsing of end stream");
+		
+		XMPPParser.parse("</stream:stream>");
+	}
+	
+	public void testParseMessage() throws Exception {
+		
+		setName("Testing correct parsing of message");
+		
+		XMPPParser.parse("<message from='juliet@example.com'" +
+						 " to='romeo@example.net'" +
+						 " xml:lang='en'>" +
+						 " <body>Art thou not Romeo, and a Montague?</body>" +
+						 " </message>");
+	}
+	
+	public void testParseIq() throws Exception {
+		
+		setName("Testing correct parsing of IQ");
+		
+		XMPPParser.parse(" <iq to='bar'> " +
+						 " <query/>" +
+						 " </iq>");
+	}
+	
+	public void testParsePresence() throws Exception {
+		
+		setName("Testing correct parsing of presence");
+		
+		XMPPParser.parse("<presence>" +
+						 "  <show/> " +
+						 " </presence>" );
+	}	
 }

@@ -17,20 +17,17 @@
 */
 package topchat.server.protocol.xmpp.stream.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.text.ParsePosition;
 import java.util.Iterator;
 
 
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -48,47 +45,7 @@ import topchat.server.protocol.xmpp.stream.XMPPStream;
 public class XMPPParser {
 
 	private static Logger logger = Logger.getLogger(XMPPParser.class);
-		
-	
-	public static XMLEventReader createReader(String msg)
-	{
-		XMLInputFactory factory = XMLInputFactory.newInstance();	
-		
-		// obtain input stream
-		InputStream is = null;
-		try 
-		{
-			is = new ByteArrayInputStream(msg.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		
-		// create event reader from input stream
-		XMLEventReader reader = null;
-		try 
-		{
-			reader = factory.createXMLEventReader(is);
-		} catch (XMLStreamException e) {			
-			e.printStackTrace();
-		}
-		
-		return reader;
-	}
-	
-	public static XMLEventWriter createWriter(ByteArrayOutputStream baos)
-	{
-		XMLOutputFactory factory      = XMLOutputFactory.newInstance();
-		
-	    XMLEventWriter writer = null;
-		try {
-			writer = factory.createXMLEventWriter(baos);
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		}
-		
-		return writer;
-	}
-	
+			
 	/**
 	 * Parse the message sent by the client to initiate the communication
 	 * @param msg the message received through the stream
@@ -96,14 +53,13 @@ public class XMPPParser {
 	@SuppressWarnings("unchecked")
 	public static XMPPStream parseStreamStart(String msg)
 	{
-		XMLEventReader reader = createReader(msg);
+		XMLEventReader reader = ParserUtils.createReader(msg);
 		
 		String to = null;
 		String version = null;
 		String id = null;
 		String lang = null;
-		String from = null;
-		
+		String from = null;		
 	
 		// looking from 'stream' start element only
 		boolean streamProcessed = false;
@@ -131,52 +87,53 @@ public class XMPPParser {
 		    	logger.debug("as start: " + startElement.asStartElement());
 		    	
 		    	if ("stream".equals(startElement.getName().getLocalPart()))
+		    	{			    	
 		    			streamProcessed = true;
 		    	
-		    	// walk through start element attributes
-		    	for (Iterator it = startElement.getAttributes(); it.hasNext();) 
-		    	{
-					Attribute attribute = (Attribute) it.next();
-					logger.debug("attribute name: x" + attribute.getName() + "x");
-
-					logger.debug("attribute value: " + attribute.getValue());
-				
-					// set 'to' field
-					if ("to".equals( attribute.getName().toString()) )
-					{
-						to = attribute.getValue();
-						logger.debug("set to " + to);
-					}
-					
-					// set 'version' field
-					if ("version".equals( attribute.getName().toString()) )
-					{
-						version = attribute.getValue();
-						logger.debug("set version " + version);
-					}
-					
-					if ("id".equals( attribute.getName().toString()) )
-					{
-						id = attribute.getValue();
-						logger.debug("set id " + id);
-					}		
-					
-					if ("from".equals( attribute.getName().toString()) )
-					{
-						from = attribute.getValue();
-						logger.debug("set from " + from);
-					}	
+				    	// walk through start element attributes
+				    	for (Iterator it = startElement.getAttributes(); it.hasNext();) 
+				    	{
+							Attribute attribute = (Attribute) it.next();
+							logger.debug("attribute name: " + attribute.getName());
+		
+							logger.debug("attribute value: " + attribute.getValue());
+						
+							// set 'to' field
+							if ("to".equals( attribute.getName().toString()) )
+							{
+								to = attribute.getValue();
+								logger.debug("set to " + to);
+							}
+							
+							// set 'version' field
+							if ("version".equals( attribute.getName().toString()) )
+							{
+								version = attribute.getValue();
+								logger.debug("set version " + version);
+							}
+							
+							if ("id".equals( attribute.getName().toString()) )
+							{
+								id = attribute.getValue();
+								logger.debug("set id " + id);
+							}		
+							
+							if ("from".equals( attribute.getName().toString()) )
+							{
+								from = attribute.getValue();
+								logger.debug("set from " + from);
+							}	
+				    	}
+				    	
+				    	// walk through start element namespaces
+				    	for (Iterator it = startElement.getNamespaces(); it.hasNext();) 
+				    	{
+				    		Attribute attribute = (Attribute) it.next();
+				    		
+							logger.debug("namespace name: " + attribute.getName());
+							logger.debug("namespace value: " + attribute.getValue());
+				    	}		    		
 		    	}
-		    	
-		    	// walk through start element namespaces
-		    	for (Iterator it = startElement.getNamespaces(); it.hasNext();) 
-		    	{
-		    		Attribute attribute = (Attribute) it.next();
-		    		
-					logger.debug("namespace name: " + attribute.getName());
-					logger.debug("namespace value: " + attribute.getValue());
-		    	}		    		
-		    	
 	        } else {		        
 		    	logger.debug("not start" + event.toString());
 		    }
@@ -185,64 +142,192 @@ public class XMPPParser {
 		return new XMPPStream(to, from, id, lang, version);
 	}
 	
-	
-	private static void addStartElement(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String prefix, String namespaceUri, String localName)
+	/**
+	 * Generic parsing function
+	 * @param msg
+	 */
+	public static void parse(String msg)
 	{
-	    XMLEvent event = eventFactory.createStartElement(prefix, 
-	            namespaceUri, localName);
-	    try {
-			writer.add(event);
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-	}
-	
-	
-	private static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String prefix, String namespaceUri)
-	{
-		XMLEvent event = eventFactory.createNamespace(prefix, namespaceUri);
-	    try {
-			writer.add(event);
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// hack: this could be the end stream tag which cannot be parsed properly by stax
+		if (parseEndStream(msg))
+		{
+			logger.info("End of stream");
+			return;
 		}
-	}
-	
-	private static void addAttribute(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String name, String value)
-	{
-		XMLEvent event = eventFactory.createAttribute(name, value);
-	    try {
-			writer.add(event);
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private static void endWrite(XMLEventWriter writer)
-	{
-		try {
-			writer.flush();
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				
+		XMLEventReader reader = ParserUtils.createReader(msg);
 		
-		try {
-			writer.close();
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while (reader.hasNext(  )) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.warn("Exception when reading next event");
+				e.printStackTrace();				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());
+		    	
+		    	if ("message".equals(startElement.getName().getLocalPart().toString()))
+		    		parseMessage(startElement, reader);
+		    	
+		    	if ("iq".equals(startElement.getName().getLocalPart().toString()))
+	    			parseIq(startElement, reader);
+		    	
+		    	if ("presence".equals(startElement.getName().getLocalPart().toString()))
+	    			parsePresence(startElement, reader);
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
 		}
 	}
 	
 	/**
-	 * Create the corresponding xml tag from the XMPPStream object
+	 * Method that parses a message stanza
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseMessage(StartElement start, XMLEventReader reader )
+	{
+		boolean endMessage = false;
+		
+		while (reader.hasNext(  ) && !endMessage) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.warn("Exception when reading next event");
+				e.printStackTrace();				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("message".equals(endElement.getName().getLocalPart().toString()))
+		    		endMessage = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}
+	
+	/**
+	 * Method that parses an Iq stanza
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseIq(StartElement start, XMLEventReader reader )
+	{
+		boolean endIq = false;
+		
+		while (reader.hasNext(  ) && !endIq) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.warn("Exception when reading next event");
+				e.printStackTrace();				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("iq".equals(endElement.getName().getLocalPart().toString()))
+		    		endIq = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}
+	
+	/**
+	 * Method that parses a presence stanza
+	 * @param start
+	 * @param reader
+	 */
+	private static void parsePresence(StartElement start, XMLEventReader reader )
+	{
+		boolean endPresence = false;
+		
+		while (reader.hasNext(  ) && !endPresence) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.warn("Exception when reading next event");
+				e.printStackTrace();				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("presence".equals(endElement.getName().getLocalPart().toString()))
+		    		endPresence = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}	
+	
+	
+	private static boolean parseEndStream(String msg)
+	{
+		return "</stream:stream>".equals(msg);
+	}
+	
+	/**
+	 * Create the corresponding xml message from the XMPPStream object
 	 * @param stream
 	 * @return
 	 */
@@ -250,31 +335,30 @@ public class XMPPParser {
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		XMLEventWriter writer = createWriter(baos);
+		XMLEventWriter writer = ParserUtils.createWriter(baos);
 		
 		XMLEventFactory  eventFactory = XMLEventFactory.newInstance();
 		
-		addStartElement(eventFactory, writer, 
+		ParserUtils.addStartElement(eventFactory, writer, 
 						"stream", "http://etherx.jabber.org/streams", "stream");		
 
-		addNamespace(eventFactory, writer, "stream", "http://etherx.jabber.org/streams");
-
+		ParserUtils.addNamespace(eventFactory, writer, "stream", "http://etherx.jabber.org/streams");
 				
-		addAttribute(eventFactory, writer, "from", stream.getFrom());
-		addAttribute(eventFactory, writer, "id", stream.getId());
-		addAttribute(eventFactory, writer, "version", stream.getVersion());
-
-
+		ParserUtils.addAttribute(eventFactory, writer, "from", stream.getFrom());
+		ParserUtils.addAttribute(eventFactory, writer, "id", stream.getId());
+		ParserUtils.addAttribute(eventFactory, writer, "version", stream.getVersion());
 		
-		endWrite(writer);
+		ParserUtils.endWrite(writer);
 		
 		String result = new String(baos.toByteArray());
 		
-		// hack for end tag
+		// hack for ending tag without adding end tag (why does stax make me do this?)
 		result = result.concat(">");
 		
-		logger.info(result);
+		logger.debug(result);
 		
 		return result; 
 	}
+	
+
 }
