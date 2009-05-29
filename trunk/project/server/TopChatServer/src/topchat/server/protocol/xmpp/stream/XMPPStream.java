@@ -33,10 +33,51 @@ package topchat.server.protocol.xmpp.stream;
  */
 public class XMPPStream {
 
+	private String to = null;
+	private String from = null;
+	private String id = null;
+	private String lang = null;
+	private String version = null;
+	
+	public XMPPStream(String to, String from, String id, String lang, String version)
+	{
+		this.to = to;
+		this.from = from;
+		this.id = id;
+		this.lang = lang;
+		this.version = version;
+	}
+	
+	public String getTo()
+	{
+		return to;
+	}
+	
+	public String getFrom()
+	{
+		return from;
+	}
+	
+	public String getVersion()
+	{
+		return version;
+	}
+	
+	public String getId()
+	{
+		return id;
+	}
+	
+	public String getLang()
+	{
+		return lang;
+	}
+	
+	
 	public static String initialStream()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("<?xml version='1.0'?>");
+		//sb.append("<?xml version='1.0'?>");
 		sb.append("<stream:stream ");
 		//TODO : fill in from
 		sb.append("from='example.com' ");
@@ -47,5 +88,6 @@ public class XMPPStream {
 		sb.append("version='1.0'> ");
 		return sb.toString();
 	}
+	
 	
 }
