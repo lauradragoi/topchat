@@ -19,6 +19,9 @@ package topchat.server.defaults;
 
 import java.nio.ByteBuffer;
 
+import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.util.Utils;
+
 
 /**
  * Describes the state of a connection between the server and a client
@@ -109,4 +112,22 @@ public abstract class DefaultContext
 	 * Method to be executed after a writing operation has completed.
 	 */
 	public abstract void processWrite();
+	
+	/**
+	 * Prepare write buffer for draining and announce interest in writing
+	 */
+	public void flush()
+	{
+		writeBuffer.flip();
+		mgr.registerForWrite();
+	}
+	
+	/**
+	 * Put a string into the write buffer
+	 * @param s
+	 */
+	public void write(String s)
+	{
+		Utils.putStringToBuffer(s, writeBuffer);	
+	}
 } 

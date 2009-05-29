@@ -23,6 +23,7 @@ import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.context.AwaitingConnectionContext;
 import topchat.server.protocol.xmpp.context.ReceivedConnectionContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
+import topchat.server.protocol.xmpp.stream.XMPPStream;
 
 /**
  * Manages a connection between the XMPP server and a client
@@ -34,9 +35,12 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 {
 	private static Logger logger = Logger.getLogger(XMPPConnectionManager.class);
 	
+	private XMPPStream receivingStream = null;
+	private XMPPStream sendingStream = null;
+	
 	public XMPPConnectionManager()
 	{
-		context  = new AwaitingConnectionContext(); 
+		context  = new AwaitingConnectionContext(this); 
 	}
 	
 	@Override
@@ -86,4 +90,29 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		// enter next context
 		context = nextContext;		
 	}	
+	
+	public void setReceivingStream(XMPPStream stream)
+	{
+		this.receivingStream = stream;
+	}
+	
+	public void setStartStream() throws Exception
+	{
+		if (receivingStream == null)
+		{
+			throw new Exception("Initiate receiving stream first");
+		}
+		
+		sendingStream = new XMPPStream(null, "example.com", "someid", null, "1.0");
+	}
+	
+	public XMPPStream getStartStream() throws Exception
+	{
+		if (sendingStream == null)
+			setStartStream();
+		
+		return sendingStream;
+	}
+	
+	
 }

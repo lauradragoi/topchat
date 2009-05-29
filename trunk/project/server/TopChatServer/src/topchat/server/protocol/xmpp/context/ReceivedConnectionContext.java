@@ -2,6 +2,7 @@ package topchat.server.protocol.xmpp.context;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
 import topchat.server.util.Utils;
 
 import org.apache.log4j.Logger;
@@ -17,11 +18,21 @@ public class ReceivedConnectionContext extends XMPPContext {
 	public ReceivedConnectionContext(XMPPConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);
 		
-		logger.debug("Writing: " + XMPPStream.initialStream());
-		Utils.putStringToBuffer(XMPPStream.initialStream(), writeBuffer);				
-		writeBuffer.flip();
+	
+		XMPPStream stream = null;
+		try {
+			stream = getXMPPManager().getStartStream();
+		} catch (Exception e) {			
+			logger.warn("Could not obtain sending stream start");
+			e.printStackTrace();			
+		}
 		
-		mgr.registerForWrite();
+		String msg = XMPPParser.prepareStreamStart(stream);
+		
+		logger.debug("Writing: " + msg);
+		
+		write(msg);			
+		flush();
 	}
 
 	@Override
@@ -32,10 +43,5 @@ public class ReceivedConnectionContext extends XMPPContext {
 						
 		s = null;
 		
-		//writeBuffer.clear();
-		//Utils.putStringToBuffer("toi", writeBuffer);				
-		//writeBuffer.flip();
-		
-		//mgr.registerForWrite();
 	}	
 }
