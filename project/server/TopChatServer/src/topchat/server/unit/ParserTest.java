@@ -17,23 +17,66 @@
 */
 package topchat.server.unit;
 
+import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
 import junit.framework.TestCase;
 
 public class ParserTest extends TestCase {
-	
-	XMPPParser parser = null;
-	
+		
 	@Override
-	protected void setUp() { 
-		parser = new XMPPParser();
+	protected void setUp() { 		
 	}
 	
+	/**
+	 * Test stream start received from topchatclient
+	 * @throws Exception
+	 */
 	public void testParseStreamStart() throws Exception {
-		parser.parseStreamStart("<stream:stream " + 
+		
+		setName("Testing correct parsing of stream start: topchatclient version");
+		
+		XMPPStream stream = XMPPParser.parseStreamStart("<stream:stream " + 
 								"to='example.com' " + 
 								"xmlns='jabber:client' " + 
 								"xmlns:stream='http://etherx.jabber.org/streams' " + 
 								"version='1.0'>");
+		
+		assertEquals("'version' incorrectly retrieved", "1.0", stream.getVersion());
+		assertEquals("'to' incorrectly retrieved ", "example.com", stream.getTo());		
+	}
+	
+	/**
+	 * Test stream start received from pidgin
+	 * @throws Exception
+	 */
+	public void testParseStreamStart2() throws Exception {
+		
+		setName("Testing correct parsing of stream start: pidgin version");
+		
+		XMPPStream stream = XMPPParser.parseStreamStart("<?xml version='1.0' ?>" +
+				" <stream:stream" +
+				" to='me.my'" +
+				" xmlns='jabber:client'" +
+				" xmlns:stream='http://etherx.jabber.org/streams'" +
+				" version='1.0'>");
+		
+		assertEquals("'version' incorrectly retrieved", "1.0",  stream.getVersion() );
+		assertEquals("'to' incorrectly retrieved ", "me.my", stream.getTo());
+	}
+	
+	public void testPrepareStreamStart() throws Exception {
+		
+		setName("Testing if stream start is correctly created");
+		
+		XMPPStream stream = new XMPPStream(null, "example.com", "someid", null, "1.0");
+		
+		String result = XMPPParser.prepareStreamStart(stream);		
+		
+		XMPPStream newStream = XMPPParser.parseStreamStart(result);
+		
+		//assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
+		//assertEquals("'to' incorrectly set ", "null", newStream.getTo());
+		//assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
+		//assertEquals("'id' incorrectly set ", "someid", newStream.getId());
 	}
 }
