@@ -35,7 +35,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 {
 	private static Logger logger = Logger.getLogger(XMPPConnectionManager.class);
 	
+	/** Describes the stream initiated by the client */
 	private XMPPStream receivingStream = null;
+	/** Describes the stream initiated by the server */
 	private XMPPStream sendingStream = null;
 	
 	public XMPPConnectionManager()
@@ -46,8 +48,6 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	@Override
 	public void processWrite() 
 	{
-		//logger.debug("Written.");
-		
 		context.processWrite();
 		
 		switchKeyContext( (XMPPContext) context);				
@@ -57,7 +57,6 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	public void processRead(byte[] rd) 
 	{
 		String s = new String(rd);
-		logger.debug("Received: " + s);
 
 		context.processRead(rd);
 		
@@ -66,6 +65,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	/**
 	 * Changed the context based on the old context
+	 * 
+	 * Modelates the transitions in my finite state machine
+	 * 
 	 * @param old the old context
 	 */
 	protected void switchKeyContext(XMPPContext old)
@@ -74,16 +76,21 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof ReceivedConnectionContext)
 		{
-			logger.info("Remain in secondary context");
+			// TODO
+			logger.info("Remain in ReceivedConnectionContext");
 			return;			
+						
 		} else if (old instanceof AwaitingConnectionContext)
 		{
 			nextContext = new ReceivedConnectionContext(this, old);
-			logger.info("Switch to secondary context");
+			logger.info("Switch to received connection context");
+			
 		} else if (old instanceof XMPPContext)
 		{
+			// actually this should not happen ever
+			
 			nextContext = new AwaitingConnectionContext(old);
-			logger.info("Switch to initial context");
+			logger.info("Switch to awaiting connection context");
 		}
 
 									
@@ -91,11 +98,20 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		context = nextContext;		
 	}	
 	
+	/**
+	 * Set the stream initiated by the client
+	 * @param stream
+	 */
 	public void setReceivingStream(XMPPStream stream)
 	{
 		this.receivingStream = stream;
 	}
 	
+	/**
+	 * Set the stream that will be initiated by the server
+	 * 
+	 * @throws Exception
+	 */
 	public void setStartStream() throws Exception
 	{
 		if (receivingStream == null)
@@ -106,6 +122,13 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		sendingStream = new XMPPStream(null, "example.com", "someid", null, "1.0");
 	}
 	
+	/**
+	 * Obtain the stream initiated by the server
+	 * If it was not set yet it will be set now.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */	
 	public XMPPStream getStartStream() throws Exception
 	{
 		if (sendingStream == null)

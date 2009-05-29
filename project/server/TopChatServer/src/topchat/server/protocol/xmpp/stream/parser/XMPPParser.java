@@ -321,6 +321,11 @@ public class XMPPParser {
 	}	
 	
 	
+	/**
+	 * Method returning true if end of stream was reached
+	 * @param msg
+	 * @return
+	 */
 	private static boolean parseEndStream(String msg)
 	{
 		return "</stream:stream>".equals(msg);

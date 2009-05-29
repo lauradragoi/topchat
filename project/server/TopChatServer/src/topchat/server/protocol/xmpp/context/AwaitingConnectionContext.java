@@ -7,6 +7,9 @@ import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
 
+/**
+ * Describes the context in which the server is waiting for a client to contact it
+ */
 public class AwaitingConnectionContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(AwaitingConnectionContext.class);	

@@ -21,6 +21,9 @@ import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
 import junit.framework.TestCase;
 
+/**
+ * Contains methods used for testing the XMPPParser implementation
+ */
 public class ParserTest extends TestCase {
 		
 	@Override
