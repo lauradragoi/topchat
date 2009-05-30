@@ -28,7 +28,16 @@ public class AwaitingConnectionContext extends XMPPContext {
 		logger.debug("Received: " + s);
 		
 		// process start stream
-		XMPPStream stream = XMPPParser.parseStreamStart(s);
+		XMPPStream stream = null;
+		
+		try {
+			stream = XMPPParser.parseStreamStart(s);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			logger.warn("Error in receiving stream start from client");	
+		}
 
 		getXMPPManager().setReceivingStream(stream);
 	}	
