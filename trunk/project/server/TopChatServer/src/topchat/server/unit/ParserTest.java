@@ -17,6 +17,8 @@
 */
 package topchat.server.unit;
 
+import org.junit.Test;
+
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
 import junit.framework.TestCase;
@@ -67,6 +69,10 @@ public class ParserTest extends TestCase {
 		assertEquals("'to' incorrectly retrieved ", "me.my", stream.getTo());
 	}
 	
+	/**
+	 * Test writing correct xml as start of stream message
+	 * @throws Exception
+	 */
 	public void testPrepareStreamStart() throws Exception {
 		
 		setName("Testing if stream start is correctly created");
@@ -83,6 +89,10 @@ public class ParserTest extends TestCase {
 		assertEquals("'id' incorrectly set ", "someid", newStream.getId());
 	}
 	
+	/**
+	 * Test correct parsing when end of stream is received
+	 * @throws Exception
+	 */
 	public void testParseEndStream() throws Exception {
 		
 		setName("Testing correct parsing of end stream");
@@ -90,6 +100,10 @@ public class ParserTest extends TestCase {
 		XMPPParser.parse("</stream:stream>");
 	}
 	
+	/**
+	 * Test parsing of received message
+	 * @throws Exception
+	 */
 	public void testParseMessage() throws Exception {
 		
 		setName("Testing correct parsing of message");
@@ -101,6 +115,10 @@ public class ParserTest extends TestCase {
 						 " </message>");
 	}
 	
+	/**
+	 * Test parsing of received iq
+	 * @throws Exception
+	 */
 	public void testParseIq() throws Exception {
 		
 		setName("Testing correct parsing of IQ");
@@ -110,6 +128,10 @@ public class ParserTest extends TestCase {
 						 " </iq>");
 	}
 	
+	/**
+	 * Test parsing of received presence
+	 * @throws Exception
+	 */
 	public void testParsePresence() throws Exception {
 		
 		setName("Testing correct parsing of presence");
@@ -118,4 +140,36 @@ public class ParserTest extends TestCase {
 						 "  <show/> " +
 						 " </presence>" );
 	}	
+		
+	/**
+	 * Test parsing of an error message
+	 */
+	public void testParseError() throws Exception
+	{
+		setName("Testing correct parsing of an error message");
+		
+		XMPPParser.parse("<stream:error>" +
+							 " <xml-not-well-formed" +
+							 " xmlns='urn:ietf:params:xml:ns:xmpp-streams'/>" +
+							 " </stream:error>");		
+	}
+	
+	/**
+	 * Test parsing of a message containing an error
+	 */	
+	@Test(expected=Exception.class)
+	public void testParseMessageWithError() {
+		
+		setName("Testing correct parsing of message containing badly formed xml");
+		
+		try {
+			XMPPParser.parse("<message xml:lang='en'>" +
+							 " <body>Bad XML, no closing body tag!" +
+							 " </message>" );
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
