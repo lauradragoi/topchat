@@ -40,7 +40,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: topchatclient version");
 		
-		XMPPStream stream = XMPPParser.parseStreamStart("<stream:stream " + 
+		XMPPStream stream = (XMPPStream) XMPPParser.parse("<stream:stream " + 
 								"to='example.com' " + 
 								"xmlns='jabber:client' " + 
 								"xmlns:stream='http://etherx.jabber.org/streams' " + 
@@ -58,7 +58,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: pidgin version");
 		
-		XMPPStream stream = XMPPParser.parseStreamStart("<?xml version='1.0' ?>" +
+		XMPPStream stream = (XMPPStream) XMPPParser.parse("<?xml version='1.0' ?>" +
 				" <stream:stream" +
 				" to='me.my'" +
 				" xmlns='jabber:client'" +
@@ -81,7 +81,7 @@ public class ParserTest extends TestCase {
 		
 		String result = XMPPParser.prepareStreamStart(stream);		
 		
-		XMPPStream newStream = XMPPParser.parseStreamStart(result);
+		XMPPStream newStream = (XMPPStream) XMPPParser.parse(result);
 		
 		assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
 		assertEquals("'to' incorrectly set ", null, newStream.getTo());
@@ -153,6 +153,57 @@ public class ParserTest extends TestCase {
 							 " xmlns='urn:ietf:params:xml:ns:xmpp-streams'/>" +
 							 " </stream:error>");		
 	}
+	
+	
+	/**
+	 * Test parsing of feature message
+	 */
+	public void testParseFeatures() throws Exception
+	{
+		setName("Testing correct parsing of a feature message");
+		
+		XMPPParser.parse("<stream:features>" +
+						 "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'>" +
+						 "<required/>" +
+						 "</starttls>" +
+						 "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" +
+						 "<mechanism>DIGEST-MD5</mechanism>" + 
+						 "<mechanism>PLAIN</mechanism>" +
+						 "</mechanisms>" +
+						 "</stream:features>");	
+	}
+	
+	/**
+	 * Test parsing of starttls from client
+	 */
+	public void testParseStarttls() throws Exception
+	{
+		setName("Testing correct parsing of starttls message");
+		
+		XMPPParser.parse("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	}
+	
+	/**
+	 * Test parsing of proceed sent by server
+	 */
+	public void testParseProceed() throws Exception
+	{
+		setName("Testing correct parsing of proceed message");
+		
+		XMPPParser.parse("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	}
+	
+	/**
+	 * Test parsing TLS negotiation failure
+	 */
+	public void testParseTLSFailure() throws Exception
+	{
+		setName("Testing correct parsing of TLS failure");
+		
+		XMPPParser.parse("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>" +
+						 "</stream:stream>");
+	}
+	
 	
 	/**
 	 * Test parsing of a message containing an error

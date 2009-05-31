@@ -31,7 +31,7 @@ public class AwaitingConnectionContext extends XMPPContext {
 		XMPPStream stream = null;
 		
 		try {
-			stream = XMPPParser.parseStreamStart(s);
+			stream = (XMPPStream) XMPPParser.parse(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
