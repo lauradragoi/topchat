@@ -48,124 +48,100 @@ public class XMPPParser {
 			
 	/**
 	 * Parse the message sent by the client to initiate the communication
-	 * @param msg the message received through the stream
 	 */
 	@SuppressWarnings("unchecked")
-	public static XMPPStream parseStreamStart(String msg) throws Exception
-	{
-		XMLEventReader reader = ParserUtils.createReader(msg);
-		
+	private static XMPPStream parseStreamStart(StartElement start, XMLEventReader reader ) throws Exception
+	{	
 		String to = null;
 		String version = null;
 		String id = null;
 		String lang = null;
 		String from = null;		
 	
-		// looking from 'stream' start element only
-		boolean streamProcessed = false;
-	
-		while (reader.hasNext(  ) && !streamProcessed) 
+  	
+		// walk through start element attributes
+		for (Iterator it = start.getAttributes(); it.hasNext();) 
 		{
-		    XMLEvent event = null;
-		    
-			try 
+			Attribute attribute = (Attribute) it.next();
+			
+			logger.debug("attribute name: " + attribute.getName());
+			logger.debug("attribute value: " + attribute.getValue());
+				
+			// set 'to' field
+			if ("to".equals( attribute.getName().toString()) )
 			{
-				event = reader.nextEvent(  );
-				
-			} catch (XMLStreamException e) {		
-				logger.fatal("Exception when reading next event", e);
-				
-				throw new Exception("Exception on parsing");								
+				to = attribute.getValue();
+				logger.debug("set to " + to);
+			}
+					
+			// set 'version' field
+			if ("version".equals( attribute.getName().toString()) )
+			{
+				version = attribute.getValue();
+				logger.debug("set version " + version);
 			}
 			
-		    if (event.isStartElement()) 
-		    {		  
-		    	StartElement startElement = ((StartElement) event);
+			if ("id".equals( attribute.getName().toString()) )
+			{
+				id = attribute.getValue();
+				logger.debug("set id " + id);
+			}		
+			
+			if ("from".equals( attribute.getName().toString()) )
+			{
+				from = attribute.getValue();
+				logger.debug("set from " + from);
+			}	
+		}
 		    	
-		    	logger.debug("start "  + event.toString());
-		    	logger.debug("name " + startElement.getName());		
-		    	logger.debug("name local" + startElement.getName().getLocalPart());		    			    	
-		    	logger.debug("as start: " + startElement.asStartElement());
-		    	
-		    	if ("stream".equals(startElement.getName().getLocalPart()))
-		    	{			    	
-		    			streamProcessed = true;
-		    	
-				    	// walk through start element attributes
-				    	for (Iterator it = startElement.getAttributes(); it.hasNext();) 
-				    	{
-							Attribute attribute = (Attribute) it.next();
-							logger.debug("attribute name: " + attribute.getName());
-		
-							logger.debug("attribute value: " + attribute.getValue());
-						
-							// set 'to' field
-							if ("to".equals( attribute.getName().toString()) )
-							{
-								to = attribute.getValue();
-								logger.debug("set to " + to);
-							}
-							
-							// set 'version' field
-							if ("version".equals( attribute.getName().toString()) )
-							{
-								version = attribute.getValue();
-								logger.debug("set version " + version);
-							}
-							
-							if ("id".equals( attribute.getName().toString()) )
-							{
-								id = attribute.getValue();
-								logger.debug("set id " + id);
-							}		
-							
-							if ("from".equals( attribute.getName().toString()) )
-							{
-								from = attribute.getValue();
-								logger.debug("set from " + from);
-							}	
-				    	}
-				    	
-				    	// walk through start element namespaces
-				    	for (Iterator it = startElement.getNamespaces(); it.hasNext();) 
-				    	{
-				    		Attribute attribute = (Attribute) it.next();
-				    		
-							logger.debug("namespace name: " + attribute.getName());
-							logger.debug("namespace value: " + attribute.getValue());
-				    	}		    		
-		    	}
-	        } else {		        
-		    	logger.debug("not start" + event.toString());
-		    }
-		}		
-		
+    				
 		return new XMPPStream(to, from, id, lang, version);
 	}
 	
+
 	/**
 	 * Generic parsing function
 	 * @param msg
 	 */
-	public static void parse(String msg) throws Exception
+	public static Object parse(String msg) throws Exception
 	{
-		// hack: this could be the end stream tag which cannot be parsed properly by stax
-		if (isEndStream(msg))
+		Object result = null;
+		logger.debug(msg);
+				
+		// hack: if msg contains end of stream StAX signals document not well formed 
+		// (obviously because msg contains no start of stream)
+		boolean endOfStream = false;
+		
+		if (endOfStream = containsEndOfStream(msg))
 		{
-			logger.info("End of stream");
-			return;
+			msg = cleanupEndOfStream(msg); 
 		}
 		
-		// hack: stream:error throws unbound prefix error, remove prefix as workaround
-		if (isErrorMessage(msg))
+		logger.debug("after cleanupEndOfStream: " + msg);
+				
+		// hack: remove 'stream:' prefix due to which unbound prefix error is thrown by StAX
+		msg = cleanupStreamPrefix(msg);
+		
+		logger.debug("after cleanupStreamPrefix: " + msg);
+		
+		// hack: don't parse empty messages	(end of stream becomes empty after cleanup)	
+		if ( msg.trim().length() > 0)
 		{
-			logger.info("Error message sent on stream");
-			parseErrorMessage(msg);
-			return;
+			result = genericParse(msg);
 		}
-				
+		
+		if (endOfStream)
+			logger.info("End of stream reached");
+		
+		return result;		
+	}
+	
+	private static Object genericParse(String msg) throws Exception
+	{
+		Object result = null;
+		
 		XMLEventReader reader = ParserUtils.createReader(msg);
-				
+		
 		while (reader.hasNext(  )) 
 		{
 		    XMLEvent event = null;
@@ -183,24 +159,52 @@ public class XMPPParser {
 		    if (event.isStartElement()) 
 		    {		  
 		    	StartElement startElement = ((StartElement) event);
-		    	logger.debug("start: " + startElement.toString());
+		    	logger.debug("start element: " + startElement.toString());
 		    	
-		    	logger.debug("loca " + startElement.getName().getLocalPart().toString());
+		    	logger.debug("local name: " + startElement.getName().getLocalPart().toString());
 		    	
-		    	if ("message".equals(startElement.getName().getLocalPart().toString()))
+		    	String local = startElement.getName().getLocalPart().toString();
+		    	
+		    	if ("message".equals(local))
 		    		parseMessage(startElement, reader);
 		    	
-		    	if ("iq".equals(startElement.getName().getLocalPart().toString()))
+		    	if ("iq".equals(local))
 	    			parseIq(startElement, reader);
 		    	
-		    	if ("presence".equals(startElement.getName().getLocalPart().toString()))
+		    	if ("presence".equals(local))
 	    			parsePresence(startElement, reader);
+		    	
+		    	if ("error".equals(local))
+		    		parseError(startElement, reader);
+		    	
+		    	if ("features".equals(local))
+		    		parseFeatures(startElement, reader);
+		    	
+		    	if ("starttls".equals(local))
+		    		parseStartTLS(startElement, reader);
+		    	
+		    	if ("proceed".equals(local))
+		    		parseProceed(startElement, reader);
+		    	
+		    	if ("failure".equals(local))
+		    		parseFailure(startElement, reader);
+		    	
+		    	if ("stream".equals(local))
+		    	{
+		    		result = parseStreamStart(startElement, reader);
+		    		
+		    		// hack : stop parsing if stream start detected to avoid StAX parsing error 
+		    		// due to lack of end of stream in parsed string
+		    		break;
+		    	}
 		    }
 		    else
 		    {
 		    	logger.debug(event.toString());
 		    }
-		}
+		}	
+		
+		return result;
 	}
 	
 	/**
@@ -210,9 +214,9 @@ public class XMPPParser {
 	 */
 	private static void parseMessage(StartElement start, XMLEventReader reader ) throws Exception
 	{
-		boolean endMessage = false;
+		boolean end = false;
 		
-		while (reader.hasNext(  ) && !endMessage) 
+		while (reader.hasNext(  ) && !end) 
 		{
 		    XMLEvent event = null;
 		    
@@ -236,7 +240,7 @@ public class XMPPParser {
 		    	EndElement endElement = (EndElement) event;
 		    	
 		    	if ("message".equals(endElement.getName().getLocalPart().toString()))
-		    		endMessage = true;
+		    		end = true;
 		    	
 		    	logger.debug(event.toString());
 		    }
@@ -254,9 +258,9 @@ public class XMPPParser {
 	 */
 	private static void parseIq(StartElement start, XMLEventReader reader ) throws Exception
 	{
-		boolean endIq = false;
+		boolean end = false;
 		
-		while (reader.hasNext(  ) && !endIq) 
+		while (reader.hasNext(  ) && !end) 
 		{
 		    XMLEvent event = null;
 		    
@@ -280,7 +284,7 @@ public class XMPPParser {
 		    	EndElement endElement = (EndElement) event;
 		    	
 		    	if ("iq".equals(endElement.getName().getLocalPart().toString()))
-		    		endIq = true;
+		    		end = true;
 		    	
 		    	logger.debug(event.toString());
 		    }
@@ -298,9 +302,9 @@ public class XMPPParser {
 	 */
 	private static void parsePresence(StartElement start, XMLEventReader reader ) throws Exception
 	{
-		boolean endPresence = false;
+		boolean end = false;
 		
-		while (reader.hasNext(  ) && !endPresence) 
+		while (reader.hasNext(  ) && !end) 
 		{
 		    XMLEvent event = null;
 		    
@@ -324,7 +328,7 @@ public class XMPPParser {
 		    	EndElement endElement = (EndElement) event;
 		    	
 		    	if ("presence".equals(endElement.getName().getLocalPart().toString()))
-		    		endPresence = true;
+		    		end = true;
 		    	
 		    	logger.debug(event.toString());
 		    }
@@ -337,54 +341,15 @@ public class XMPPParser {
 	
 	
 	/**
-	 * Method returning true if end of stream was reached
-	 * @param msg
-	 * @return
-	 */
-	private static boolean isEndStream(String msg)
-	{
-		return "</stream:stream>".equals(msg);
-	}
-	
-	/**
-	 * Method returning true if the argument is an error message
-	 * @param msg
-	 * @return
-	 */
-	private static boolean isErrorMessage(String msg)
-	{
-		return msg.startsWith("<stream:error>");
-	}
-	
-	
-	/**
-	 * Method parsing an error message
-	 * @param msg
-	 * @return
-	 */
-	private static void parseErrorMessage(String msg) throws Exception
-	{
-		logger.debug("initial error message : " + msg);
-		msg = msg.replace("<stream:", "<");
-		msg = msg.replace("</stream:", "</");
-		
-		logger.debug("proper error message : " + msg);
-		
-		parseProperError(msg);		
-	}
-	
-	/**
-	 * Method that parses a properly formed error message
+	 * Method that parses an error message
 	 * @param start
 	 * @param reader
 	 */
-	private static void parseProperError(String msg) throws Exception
+	private static void parseError(StartElement start, XMLEventReader reader ) throws Exception
 	{
-		XMLEventReader reader = ParserUtils.createReader(msg);
+		boolean end = false;
 		
-		boolean endError = false;
-		
-		while (reader.hasNext(  ) && !endError) 
+		while (reader.hasNext(  ) && !end) 
 		{
 		    XMLEvent event = null;
 		    
@@ -408,7 +373,95 @@ public class XMPPParser {
 		    	EndElement endElement = (EndElement) event;
 		    	
 		    	if ("error".equals(endElement.getName().getLocalPart().toString()))
-		    		endError = true;
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}
+	
+	/**
+	 * Method that parses a features stanza
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseFeatures(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("features".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}
+	
+	/**
+	 * Method that parses a starttls
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseStartTLS(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("starttls".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
 		    	
 		    	logger.debug(event.toString());
 		    }
@@ -419,6 +472,131 @@ public class XMPPParser {
 		}	
 	}	
 	
+	/**
+	 * Method that parses proceed
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseProceed(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("proceed".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}		
+	
+	
+	/**
+	 * Method that parses failure
+	 * @param start
+	 * @param reader
+	 */
+	private static void parseFailure(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		    			    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("failure".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}	
+	}			
+	
+	/**
+	 * Method returning true if the message contains end of stream info
+	 * @param msg
+	 * @return
+	 */
+	private static boolean containsEndOfStream(String msg)
+	{
+		return msg.contains("</stream:stream>");
+	}
+	
+
+	/**
+	 * Method that removes the stream: prefix
+	 * @param msg
+	 * @return
+	 */
+	private static String cleanupStreamPrefix(String msg)
+	{
+		// do not remove stream prefix if it will not cause parse error
+		if (msg.contains("xmlns:stream"))
+			return msg;
+		
+		return msg.replace("stream:", "");
+	}	
+	
+	/**
+	 * Method that removes the end of stream info
+	 * @param msg
+	 * @return
+	 */
+	private static String cleanupEndOfStream(String msg)
+	{
+		return msg.replace("</stream:stream>", "");
+	}	
+	
+
 	
 	/**
 	 * Create the corresponding xml message from the XMPPStream object
