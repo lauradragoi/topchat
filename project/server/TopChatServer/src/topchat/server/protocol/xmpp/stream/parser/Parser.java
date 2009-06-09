@@ -17,14 +17,10 @@
 */
 package topchat.server.protocol.xmpp.stream.parser;
 
-import java.io.ByteArrayOutputStream;
-import java.text.ParsePosition;
 import java.util.Iterator;
 
 
-import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -33,6 +29,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 
 /**
@@ -42,63 +39,10 @@ import topchat.server.protocol.xmpp.stream.XMPPStream;
  * Uses StaX API included in JAVA SE 6 in javax.xml.stream
  *
  */
-public class XMPPParser {
+public class Parser {
 
-	private static Logger logger = Logger.getLogger(XMPPParser.class);
+	private static Logger logger = Logger.getLogger(Parser.class);
 			
-	/**
-	 * Parse the message sent by the client to initiate the communication
-	 */
-	@SuppressWarnings("unchecked")
-	private static XMPPStream parseStreamStart(StartElement start, XMLEventReader reader ) throws Exception
-	{	
-		String to = null;
-		String version = null;
-		String id = null;
-		String lang = null;
-		String from = null;		
-	
-  	
-		// walk through start element attributes
-		for (Iterator it = start.getAttributes(); it.hasNext();) 
-		{
-			Attribute attribute = (Attribute) it.next();
-			
-			logger.debug("attribute name: " + attribute.getName());
-			logger.debug("attribute value: " + attribute.getValue());
-				
-			// set 'to' field
-			if ("to".equals( attribute.getName().toString()) )
-			{
-				to = attribute.getValue();
-				logger.debug("set to " + to);
-			}
-					
-			// set 'version' field
-			if ("version".equals( attribute.getName().toString()) )
-			{
-				version = attribute.getValue();
-				logger.debug("set version " + version);
-			}
-			
-			if ("id".equals( attribute.getName().toString()) )
-			{
-				id = attribute.getValue();
-				logger.debug("set id " + id);
-			}		
-			
-			if ("from".equals( attribute.getName().toString()) )
-			{
-				from = attribute.getValue();
-				logger.debug("set from " + from);
-			}	
-		}
-		    	
-    				
-		return new XMPPStream(to, from, id, lang, version);
-	}
-	
-
 	/**
 	 * Generic parsing function
 	 * @param msg
@@ -140,7 +84,7 @@ public class XMPPParser {
 	{
 		Object result = null;
 		
-		XMLEventReader reader = ParserUtils.createReader(msg);
+		XMLEventReader reader = Utils.createReader(msg);
 		
 		while (reader.hasNext(  )) 
 		{
@@ -178,7 +122,9 @@ public class XMPPParser {
 		    		parseError(startElement, reader);
 		    	
 		    	if ("features".equals(local))
-		    		parseFeatures(startElement, reader);
+		    	{
+		    		result = parseFeatures(startElement, reader);
+		    	}
 		    	
 		    	if ("starttls".equals(local))
 		    		parseStartTLS(startElement, reader);
@@ -389,9 +335,11 @@ public class XMPPParser {
 	 * @param start
 	 * @param reader
 	 */
-	private static void parseFeatures(StartElement start, XMLEventReader reader ) throws Exception
+	private static Features parseFeatures(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
+		
+		boolean usesTLS = false;
 		
 		while (reader.hasNext(  ) && !end) 
 		{
@@ -410,7 +358,11 @@ public class XMPPParser {
 		    if (event.isStartElement()) 
 		    {		  
 		    	StartElement startElement = ((StartElement) event);
-		    	logger.debug("start: " + startElement.toString());		    			    	
+		    	logger.debug("start: " + startElement.toString());	
+		    	
+		    	if ("starttls".equals(startElement.getName().getLocalPart()))
+		    		usesTLS = true;
+		    	
 		    }
 		    else if (event.isEndElement())
 		    {
@@ -426,6 +378,8 @@ public class XMPPParser {
 		    	logger.debug(event.toString());
 		    }
 		}	
+		
+		return new Features(usesTLS);
 	}
 	
 	/**
@@ -559,7 +513,60 @@ public class XMPPParser {
 		    	logger.debug(event.toString());
 		    }
 		}	
-	}			
+	}		
+	
+	
+	/**
+	 * Parse the message sent by the client to initiate the communication
+	 */
+	@SuppressWarnings("unchecked")
+	private static XMPPStream parseStreamStart(StartElement start, XMLEventReader reader ) throws Exception
+	{	
+		String to = null;
+		String version = null;
+		String id = null;
+		String lang = null;
+		String from = null;		
+	
+  	
+		// walk through start element attributes
+		for (Iterator it = start.getAttributes(); it.hasNext();) 
+		{
+			Attribute attribute = (Attribute) it.next();
+			
+			logger.debug("attribute name: " + attribute.getName());
+			logger.debug("attribute value: " + attribute.getValue());
+				
+			// set 'to' field
+			if ("to".equals( attribute.getName().toString()) )
+			{
+				to = attribute.getValue();
+				logger.debug("set to " + to);
+			}
+					
+			// set 'version' field
+			if ("version".equals( attribute.getName().toString()) )
+			{
+				version = attribute.getValue();
+				logger.debug("set version " + version);
+			}
+			
+			if ("id".equals( attribute.getName().toString()) )
+			{
+				id = attribute.getValue();
+				logger.debug("set id " + id);
+			}		
+			
+			if ("from".equals( attribute.getName().toString()) )
+			{
+				from = attribute.getValue();
+				logger.debug("set from " + from);
+			}	
+		}
+		    	
+    				
+		return new XMPPStream(to, from, id, lang, version);
+	}
 	
 	/**
 	 * Method returning true if the message contains end of stream info
@@ -594,43 +601,6 @@ public class XMPPParser {
 	private static String cleanupEndOfStream(String msg)
 	{
 		return msg.replace("</stream:stream>", "");
-	}	
-	
-
-	
-	/**
-	 * Create the corresponding xml message from the XMPPStream object
-	 * @param stream
-	 * @return
-	 */
-	public static String prepareStreamStart(XMPPStream stream)
-	{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		XMLEventWriter writer = ParserUtils.createWriter(baos);
-		
-		XMLEventFactory  eventFactory = XMLEventFactory.newInstance();
-		
-		ParserUtils.addStartElement(eventFactory, writer, 
-						"stream", "http://etherx.jabber.org/streams", "stream");		
-
-		ParserUtils.addNamespace(eventFactory, writer, "stream", "http://etherx.jabber.org/streams");
-				
-		ParserUtils.addAttribute(eventFactory, writer, "from", stream.getFrom());
-		ParserUtils.addAttribute(eventFactory, writer, "id", stream.getId());
-		ParserUtils.addAttribute(eventFactory, writer, "version", stream.getVersion());
-		
-		ParserUtils.endWrite(writer);
-		
-		String result = new String(baos.toByteArray());
-		
-		// hack for ending tag without adding end tag (why does stax make me do this?)
-		result = result.concat(">");
-		
-		logger.debug(result);
-		
-		return result; 
 	}
-	
 
 }

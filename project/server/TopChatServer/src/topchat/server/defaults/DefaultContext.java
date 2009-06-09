@@ -19,7 +19,6 @@ package topchat.server.defaults;
 
 import java.nio.ByteBuffer;
 
-import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.util.Utils;
 
 

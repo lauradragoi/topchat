@@ -33,7 +33,7 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * Contains useful methods for parsing
  */
-public class ParserUtils {
+public class Utils {
 
 	/**
 	 * Method used to add a start element to an event writer
@@ -47,6 +47,27 @@ public class ParserUtils {
 			String prefix, String namespaceUri, String localName)
 	{
 	    XMLEvent event = eventFactory.createStartElement(prefix, 
+	            namespaceUri, localName);
+	    try {
+			writer.add(event);
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	/**
+	 * Method used to add an end element to an event writer
+	 * @param eventFactory
+	 * @param writer
+	 * @param prefix
+	 * @param namespaceUri
+	 * @param localName
+	 */
+	static void addEndElement(XMLEventFactory eventFactory, XMLEventWriter writer,
+			String prefix, String namespaceUri, String localName)
+	{
+	    XMLEvent event = eventFactory.createEndElement(prefix, 
 	            namespaceUri, localName);
 	    try {
 			writer.add(event);
