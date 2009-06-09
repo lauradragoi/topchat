@@ -18,7 +18,6 @@
 package topchat.server.protocol.xmpp.context;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 import org.apache.log4j.Logger;

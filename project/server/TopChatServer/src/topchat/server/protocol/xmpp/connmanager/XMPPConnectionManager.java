@@ -63,6 +63,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		context.processRead(rd);	
 	}	
 	
+	/**
+	 * Method called by the current context to announce 
+	 * it has finished his job.
+	 */
 	public void contextDone()
 	{
 		switchKeyContext((XMPPContext) context);
