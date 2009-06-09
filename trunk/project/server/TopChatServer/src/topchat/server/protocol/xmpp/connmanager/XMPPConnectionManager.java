@@ -20,9 +20,13 @@ package topchat.server.protocol.xmpp.connmanager;
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
-import topchat.server.protocol.xmpp.context.AwaitingConnectionContext;
-import topchat.server.protocol.xmpp.context.ReceivedConnectionContext;
+import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
+import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
+import topchat.server.protocol.xmpp.context.SendFeaturesContext;
+import topchat.server.protocol.xmpp.context.SendProceedTLS;
+import topchat.server.protocol.xmpp.context.SendStreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
+import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 
 /**
@@ -42,15 +46,13 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	public XMPPConnectionManager()
 	{
-		context  = new AwaitingConnectionContext(this); 
+		context  = new WaitStreamStartContext(this); 
 	}
 	
 	@Override
 	public void processWrite() 
 	{
-		context.processWrite();
-		
-		switchKeyContext( (XMPPContext) context);				
+		context.processWrite();								
 	}
 
 	@Override
@@ -58,44 +60,46 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{
 		String s = new String(rd);
 
-		context.processRead(rd);
-		
-		switchKeyContext((XMPPContext) context );
+		context.processRead(rd);	
 	}	
 	
+	public void contextDone()
+	{
+		switchKeyContext((XMPPContext) context);
+	}
+	
 	/**
-	 * Changed the context based on the old context
+	 * Change the context based on the old context
 	 * 
-	 * Modelates the transitions in my finite state machine
-	 * 
-	 * @param old the old context
+	 * @param old 
 	 */
 	protected void switchKeyContext(XMPPContext old)
-	{		
+	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof ReceivedConnectionContext)
+		if (old instanceof WaitStartTLSContext)
 		{
-			// TODO
-			logger.info("Remain in ReceivedConnectionContext");
-			return;			
-						
-		} else if (old instanceof AwaitingConnectionContext)
-		{
-			nextContext = new ReceivedConnectionContext(this, old);
-			logger.info("Switch to received connection context");
-			
-		} else if (old instanceof XMPPContext)
-		{
-			// actually this should not happen ever
-			
-			nextContext = new AwaitingConnectionContext(old);
-			logger.info("Switch to awaiting connection context");
+			nextContext = new SendProceedTLS(this, old);
 		}
-
+		else if (old instanceof SendFeaturesContext)
+		{	
+			nextContext = new WaitStartTLSContext(this, old);					
+		}
+		else if (old instanceof SendStreamStartContext)
+		{
+			nextContext = new SendFeaturesContext(this, old);						
+		} else if (old instanceof WaitStreamStartContext)
+		{			
+			nextContext = new SendStreamStartContext(this, old);						
+		} else if (old instanceof XMPPContext)
+		{				
+			nextContext = new WaitStreamStartContext(this);
+		}
 									
 		// enter next context
 		context = nextContext;		
+		
+		logger.info("Context is now " + context.getClass().getSimpleName());
 	}	
 	
 	/**
@@ -137,5 +141,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return sendingStream;
 	}
 	
+	
+	public Features getFeatures() throws Exception
+	{
+		return new Features(true);
+	}
 	
 }

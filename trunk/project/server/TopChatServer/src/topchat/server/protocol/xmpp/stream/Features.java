@@ -19,4 +19,15 @@ package topchat.server.protocol.xmpp.stream;
 
 public class Features {
 
+	private boolean useOfTLS = false;
+	
+	public Features(boolean useTLS)
+	{
+		useOfTLS = useTLS;
+	}
+	
+	public boolean usesTLS()
+	{
+		return useOfTLS;
+	}
 }

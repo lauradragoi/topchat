@@ -20,7 +20,7 @@ package topchat.server.unit;
 import org.junit.Test;
 
 import topchat.server.protocol.xmpp.stream.XMPPStream;
-import topchat.server.protocol.xmpp.stream.parser.XMPPParser;
+import topchat.server.protocol.xmpp.stream.parser.Parser;
 import junit.framework.TestCase;
 
 /**
@@ -40,7 +40,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: topchatclient version");
 		
-		XMPPStream stream = (XMPPStream) XMPPParser.parse("<stream:stream " + 
+		XMPPStream stream = (XMPPStream) Parser.parse("<stream:stream " + 
 								"to='example.com' " + 
 								"xmlns='jabber:client' " + 
 								"xmlns:stream='http://etherx.jabber.org/streams' " + 
@@ -58,7 +58,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: pidgin version");
 		
-		XMPPStream stream = (XMPPStream) XMPPParser.parse("<?xml version='1.0' ?>" +
+		XMPPStream stream = (XMPPStream) Parser.parse("<?xml version='1.0' ?>" +
 				" <stream:stream" +
 				" to='me.my'" +
 				" xmlns='jabber:client'" +
@@ -68,27 +68,7 @@ public class ParserTest extends TestCase {
 		assertEquals("'version' incorrectly retrieved", "1.0",  stream.getVersion() );
 		assertEquals("'to' incorrectly retrieved ", "me.my", stream.getTo());
 	}
-	
-	/**
-	 * Test writing correct xml as start of stream message
-	 * @throws Exception
-	 */
-	public void testPrepareStreamStart() throws Exception {
 		
-		setName("Testing if stream start is correctly created");
-		
-		XMPPStream stream = new XMPPStream(null, "example.com", "someid", null, "1.0");
-		
-		String result = XMPPParser.prepareStreamStart(stream);		
-		
-		XMPPStream newStream = (XMPPStream) XMPPParser.parse(result);
-		
-		assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
-		assertEquals("'to' incorrectly set ", null, newStream.getTo());
-		assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
-		assertEquals("'id' incorrectly set ", "someid", newStream.getId());
-	}
-	
 	/**
 	 * Test correct parsing when end of stream is received
 	 * @throws Exception
@@ -97,7 +77,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of end stream");
 		
-		XMPPParser.parse("</stream:stream>");
+		Parser.parse("</stream:stream>");
 	}
 	
 	/**
@@ -108,7 +88,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of message");
 		
-		XMPPParser.parse("<message from='juliet@example.com'" +
+		Parser.parse("<message from='juliet@example.com'" +
 						 " to='romeo@example.net'" +
 						 " xml:lang='en'>" +
 						 " <body>Art thou not Romeo, and a Montague?</body>" +
@@ -123,7 +103,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of IQ");
 		
-		XMPPParser.parse(" <iq to='bar'> " +
+		Parser.parse(" <iq to='bar'> " +
 						 " <query/>" +
 						 " </iq>");
 	}
@@ -136,7 +116,7 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of presence");
 		
-		XMPPParser.parse("<presence>" +
+		Parser.parse("<presence>" +
 						 "  <show/> " +
 						 " </presence>" );
 	}	
@@ -148,7 +128,7 @@ public class ParserTest extends TestCase {
 	{
 		setName("Testing correct parsing of an error message");
 		
-		XMPPParser.parse("<stream:error>" +
+		Parser.parse("<stream:error>" +
 							 " <xml-not-well-formed" +
 							 " xmlns='urn:ietf:params:xml:ns:xmpp-streams'/>" +
 							 " </stream:error>");		
@@ -157,12 +137,14 @@ public class ParserTest extends TestCase {
 	
 	/**
 	 * Test parsing of feature message
+	 * 
+	 * This is sent by server. 
 	 */
 	public void testParseFeatures() throws Exception
 	{
 		setName("Testing correct parsing of a feature message");
 		
-		XMPPParser.parse("<stream:features>" +
+		Parser.parse("<stream:features>" +
 						 "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'>" +
 						 "<required/>" +
 						 "</starttls>" +
@@ -180,27 +162,31 @@ public class ParserTest extends TestCase {
 	{
 		setName("Testing correct parsing of starttls message");
 		
-		XMPPParser.parse("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		Parser.parse("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	}
 	
 	/**
 	 * Test parsing of proceed sent by server
+	 * 
+	 * This is sent by server.
 	 */
 	public void testParseProceed() throws Exception
 	{
 		setName("Testing correct parsing of proceed message");
 		
-		XMPPParser.parse("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		Parser.parse("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	}
 	
 	/**
 	 * Test parsing TLS negotiation failure
+	 * 
+	 * Sent by server.
 	 */
 	public void testParseTLSFailure() throws Exception
 	{
 		setName("Testing correct parsing of TLS failure");
 		
-		XMPPParser.parse("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>" +
+		Parser.parse("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>" +
 						 "</stream:stream>");
 	}
 	
@@ -214,7 +200,7 @@ public class ParserTest extends TestCase {
 		setName("Testing correct parsing of message containing badly formed xml");
 		
 		try {
-			XMPPParser.parse("<message xml:lang='en'>" +
+			Parser.parse("<message xml:lang='en'>" +
 							 " <body>Bad XML, no closing body tag!" +
 							 " </message>" );
 		} catch (Exception e) {

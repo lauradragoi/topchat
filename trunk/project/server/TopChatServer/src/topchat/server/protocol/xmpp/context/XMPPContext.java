@@ -10,6 +10,7 @@ public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
 	
+	protected boolean isDone = false;
 	
 	public XMPPContext() {
 			super();
@@ -44,5 +45,17 @@ public class XMPPContext extends DefaultContext {
 	public XMPPConnectionManager getXMPPManager()
 	{
 		return (XMPPConnectionManager) mgr;
+	}
+	
+	public boolean isDone()
+	{
+		return isDone;
+	}
+	
+	public void setDone()
+	{
+		isDone = true;
+		
+		getXMPPManager().contextDone();
 	}
 }
