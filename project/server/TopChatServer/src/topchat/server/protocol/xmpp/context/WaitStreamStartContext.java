@@ -32,7 +32,7 @@ public class WaitStreamStartContext extends XMPPContext {
 	private static Logger logger = Logger.getLogger(WaitStreamStartContext.class);	
 	
 	public WaitStreamStartContext(XMPPConnectionManager mgr) {
-		super(mgr);
+		super(mgr);			
 	}
 
 	@Override

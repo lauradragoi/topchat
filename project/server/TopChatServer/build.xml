@@ -11,8 +11,7 @@
 	<property name="tests.dir"			location="tests"/>
 		
 	<property name="log4j.lib" 			value="log4j-1.2.15.jar"/>
-	<property name="junit.lib" 			value="junit-4.6.jar"/>
-	<property name="stax.lib" 			value="stax-1.2.0.jar"/>
+	<property name="junit.lib" 			value="junit-4.6.jar"/>	
 
 	<target name="init" depends="clean">
 		<mkdir dir="${bin.dir}"/>
@@ -25,7 +24,6 @@
 			<classpath>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
 				<pathelement location="${lib.dir}/${junit.lib}"/>
-				<pathelement location="${lib.dir}/${stax .lib}"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 		</javac>

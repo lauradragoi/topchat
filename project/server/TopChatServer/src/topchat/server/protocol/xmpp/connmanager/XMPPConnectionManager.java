@@ -50,25 +50,33 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	}
 	
 	@Override
-	public void processWrite() 
+	public synchronized void processWrite() 
 	{
 		context.processWrite();								
 	}
 
 	@Override
-	public void processRead(byte[] rd) 
+	public synchronized void processRead(byte[] rd) 
 	{
 		String s = new String(rd);
 
 		context.processRead(rd);	
 	}	
 	
+	
+	@Override
+	public void close()
+	{
+		key.cancel();
+		logger.info("Client out");		
+	}
+	
 	/**
 	 * Method called by the current context to announce 
 	 * it has finished his job.
 	 */
 	public void contextDone()
-	{
+	{		
 		switchKeyContext((XMPPContext) context);
 	}
 	
@@ -77,7 +85,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	 * 
 	 * @param old 
 	 */
-	protected void switchKeyContext(XMPPContext old)
+	protected synchronized void switchKeyContext(XMPPContext old)
 	{						
 		XMPPContext nextContext = old;
 		

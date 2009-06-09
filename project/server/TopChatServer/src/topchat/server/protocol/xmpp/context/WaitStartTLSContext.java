@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.StreamElement;
+import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 /**
  * In this context the server waits for the client
@@ -40,9 +42,16 @@ public class WaitStartTLSContext extends XMPPContext {
 		String s = new String(rd);
 		logger.debug("Received: " + s);
 		
-		// TODO : check for starttls
-		
-		setDone();
+		try {
+			StreamElement result = (StreamElement)Parser.parse(s);
+			
+			if (result.isStartTLS())
+				setDone();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}	
 	
 }
