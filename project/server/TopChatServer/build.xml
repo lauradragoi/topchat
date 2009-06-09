@@ -13,6 +13,10 @@
 	<property name="log4j.lib" 			value="log4j-1.2.15.jar"/>
 	<property name="junit.lib" 			value="junit-4.6.jar"/>	
 
+	<!-- smack is only used for dumb client -->	
+	<property name="smack.lib" 			value="smack.jar"/>
+	<property name="smackx.lib" 		value="smackx.jar"/>	
+	
 	<target name="init" depends="clean">
 		<mkdir dir="${bin.dir}"/>
 	</target>
@@ -24,6 +28,8 @@
 			<classpath>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
 				<pathelement location="${lib.dir}/${junit.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>				
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 		</javac>
@@ -43,6 +49,22 @@
 		</java>
 		<echo message="Finished." />
 	</target>
+	
+	<target name="run_client" depends="compile" description="run the dumb client" >
+		<!-- Run the program in a VM different from the VM ant is running in -->
+		<echo message="Runnning client..." />
+		<java classname="topchat.server.dummyclient.DumbClient"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+		</java>
+		<echo message="Finished." />
+	</target>	
 
 	<target name="test" depends="compile" description="Run JUnit tests">
 		<!-- Run defined tests -->
