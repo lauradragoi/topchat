@@ -251,6 +251,7 @@ public class ServerNet implements Net, NetConstants {
 				} catch (IOException e) {
 					logger.fatal("Connection closed: " + e.getMessage());
 
+					conn.close();
 					try {
 						socketChannel.close();
 					} catch (IOException exc) {
@@ -284,7 +285,7 @@ public class ServerNet implements Net, NetConstants {
 						buf.clear();
 						
 						processWrite(conn, buf);
-												
+																		
 						//keep on reading
 						key.interestOps( SelectionKey.OP_READ);
 						
@@ -296,10 +297,11 @@ public class ServerNet implements Net, NetConstants {
 		
 				} catch (IOException e) {
 					logger.fatal("Connection closed: " + e.getMessage());
+					
+					conn.close();
 					try 
-					{
-						socketChannel.close();
-						
+					{						
+						socketChannel.close();					
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

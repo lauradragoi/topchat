@@ -29,7 +29,9 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.protocol.xmpp.stream.Constants;
 import topchat.server.protocol.xmpp.stream.Features;
+import topchat.server.protocol.xmpp.stream.StreamElement;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 
 /**
@@ -39,7 +41,7 @@ import topchat.server.protocol.xmpp.stream.XMPPStream;
  * Uses StaX API included in JAVA SE 6 in javax.xml.stream
  *
  */
-public class Parser {
+public class Parser implements Constants {
 
 	private static Logger logger = Logger.getLogger(Parser.class);
 			
@@ -127,7 +129,9 @@ public class Parser {
 		    	}
 		    	
 		    	if ("starttls".equals(local))
-		    		parseStartTLS(startElement, reader);
+		    	{
+		    		result = parseStartTLS(startElement, reader);
+		    	}
 		    	
 		    	if ("proceed".equals(local))
 		    		parseProceed(startElement, reader);
@@ -387,7 +391,7 @@ public class Parser {
 	 * @param start
 	 * @param reader
 	 */
-	private static void parseStartTLS(StartElement start, XMLEventReader reader ) throws Exception
+	private static StreamElement parseStartTLS(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
 		
@@ -424,6 +428,8 @@ public class Parser {
 		    	logger.debug(event.toString());
 		    }
 		}	
+		
+		return new StreamElement(STARTTLS_TYPE);
 	}	
 	
 	/**

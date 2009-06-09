@@ -102,6 +102,15 @@ public class DefaultConnectionManager
 	}
 	
 	/**
+	 * Method called to announce that the underlying TCP connection
+	 * has been closed due to an error.
+	 */
+	public void close()
+	{
+		// TODO
+	}
+	
+	/**
 	 * Method called to announce that the context is ready to read data
 	 * @deprecated connection is always ready for reading data
 	 */
