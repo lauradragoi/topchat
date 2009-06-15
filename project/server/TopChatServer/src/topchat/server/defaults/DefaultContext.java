@@ -129,4 +129,10 @@ public abstract class DefaultContext
 	{
 		Utils.putStringToBuffer(s, writeBuffer);	
 	}
+	
+	public void setBuffers(ByteBuffer read, ByteBuffer write)
+	{
+		readBuffer = read;
+		writeBuffer = write;
+	}
 } 

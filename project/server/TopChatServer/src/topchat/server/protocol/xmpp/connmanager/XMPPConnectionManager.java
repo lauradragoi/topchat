@@ -20,6 +20,7 @@ package topchat.server.protocol.xmpp.connmanager;
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
+import topchat.server.protocol.xmpp.context.TLSHandshakeContext;
 import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
 import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
 import topchat.server.protocol.xmpp.context.SendFeaturesContext;
@@ -28,6 +29,7 @@ import topchat.server.protocol.xmpp.context.SendStreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.tls.TLSHandler;
 
 /**
  * Manages a connection between the XMPP server and a client
@@ -44,9 +46,11 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	/** Describes the stream initiated by the server */
 	private XMPPStream sendingStream = null;
 	
+	private TLSHandler tlsHandler = null;
+	
 	public XMPPConnectionManager()
 	{
-		context  = new WaitStreamStartContext(this); 
+		context  = new WaitStreamStartContext(this); 		
 	}
 	
 	@Override
@@ -89,7 +93,11 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof WaitStartTLSContext)
+		if (old instanceof SendProceedTLS)
+		{
+			nextContext = new TLSHandshakeContext(this, old);
+		}
+		else if (old instanceof WaitStartTLSContext)
 		{
 			nextContext = new SendProceedTLS(this, old);
 		}
@@ -159,4 +167,12 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return new Features(true);
 	}
 	
+	public void secureConnection()
+	{
+		if (tlsHandler == null)
+		{
+			tlsHandler = new TLSHandler(key.channel());
+			context.setBuffers(tlsHandler.getInputBuffer(), tlsHandler.getOutputBuffer());
+		}
+	}
 }
