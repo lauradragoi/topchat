@@ -23,8 +23,6 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
-import topchat.server.protocol.xmpp.stream.parser.Parser;
-
 public class DumbClient {
 
     public static XMPPConnection conn;

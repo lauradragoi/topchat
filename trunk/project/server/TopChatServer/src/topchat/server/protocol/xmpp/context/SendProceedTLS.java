@@ -47,8 +47,14 @@ public class SendProceedTLS extends XMPPContext {
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
 		
-		logger.debug("Received: " + s);
+		logger.debug("Received: " + s);				
 						
 		s = null;
 	}	
+	
+	@Override
+	public void processWrite()
+	{
+		setDone();
+	}
 }

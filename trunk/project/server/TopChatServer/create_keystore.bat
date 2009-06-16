@@ -1,0 +1,1 @@
+keytool -genkeypair -alias topchatserver -keyalg RSA -validity 7 -keystore security/keystore

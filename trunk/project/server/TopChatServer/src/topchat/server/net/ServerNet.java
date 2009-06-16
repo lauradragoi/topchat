@@ -28,6 +28,11 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -335,18 +340,65 @@ public class ServerNet implements Net, NetConstants {
 	 * @param buf the buffer used for the operation
 	 */
 	private void processRead(DefaultConnectionManager conn, ByteBuffer buf) 
-	{
+	{		
 		// drain buffer
 		buf.flip();
+		
+		
+		// if TLS is activate
+		if (conn.isUsingTLS())
+		{
+			logger.debug("connection is using TLS");
+			SSLEngine tlsEngine = conn.getTLSEngine();
+			
+			// wait for the handshake to complete
+			/*
+			while ("SSL_NULL_WITH_NULL_NULL".equals(
+						tlsEngine.getSession().getCipherSuite()))
+				logger.debug("Waiting for handshake");
+				*/
+			
+			
+			logger.debug("Cipher : " + tlsEngine.getSession().getCipherSuite());
+			int appSize = tlsEngine.getSession().getApplicationBufferSize();
+			int netSize = tlsEngine.getSession().getPacketBufferSize();
+			
+			logger.debug("Application buffer size " + appSize);
+			logger.debug("Net buffer size " + netSize);
+			
+			ByteBuffer dst = ByteBuffer.allocate(appSize);
+			
+			logger.debug("unwrapping the buffer in the destination buffer");
+			
+			try {
+				tlsEngine.unwrap(buf, dst);
+			} catch (SSLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			int count = dst.remaining();
+			byte[] rd = new byte[count];
+	
+			dst.get(rd);
+			dst.clear();
+			
+			// inform connection manager
+			conn.processRead(rd);
+		}
+		else
+		{
+			int count = buf.remaining();
+			byte[] rd = new byte[count];
+	
+			buf.get(rd);
+			buf.clear();
+			
+			// inform connection manager
+			conn.processRead(rd);
+		}
+			
 
-		int count = buf.remaining();
-		byte[] rd = new byte[count];
-
-		buf.get(rd);
-		buf.clear();
-
-		// inform connection manager
-		conn.processRead(rd);
 	}
 
 	/**

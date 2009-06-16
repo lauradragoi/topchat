@@ -17,23 +17,34 @@
 */
 package topchat.server.protocol.xmpp.tls;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
+import java.nio.channels.SelectionKey;
+
+import javax.net.ssl.SSLEngine;
+
+import org.apache.log4j.Logger;
+
 
 public class TLSHandler {
 
-	public TLSHandler(Channel channel)
-	{
+	private static Logger logger = Logger.getLogger(TLSHandler.class);
+	
+	private SSLEngine tlsEngine;
+    
+  
+	public TLSHandler()
+	{				
+		TLSEngineFactory tlsEngineFactory = null;
+		try {
+			tlsEngineFactory = new TLSEngineFactory();
+		} catch (Exception e) {
+			logger.fatal("Unable to create TLS Engine factory");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		tlsEngine = tlsEngineFactory.getSSLEngine();	
+		
+		logger.debug("TLSEngine created: " + tlsEngine.getPeerHost());
 	}
 	
-	public ByteBuffer getInputBuffer()
-	{
-		return null;
-	}
-	
-	public ByteBuffer getOutputBuffer()
-	{
-		return null;
-	}
 }
