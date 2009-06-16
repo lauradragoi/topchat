@@ -30,8 +30,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 
 import org.apache.log4j.Logger;
 
@@ -344,39 +346,44 @@ public class ServerNet implements Net, NetConstants {
 		// drain buffer
 		buf.flip();
 		
-		
-		// if TLS is activate
+		// move tls handling to connection manager
+		// if TLS is activated
+		/*
 		if (conn.isUsingTLS())
 		{
 			logger.debug("connection is using TLS");
 			SSLEngine tlsEngine = conn.getTLSEngine();
 			
-			// wait for the handshake to complete
-			/*
-			while ("SSL_NULL_WITH_NULL_NULL".equals(
-						tlsEngine.getSession().getCipherSuite()))
-				logger.debug("Waiting for handshake");
-				*/
-			
-			
 			logger.debug("Cipher : " + tlsEngine.getSession().getCipherSuite());
+			
+			HandshakeStatus hsStatus = tlsEngine.getHandshakeStatus();
+			
+			logger.debug("Handshake status " + hsStatus);
+					
+			// handshake was already done						
+						
 			int appSize = tlsEngine.getSession().getApplicationBufferSize();
 			int netSize = tlsEngine.getSession().getPacketBufferSize();
+			
+			ByteBuffer dst = ByteBuffer.allocate(appSize);
 			
 			logger.debug("Application buffer size " + appSize);
 			logger.debug("Net buffer size " + netSize);
 			
-			ByteBuffer dst = ByteBuffer.allocate(appSize);
-			
 			logger.debug("unwrapping the buffer in the destination buffer");
 			
+			// first unwrap if using TLS
+			SSLEngineResult result = null;
 			try {
-				tlsEngine.unwrap(buf, dst);
+				result = tlsEngine.unwrap(buf, dst);
 			} catch (SSLException e) {
 				// TODO Auto-generated catch block
+				logger.fatal("unwrap error");
 				e.printStackTrace();
 			}
+			logger.debug("Unwrap result " + result.getStatus());
 			
+			// then process the data
 			int count = dst.remaining();
 			byte[] rd = new byte[count];
 	
@@ -387,7 +394,10 @@ public class ServerNet implements Net, NetConstants {
 			conn.processRead(rd);
 		}
 		else
+		*/
 		{
+			// connection is not using TLS
+			
 			int count = buf.remaining();
 			byte[] rd = new byte[count];
 	
@@ -395,11 +405,11 @@ public class ServerNet implements Net, NetConstants {
 			buf.clear();
 			
 			// inform connection manager
-			conn.processRead(rd);
+			conn.processRead(rd);						
 		}
-			
 
 	}
+	
 
 	/**
 	 * Method executed when a write operation has finished
