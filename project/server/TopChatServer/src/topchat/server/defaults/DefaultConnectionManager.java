@@ -24,6 +24,8 @@ import javax.net.ssl.SSLEngine;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.protocol.xmpp.tls.TLSHandler;
+
 /**
  * Manages a connection between the server and a client
  *
@@ -37,6 +39,7 @@ public class DefaultConnectionManager
 	protected SelectionKey	key	= null;	
 	
 	protected SSLEngine tlsEngine = null;
+	protected TLSHandler tlsHandler = null;
 	
 	protected boolean useTLS = false;
 
@@ -49,7 +52,10 @@ public class DefaultConnectionManager
 	 */
 	public ByteBuffer getReadBuffer()
 	{
-		return context.getReadBuffer();
+		if (!isUsingTLS())
+			return context.getReadBuffer();
+		else
+			return tlsHandler.getReadBuffer();
 	}
 
 	/**
@@ -59,7 +65,10 @@ public class DefaultConnectionManager
 	 */
 	public ByteBuffer getWriteBuffer()
 	{
-		return context.getWriteBuffer();
+		if (!isUsingTLS())
+			return context.getWriteBuffer();
+		else
+			return tlsHandler.getWriteBuffer();
 	}
 		
 	/**

@@ -23,6 +23,7 @@ import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
+import topchat.server.protocol.xmpp.context.HappyContext;
 import topchat.server.protocol.xmpp.context.TLSHandshakeContext;
 import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
 import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
@@ -33,6 +34,7 @@ import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
+import topchat.server.protocol.xmpp.tls.TLSHandler;
 
 /**
  * Manages a connection between the XMPP server and a client
@@ -49,6 +51,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	/** Describes the stream initiated by the server */
 	private XMPPStream sendingStream = null;
 	
+
+	
 	public XMPPConnectionManager()
 	{
 		context  = new WaitStreamStartContext(this); 		
@@ -57,15 +61,42 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	@Override
 	public synchronized void processWrite() 
 	{
-		context.processWrite();								
+		logger.debug("on write");
+		if (isUsingTLS())
+		{
+			if (!tlsHandler.isHandshakeComplete())
+			{
+				tlsHandler.processWrite();
+			}
+			else
+			{
+				context.processWrite();				
+			}
+		}
+		else
+			context.processWrite();							
 	}
 
 	@Override
 	public synchronized void processRead(byte[] rd) 
 	{
+		logger.debug("on read");
 		String s = new String(rd);
-
-		context.processRead(rd);	
+		
+		if (isUsingTLS())
+		{
+			if (!tlsHandler.isHandshakeComplete())
+			{
+				tlsHandler.processRead(rd);
+			}
+			else
+			{
+				context.processRead(rd);				
+			}
+		}
+		else
+			context.processRead(rd);
+			
 	}	
 	
 	
@@ -94,7 +125,11 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof SendProceedTLS)
+		if (old instanceof TLSHandshakeContext)
+		{
+			nextContext = new HappyContext(this, old);
+		}
+		else if (old instanceof SendProceedTLS)
 		{
 			nextContext = new TLSHandshakeContext(this, old);
 		}
@@ -195,7 +230,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 				e.printStackTrace();
 			}
 			
-			useTLS = true;
+			//tlsHandler = new TLSHandler(this, tlsEngine, key);
+			
+			//useTLS = true;
 		}
 	}
 }
