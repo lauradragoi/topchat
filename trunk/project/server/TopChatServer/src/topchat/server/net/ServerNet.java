@@ -29,12 +29,6 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -345,69 +339,15 @@ public class ServerNet implements Net, NetConstants {
 	{		
 		// drain buffer
 		buf.flip();
-		
-		// move tls handling to connection manager
-		// if TLS is activated
-		/*
-		if (conn.isUsingTLS())
-		{
-			logger.debug("connection is using TLS");
-			SSLEngine tlsEngine = conn.getTLSEngine();
-			
-			logger.debug("Cipher : " + tlsEngine.getSession().getCipherSuite());
-			
-			HandshakeStatus hsStatus = tlsEngine.getHandshakeStatus();
-			
-			logger.debug("Handshake status " + hsStatus);
-					
-			// handshake was already done						
-						
-			int appSize = tlsEngine.getSession().getApplicationBufferSize();
-			int netSize = tlsEngine.getSession().getPacketBufferSize();
-			
-			ByteBuffer dst = ByteBuffer.allocate(appSize);
-			
-			logger.debug("Application buffer size " + appSize);
-			logger.debug("Net buffer size " + netSize);
-			
-			logger.debug("unwrapping the buffer in the destination buffer");
-			
-			// first unwrap if using TLS
-			SSLEngineResult result = null;
-			try {
-				result = tlsEngine.unwrap(buf, dst);
-			} catch (SSLException e) {
-				// TODO Auto-generated catch block
-				logger.fatal("unwrap error");
-				e.printStackTrace();
-			}
-			logger.debug("Unwrap result " + result.getStatus());
-			
-			// then process the data
-			int count = dst.remaining();
-			byte[] rd = new byte[count];
-	
-			dst.get(rd);
-			dst.clear();
-			
-			// inform connection manager
-			conn.processRead(rd);
-		}
-		else
-		*/
-		{
-			// connection is not using TLS
-			
-			int count = buf.remaining();
-			byte[] rd = new byte[count];
-	
-			buf.get(rd);
-			buf.clear();
-			
-			// inform connection manager
-			conn.processRead(rd);						
-		}
 
+		int count = buf.remaining();
+		byte[] rd = new byte[count];
+	
+		buf.get(rd);
+		buf.clear();
+			
+		// inform connection manager
+		conn.processRead(rd);						
 	}
 	
 

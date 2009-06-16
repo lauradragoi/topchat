@@ -102,6 +102,8 @@
 			<classpath>
 				<pathelement location="${lib.dir}/${log4j.lib}" />
 				<pathelement location="${lib.dir}/${junit.lib}" />
+				<pathelement location="${lib.dir}/${smack.lib}" />
+				<pathelement location="${lib.dir}/${smackx.lib}" />
 				<pathelement path="${java.class.path}"/>				
 			</classpath>
 		</javadoc>

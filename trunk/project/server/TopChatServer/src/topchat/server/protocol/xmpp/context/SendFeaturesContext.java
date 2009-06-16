@@ -26,6 +26,9 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 
+/**
+ * In this context the server announces the client what features it can offer
+ */
 public class SendFeaturesContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(SendFeaturesContext.class);	

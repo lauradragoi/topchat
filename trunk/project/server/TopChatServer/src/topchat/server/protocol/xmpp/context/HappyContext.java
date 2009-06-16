@@ -28,8 +28,6 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.stream.StreamElement;
-import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 /**
  * In this context the server waits for the client
@@ -49,7 +47,7 @@ public class HappyContext extends XMPPContext {
 		String s = new String(rd);
 		logger.debug("Happy receive: " + s);
 		
-		SSLEngine tlsEngine = mgr.getTLSEngine();
+		SSLEngine tlsEngine = getXMPPManager().getTLSEngine();
 		
 		logger.debug("Cipher : " + tlsEngine.getSession().getCipherSuite());
 		

@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/junit-4.6.jar"/>
 	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="config"/>
+	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/smack.jar"/>
+	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/smackx.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

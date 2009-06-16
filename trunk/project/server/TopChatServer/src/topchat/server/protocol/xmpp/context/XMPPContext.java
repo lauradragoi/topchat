@@ -6,6 +6,7 @@ import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
+/** Base class for all XMPP contexts */
 public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
