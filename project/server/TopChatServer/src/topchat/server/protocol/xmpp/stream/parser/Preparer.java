@@ -62,7 +62,6 @@ public class Preparer {
 	
 	/**
 	 * Create the corresponding xml message for 'proceed'
-	 * @param features
 	 * @return
 	 */
 	public static String prepareProceed()
@@ -91,7 +90,6 @@ public class Preparer {
 
 	/**
 	 * Create the corresponding xml message for tls failure
-	 * @param features
 	 * @return
 	 */
 	public static String prepareTLSFailure()

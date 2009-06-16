@@ -20,11 +20,8 @@ package topchat.server.defaults;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
-import javax.net.ssl.SSLEngine;
-
 import org.apache.log4j.Logger;
 
-import topchat.server.protocol.xmpp.tls.TLSHandler;
 
 /**
  * Manages a connection between the server and a client
@@ -38,10 +35,6 @@ public class DefaultConnectionManager
 	/** The selection key associated with the connection */
 	protected SelectionKey	key	= null;	
 	
-	protected SSLEngine tlsEngine = null;
-	protected TLSHandler tlsHandler = null;
-	
-	protected boolean useTLS = false;
 
 	private static Logger logger = Logger.getLogger(DefaultConnectionManager.class);
 		
@@ -52,10 +45,7 @@ public class DefaultConnectionManager
 	 */
 	public ByteBuffer getReadBuffer()
 	{
-		if (!isUsingTLS())
-			return context.getReadBuffer();
-		else
-			return tlsHandler.getReadBuffer();
+		return context.getReadBuffer();
 	}
 
 	/**
@@ -65,10 +55,7 @@ public class DefaultConnectionManager
 	 */
 	public ByteBuffer getWriteBuffer()
 	{
-		if (!isUsingTLS())
-			return context.getWriteBuffer();
-		else
-			return tlsHandler.getWriteBuffer();
+		return context.getWriteBuffer();
 	}
 		
 	/**
@@ -160,16 +147,6 @@ public class DefaultConnectionManager
 		
 		key.interestOps( key.interestOps() & (~SelectionKey.OP_WRITE) );
 		key.selector().wakeup();
-	}
-	
-	public boolean isUsingTLS()
-	{
-		return useTLS;
-	}
-	
-	public SSLEngine getTLSEngine()
-	{
-		return tlsEngine;
 	}
 	
 }

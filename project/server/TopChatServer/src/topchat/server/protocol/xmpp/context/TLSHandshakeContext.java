@@ -19,7 +19,6 @@ package topchat.server.protocol.xmpp.context;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.SSLEngine;
@@ -32,29 +31,40 @@ import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
+/**
+ * Context in which the server and the client negotiate the TLS handshake.
+ * Context runs for as long as the handshake takes place in a separate thread as well as 
+ * handling read or write events on the stream.
+ */
 public class TLSHandshakeContext extends XMPPContext implements Runnable {
 
 	private static Logger logger = Logger.getLogger(TLSHandshakeContext.class);	
 			
+	/** The TLS engine used for securing the stream */
 	private SSLEngine tlsEngine;
 	
-	   private HandshakeStatus initialHSStatus;
-	   private boolean initialHSComplete;
+	/** The status of the handshake */
+	private HandshakeStatus initialHSStatus;
+	/** Flag indicating whether or not the handshake was finished */
+	private boolean initialHSComplete;
 
-	   private int appBBSize;
-	   private int netBBSize;
+	/** Size of the buffers needed in this context */
+	private int appBBSize;
+	private int netBBSize;
 	   
-	   private static ByteBuffer hsBB = ByteBuffer.allocate(0);	
-	   private ByteBuffer appBB;
+	/** A dummy empty buffer */
+	private static ByteBuffer dummyBB = ByteBuffer.allocate(0);
+	
+	/** A buffer to hold application data */
+	private ByteBuffer appBB;
 
-	   private Semaphore write_sem = new Semaphore(0);
-	   private Semaphore read_sem = new Semaphore(0);	   
+	/** Semaphores used for synchronizing the thread of this context with the read and write events of the stream */
+	private Semaphore writeSem = new Semaphore(0);
+	private Semaphore readSem = new Semaphore(0);	   
 	
 	public TLSHandshakeContext(XMPPConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);
-					
-		mgr.secureConnection();	
-		
+						
 		tlsEngine = mgr.getTLSEngine();
 		
         initialHSStatus = HandshakeStatus.NEED_UNWRAP;
@@ -63,7 +73,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         netBBSize = tlsEngine.getSession().getPacketBufferSize();
         appBBSize = tlsEngine.getSession().getApplicationBufferSize();
 
-        // resize buffers to fit tls needs
+        // resize buffers to fit TLS needs
         readBuffer = ByteBuffer.allocate(netBBSize);
         writeBuffer = ByteBuffer.allocate(netBBSize);
         writeBuffer.position(0);
@@ -71,7 +81,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 
         appBB = ByteBuffer.allocate(appBBSize);
         
-        // start this thread - its job is to handle initial handshake
+        // start the context thread - its job is to handle initial handshake
         new Thread(this).start();
 	}
 
@@ -83,17 +93,21 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 						
 		s = null;
 		
-		read_sem.release();
-		readBuffer.put(rd);
-		logger.debug("read released");
+		// announce read
+		readSem.release();	
 		
+		// put read data back in buffer to be unwrapped
+		readBuffer.put(rd);
+		
+		logger.debug("read released");		
 	}	
 	
 	@Override
 	public void processWrite()
-	{
-		logger.debug("write buffer has : "  + writeBuffer.remaining());
-		write_sem.release();
+	{	
+		// announce write
+		writeSem.release();
+		
 		logger.debug("write released");
 	}
 	
@@ -101,254 +115,130 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
     public void run()
     {
         SSLEngineResult result = null;
-
-        // doar ca eu sunt triggerat mereu
-        // ca asa sunt eu
-        
         
         // this will run until handshake is complete
         while (!initialHSComplete) 
-        {
-
-	        logger.debug("handshake not complete");
-	        
-	        /*
-	           * Flush out the outgoing buffer, if there's anything left in it.
-	           */
-	        // daca am chestii de trimis
-	        // ar trebui sa imi informez manageru de conexiune si sa ma flipez ca sa fiu
-	        // comfortabil la accesare de catre modulul de retea
-	        // si ar trebui sa astept pana s-a procesat scrierea
-	        /*
-	        if (writeBuffer.hasRemaining()) {
-	        	       
-	        	logger.debug("outgoing net buffer still has remaining" + writeBuffer.remaining());
-	
-	            try {
-					if (!flush(writeBuffer)) {
-						logger.debug("cannot flush outgoing net buffer");
-					    continue;
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	
-	            // See if we need to switch from write to read mode.
-	
-	            switch (initialHSStatus) {
-	
-	            //
-	                // Is this the last buffer?
-	                ///
-	            case FINISHED:
-	            	logger.debug("finished");
-	                initialHSComplete = true;
-	
-	            case NEED_UNWRAP:
-	            	logger.debug("need unwrap 1");
-	            	
-	           //     if (sk != null) {
-	           //         sk.interestOps(SelectionKey.OP_READ);
-	           //     }
-	                break;
-	            }
-	
-	            logger.debug("ret " + initialHSComplete + "  1");
-	             
-	            continue;
-	        }
-	*/
-	
-
-	        switch (initialHSStatus) {
-	
-	        case NEED_UNWRAP:
-	        	logger.debug("need unwrap 2 ");   
+        {        
+	        switch (initialHSStatus) 
+	        {
+	        	case NEED_UNWRAP:	        		 	        	
+	        		// wait for something to be read
+					readSem.acquireUninterruptibly();
 	        	
-	        	//read_sem.acquire();
-	        	/*
-	            try {
-						if (rbc.read(incomingNetBB) == -1) {
-	            		
-							logger.debug("read -1");
-						    tlsEngine.closeInbound();
-						    logger.debug("cannot read or eof " );
-						    continue;
-						}
-					} catch (SSLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				*/
-	        	try {
-						read_sem.acquire();
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-	        	
-	            needIO: while (initialHSStatus == HandshakeStatus.NEED_UNWRAP) {
-	            	logger.debug("i still need unwrap");
-	                /*
-	                     * Don't need to resize requestBB, since no app data should be generated here.
-	                     */
-	                readBuffer.flip();
-	                logger.debug("flipped");
-	                try {
-						result = tlsEngine.unwrap(readBuffer, appBB);
-					} catch (SSLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-	                logger.debug("unwrapped");
-	                readBuffer.compact();
-	                logger.debug("compacted");
-	                
-	                logger.debug("unwrap result " + result);
+					needIO: while (initialHSStatus == HandshakeStatus.NEED_UNWRAP) 
+							{
+								readBuffer.flip();
+								
+				                try {
+									result = tlsEngine.unwrap(readBuffer, appBB);
+								} catch (SSLException e) {									
+									logger.warn("unwrap exception " + e);									
+								}
+
+								readBuffer.compact();
+	                	                
+								logger.debug("unwrap result " + result);
 	               
-	                initialHSStatus = result.getHandshakeStatus();
+								initialHSStatus = result.getHandshakeStatus();
 	                
-	                switch (result.getStatus()) {
+								switch (result.getStatus()) 
+								{
+									case OK:
+										switch (initialHSStatus) 
+										{
+											case NOT_HANDSHAKING:
+												logger.debug("Not handshaking in initial handshake");
+												continue;
+											case NEED_TASK:
+												initialHSStatus = doTasks();
+												break;
+											case FINISHED:
+												initialHSComplete = true;
+												break needIO;
+										}	
+									break;
 	
-	                case OK:
-	                    switch (initialHSStatus) {
-	                    case NOT_HANDSHAKING:
-	                    	continue;
-	                        //throw new IOException("Not handshaking during initial handshake");
+									case BUFFER_UNDERFLOW:
+										break needIO;
 	
-	                    case NEED_TASK:
-	                        initialHSStatus = doTasks();
-	                        break;
+									default: // BUFFER_OVERFLOW/CLOSED:
+										logger.debug("Received" + result.getStatus()
+												        	+ "during initial handshaking");
+									continue;
+								}
+							}
 	
-	                    case FINISHED:
-	                        initialHSComplete = true;
-	                        break needIO;
-	                    }
-	
-	                    break;
-	
-	                case BUFFER_UNDERFLOW:
-	                    /*
-	                          * Need to go reread the Channel for more data.
-	                          */
-	                  //  if (sk != null) {
-	                  //      sk.interestOps(SelectionKey.OP_READ);
-	                  //  }
-	                    break needIO;
-	
-	                default: // BUFFER_OVERFLOW/CLOSED:
-	                    //throw new IOException("Received" + result.getStatus()
-	                    //        + "during initial handshaking");
-	                	continue;
-	                }
-	            }
-	
-	            /*
-	                * Just transitioned from read to write.
-	                */
-	            if (initialHSStatus != HandshakeStatus.NEED_WRAP) {
-	                break;
-	            }
-	
-	        // Fall through and fill the write buffers.
-	
-	        case NEED_WRAP:
-	            /*
-	                * The flush above guarantees the out buffer to be empty
-	                */
-	            writeBuffer.clear();
-	            try {
-						result = tlsEngine.wrap(hsBB, writeBuffer);
+				// fall through	
+	        	case NEED_WRAP:
+	        		
+	        		writeBuffer.clear();
+	        		try {
+						result = tlsEngine.wrap(dummyBB, writeBuffer);
 					} catch (SSLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.warn("wrap exception: " + e);
 					}
-	            writeBuffer.flip();
+					writeBuffer.flip();
 
+					initialHSStatus = result.getHandshakeStatus();
 	
-	            initialHSStatus = result.getHandshakeStatus();
-	
-	            logger.debug("wrap result " + result);
+					logger.debug("wrap result " + result);
 	            
-	            switch (result.getStatus()) {
-	            case OK:
+					switch (result.getStatus()) 
+					{
+							case OK:
+								if (initialHSStatus == HandshakeStatus.NEED_TASK) {
+									initialHSStatus = doTasks();
+								}
+								
+								// drain the buffer that was filled
+								flush(writeBuffer);
+		            
+								if (initialHSStatus == HandshakeStatus.FINISHED)
+								{
+									logger.debug("done ");		            			
+									initialHSComplete = true;
+									continue;
+								}								
+								break;
 	
-	                if (initialHSStatus == HandshakeStatus.NEED_TASK) {
-	                    initialHSStatus = doTasks();
-	                }
-	
-	                //mgr.registerForWrite();
-	                
-		            try {
-						flush(writeBuffer);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+							default: // BUFFER_OVERFLOW/BUFFER_UNDERFLOW/CLOSED:
+								logger.debug("Received" + result.getStatus()
+										+ "during initial handshaking");
+							continue;
 					}
-		            if (initialHSStatus == HandshakeStatus.FINISHED)
-		            {
-		            	logger.debug("done ");
-		            			
-		            	initialHSComplete = true;
-		            	continue;
-		            }
-	               // if (sk != null) {
-	              //      sk.interestOps(SelectionKey.OP_WRITE);
-	               // }
+					break;
 	
-	                break;
-	
-	            default: // BUFFER_OVERFLOW/BUFFER_UNDERFLOW/CLOSED:
-	               // throw new IOException("Received" + result.getStatus()
-	               //         + "during initial handshaking");
-	            	continue;
-	            }
-	            break;
-	
-	        default: // NOT_HANDSHAKING/NEED_TASK/FINISHED
-	            throw new RuntimeException("Invalid Handshaking State" + initialHSStatus);
+	        	default: // NOT_HANDSHAKING/NEED_TASK/FINISHED
+	        		logger.warn("Invalid Handshaking State" + initialHSStatus);
+	        	
 	        } // switch
         }
         
+        // if loop is exited handshake is complete
+        // signal end of this context
         setDone();
     }
 
-    /*
-     * Writes ByteBuffer to the SocketChannel. Returns true when the ByteBuffer has no remaining
-     * data.
-     */
-   private boolean flush(ByteBuffer bb) throws IOException {
-	   
-	//   writeBuffer.flip();
+   /**
+    * Blocks until information in Buffer has been sent on the stream.
+    */
+   private void flush(ByteBuffer bb)
+   {
+	   // announce manager reading desire
 	   mgr.registerForWrite();
 	   
-	   	try {
-	   		write_sem.acquire();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return true;
-       //wbc.write(bb);
-       //return !bb.hasRemaining();
-	   
+	   // block until write is signaled
+	   writeSem.acquireUninterruptibly();			   
    }
 
-   /*
-     * Do all the outstanding handshake tasks in the current Thread.
-     */
+   /**
+    * Handle tasks from the tlsEngine
+    * @return
+    */
    private SSLEngineResult.HandshakeStatus doTasks() {
 
        Runnable runnable;
 
-       /*
-          * We could run this in a separate thread, but do in the current for now.
-          */
        while ((runnable = tlsEngine.getDelegatedTask()) != null) {
            runnable.run();
        }

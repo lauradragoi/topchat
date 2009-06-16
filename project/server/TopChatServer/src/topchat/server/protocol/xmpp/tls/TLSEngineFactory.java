@@ -28,50 +28,52 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Factory for creating TLS Engine object
+ */
 public class TLSEngineFactory {
 
 	private static Logger logger = Logger.getLogger(TLSEngineFactory.class);
 	
-    private SSLContext sslc;
+    private static SSLEngine tlsEngine = null;	
 
-    private SSLEngine serverEngine;	// server Engine
-
-    /*
-     * The following is to set up the keystores.
-     */
+    // TODO : obtain these from some config file
     private static String keyStoreFile = "security/keystore";
     private static String trustStoreFile = "security/truststore";
     
-    public TLSEngineFactory() throws Exception
+    /**
+     * Create TLS Engine
+     * @return
+     * @throws Exception
+     */
+    public static SSLEngine createTLSEngine() throws Exception
     {
+    	if (tlsEngine == null)
+    	{
+	    	KeyStore ks = KeyStore.getInstance("JKS");
+	    	KeyStore ts = KeyStore.getInstance("JKS");
+	
+	    	char[] passphrase = "password".toCharArray();
+	
+	    	ks.load(new FileInputStream(keyStoreFile), passphrase);
+	    	ts.load(new FileInputStream(trustStoreFile), passphrase);
+	
+	    	KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+	    	kmf.init(ks, passphrase);
+	
+	    	TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+	    	tmf.init(ts);
+	
+	    	SSLContext sslc = SSLContext.getInstance("TLS");
+	
+	    	sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);    	
+	      	
+	    	
+	    	tlsEngine = sslc.createSSLEngine();
+	    	tlsEngine.setUseClientMode(false);
+    	}
     	
-    	KeyStore ks = KeyStore.getInstance("JKS");
-    	KeyStore ts = KeyStore.getInstance("JKS");
-
-    	char[] passphrase = "password".toCharArray();
-
-    	ks.load(new FileInputStream(keyStoreFile), passphrase);
-    	ts.load(new FileInputStream(trustStoreFile), passphrase);
-
-    	KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-    	kmf.init(ks, passphrase);
-
-    	TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-    	tmf.init(ts);
-
-    	sslc = SSLContext.getInstance("TLS");
-
-    	sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);    	
-      	
-    	
-    	serverEngine = sslc.createSSLEngine();
-    	serverEngine.setUseClientMode(false);
+    	return tlsEngine;
     }
-    
-    public SSLEngine getSSLEngine()
-    {
-    	return serverEngine;
-    }
-    
-
+   
 }

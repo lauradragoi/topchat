@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 
+/** In this context the server sens the proceed message in the TLS negotiation */
 public class SendProceedTLS extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(SendProceedTLS.class);	

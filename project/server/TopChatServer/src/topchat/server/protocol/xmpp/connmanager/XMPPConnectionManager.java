@@ -34,7 +34,7 @@ import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
-import topchat.server.protocol.xmpp.tls.TLSHandler;
+
 
 /**
  * Manages a connection between the XMPP server and a client
@@ -50,7 +50,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	private XMPPStream receivingStream = null;
 	/** Describes the stream initiated by the server */
 	private XMPPStream sendingStream = null;
-	
+
+	/** Used for securing the stream using TLS */
+	protected SSLEngine tlsEngine = null;	
 
 	
 	public XMPPConnectionManager()
@@ -61,42 +63,15 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	@Override
 	public synchronized void processWrite() 
 	{
-		logger.debug("on write");
-		if (isUsingTLS())
-		{
-			if (!tlsHandler.isHandshakeComplete())
-			{
-				tlsHandler.processWrite();
-			}
-			else
-			{
-				context.processWrite();				
-			}
-		}
-		else
-			context.processWrite();							
+		context.processWrite();							
 	}
 
 	@Override
 	public synchronized void processRead(byte[] rd) 
 	{
-		logger.debug("on read");
 		String s = new String(rd);
 		
-		if (isUsingTLS())
-		{
-			if (!tlsHandler.isHandshakeComplete())
-			{
-				tlsHandler.processRead(rd);
-			}
-			else
-			{
-				context.processRead(rd);				
-			}
-		}
-		else
-			context.processRead(rd);
-			
+		context.processRead(rd);			
 	}	
 	
 	
@@ -197,42 +172,40 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return sendingStream;
 	}
 	
-	
+	/**
+	 * Obtain the features offered by the server
+	 * @return
+	 * @throws Exception
+	 */
 	public Features getFeatures() throws Exception
 	{
 		return new Features(true);
 	}
 	
+
 	/**
-	 * Secure the current connection by using TLS
+	 * Obtain TLS engine used for securing the stream
+	 * @return
 	 */
-	public void secureConnection()
+	public SSLEngine getTLSEngine()
 	{
 		if (tlsEngine == null)
-		{
-			TLSEngineFactory tlsEngineFactory = null;
-			try 
-			{
-				tlsEngineFactory = new TLSEngineFactory();
-				
-			} catch (Exception e) 
-			{
-				logger.fatal("Unable to create TLS Engine factory");
-				e.printStackTrace();
+		{		
+			try {
+				tlsEngine = TLSEngineFactory.createTLSEngine();
+			} catch (Exception e1) {
+				logger.fatal("Exception on creating TLS engine" + e1);			
+				return null;
 			}
-			
-			tlsEngine = tlsEngineFactory.getSSLEngine();
 			
 			try {
 				tlsEngine.beginHandshake();
 			} catch (SSLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.fatal("Exception on beginning handshake" + e);
 			}
-			
-			//tlsHandler = new TLSHandler(this, tlsEngine, key);
-			
-			//useTLS = true;
-		}
+		}	
+		
+		return tlsEngine;
 	}
+	
 }
