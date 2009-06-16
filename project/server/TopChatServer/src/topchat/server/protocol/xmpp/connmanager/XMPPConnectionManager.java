@@ -17,6 +17,9 @@
  */
 package topchat.server.protocol.xmpp.connmanager;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
@@ -29,7 +32,7 @@ import topchat.server.protocol.xmpp.context.SendStreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
-import topchat.server.protocol.xmpp.tls.TLSHandler;
+import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
 
 /**
  * Manages a connection between the XMPP server and a client
@@ -45,8 +48,6 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	private XMPPStream receivingStream = null;
 	/** Describes the stream initiated by the server */
 	private XMPPStream sendingStream = null;
-	
-	private TLSHandler tlsHandler = null;
 	
 	public XMPPConnectionManager()
 	{
@@ -167,12 +168,34 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return new Features(true);
 	}
 	
+	/**
+	 * Secure the current connection by using TLS
+	 */
 	public void secureConnection()
 	{
-		if (tlsHandler == null)
+		if (tlsEngine == null)
 		{
-			tlsHandler = new TLSHandler(key.channel());
-			context.setBuffers(tlsHandler.getInputBuffer(), tlsHandler.getOutputBuffer());
+			TLSEngineFactory tlsEngineFactory = null;
+			try 
+			{
+				tlsEngineFactory = new TLSEngineFactory();
+				
+			} catch (Exception e) 
+			{
+				logger.fatal("Unable to create TLS Engine factory");
+				e.printStackTrace();
+			}
+			
+			tlsEngine = tlsEngineFactory.getSSLEngine();
+			
+			try {
+				tlsEngine.beginHandshake();
+			} catch (SSLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			useTLS = true;
 		}
 	}
 }

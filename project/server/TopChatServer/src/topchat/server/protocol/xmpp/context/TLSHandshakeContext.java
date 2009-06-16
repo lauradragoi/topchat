@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.tls.XMPPSSLEngine;
 
 public class TLSHandshakeContext extends XMPPContext {
 
@@ -30,8 +29,7 @@ public class TLSHandshakeContext extends XMPPContext {
 
 	public TLSHandshakeContext(XMPPConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);
-			
-		
+					
 		mgr.secureConnection();
 	}
 

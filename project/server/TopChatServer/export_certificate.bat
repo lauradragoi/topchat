@@ -1,0 +1,1 @@
+keytool -export -alias topchatserver -keystore security/keystore -rfc -file security/topchatserver.cer
