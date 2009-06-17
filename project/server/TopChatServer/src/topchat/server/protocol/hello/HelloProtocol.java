@@ -17,6 +17,8 @@
  */
 package topchat.server.protocol.hello;
 
+import java.nio.channels.SocketChannel;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -82,8 +84,28 @@ public class HelloProtocol implements Protocol {
 		net.start(getListeningPort());
 	}
 
-	@Override
+
 	public DefaultConnectionManager getConnectionManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.Protocol#processData(topchat.server.interfaces.Net, java.nio.channels.SocketChannel, byte[], int)
+	 */
+	@Override
+	public void processData(Net net, SocketChannel socketChannel, byte[] data,
+			int count) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.Protocol#getConnectionManager(java.nio.channels.SocketChannel)
+	 */
+	@Override
+	public DefaultConnectionManager getConnectionManager(
+			SocketChannel socketChannel) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -14,29 +14,39 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package topchat.server.interfaces;
+*/
+package topchat.server.protocol.xmpp;
 
 import java.nio.channels.SocketChannel;
 
 import topchat.server.defaults.DefaultConnectionManager;
+import topchat.server.interfaces.Net;
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
-/**
- * Interface describing the protocol used by the server
- * 
- */
-public interface Protocol {
-	public void setMediator(ProtocolMediator med);
-
-	public int getListeningPort();
+public class ProcessData implements Runnable 
+{
+	XMPPProtocol prot;
+	Net net = null;
+	SocketChannel socketChannel = null;
+	byte[] data = null;
+	int count = 0;
 	
-	public void start(Net net);
+	public ProcessData(XMPPProtocol prot, Net net, SocketChannel socketChannel, byte[] data, int count)
+	{
+		this.prot = prot;
+		this.net = net;
+		this.socketChannel = socketChannel;
+		this.data = data;
+		this.count = count;
+	}
 
-	public void processData(Net net, SocketChannel socketChannel, byte[] data, int count);
-
-	/**
-	 * @param socketChannel
-	 * @return
-	 */
-	public DefaultConnectionManager getConnectionManager(SocketChannel socketChannel);
+	@Override
+	public void run()
+	{
+		// Obtain the connection manager for this socket
+		XMPPConnectionManager connMgr = prot.getConnectionManager(socketChannel);
+		
+		// Send the data to the connection manager
+		connMgr.processRead(data, count);
+	}
 }

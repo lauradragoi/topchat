@@ -17,6 +17,11 @@
  */
 package topchat.server.protocol.xmpp;
 
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -29,14 +34,22 @@ import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
  * Implementation of the XMPP protocol
  */
 public class XMPPProtocol implements Protocol, XMPPConstants 
-{
+{	
 	private ProtocolMediator med = null;
 	private Net net = null;
+	
+	/** Pool of threads used to process data received from network */
+	private static ExecutorService pool = Executors.newFixedThreadPool(DEFAULT_EXECUTOR_THREADS);
+	
+	/** Map of SocketChannels and connection managers */
+	private static ConcurrentHashMap<SocketChannel, XMPPConnectionManager> connectionManagers = new ConcurrentHashMap<SocketChannel, XMPPConnectionManager>();
 
-	private static Logger logger = Logger.getLogger(XMPPProtocol.class);
+	private static Logger logger = Logger.getLogger(XMPPProtocol.class);		
 
-	public XMPPProtocol(ProtocolMediator med) {
+	public XMPPProtocol(ProtocolMediator med) 
+	{
 		setMediator(med);
+		
 		this.med.setProtocol(this);
 
 		logger.info("XMPPProtocol initiated");
@@ -53,6 +66,9 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	}
 
 	@Override
+	/**
+	 * Basically starts the network module
+	 */
 	public void start(Net net) 
 	{
 		this.net = net;
@@ -64,10 +80,40 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	}
 	
 	@Override
-	public DefaultConnectionManager getConnectionManager()
+	/**
+	 * Obtain the connection manager for a specified SocketChannel.
+	 * If no such manager exists it is created now and added to the map maintained by the protocol.
+	 */
+	public XMPPConnectionManager getConnectionManager(SocketChannel socketChannel)
 	{
-		return new XMPPConnectionManager();
+		XMPPConnectionManager connManager = connectionManagers.get(socketChannel);
+		
+		if (connManager == null)
+		{
+			connManager = new XMPPConnectionManager(this, socketChannel);
+			connectionManagers.put(socketChannel, connManager);
+		}
+		
+		return connManager;
 	}	
+
+	@Override
+	/**
+	 * Schedules for the received data to be processed on a thread from the executor pool
+	 */
+	public void processData(Net net, SocketChannel socketChannel, byte[] data, int count)
+	{		
+	    byte[] dataCopy = new byte[count];
+	    System.arraycopy(data, 0, dataCopy, 0, count);		
+		pool.execute(new ProcessData(this, net, socketChannel, dataCopy, count));
+	}
 	
-	 
+	
+	/**
+	 * Schedules the specified data to be sent on that SocketChannel
+	 */
+	public void sendData(SocketChannel socketChannel, byte[] data)
+	{
+		net.send(socketChannel, data);
+	}
 }
