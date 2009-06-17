@@ -82,6 +82,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         appBB = ByteBuffer.allocate(appBBSize);
         
         // start the context thread - its job is to handle initial handshake
+        // TODO: use an executor pool for this
         new Thread(this).start();
 	}
 
@@ -97,6 +98,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		readSem.release();	
 		
 		// put read data back in buffer to be unwrapped
+		readBuffer.clear();
 		readBuffer.put(rd);
 		
 		logger.debug("read released");		
@@ -109,6 +111,9 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		writeSem.release();
 		
 		logger.debug("write released");
+		
+		// check finished here
+		
 	}
 	
 	@Override
@@ -123,6 +128,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 	        {
 	        	case NEED_UNWRAP:	        		 	        	
 	        		// wait for something to be read
+	        		logger.debug("Block until read");
 					readSem.acquireUninterruptibly();
 	        	
 					needIO: while (initialHSStatus == HandshakeStatus.NEED_UNWRAP) 
@@ -228,6 +234,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 	   mgr.registerForWrite();
 	   
 	   // block until write is signaled
+	   logger.debug("Block until write");
 	   writeSem.acquireUninterruptibly();			   
    }
 

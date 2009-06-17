@@ -1,5 +1,12 @@
 package topchat.server.protocol.xmpp.context;
 
+import java.nio.ByteBuffer;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -51,4 +58,40 @@ public class XMPPContext extends DefaultContext {
 	{
 		getXMPPManager().contextDone();
 	}
+	
+
+	
+	protected byte[] decodeData(byte[] data)
+	{
+		//String s = new String(data);
+		//logger.debug("Happy receive: " + s);
+		
+		ByteBuffer src = ByteBuffer.wrap(data);
+		
+		SSLEngine tlsEngine = getXMPPManager().getTLSEngine();
+						
+		int appSize = tlsEngine.getSession().getApplicationBufferSize();
+		ByteBuffer dst = ByteBuffer.allocate(appSize);
+		
+		// unwrap
+		SSLEngineResult result = null;
+		try {
+			result = tlsEngine.unwrap(src, dst);
+		} catch (SSLException e) {
+			logger.fatal("unwrap error");
+			e.printStackTrace();
+		}
+		logger.debug("Unwrap result " + result);
+		
+		// drain
+		dst.flip();
+		
+		int count = dst.remaining();
+		byte[] dataResult = new byte[count];
+
+		dst.get(dataResult);
+		
+		return dataResult;
+	}
+	
 }
