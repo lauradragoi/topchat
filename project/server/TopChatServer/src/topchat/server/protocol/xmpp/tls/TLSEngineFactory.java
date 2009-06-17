@@ -35,8 +35,6 @@ import org.apache.log4j.Logger;
 public class TLSEngineFactory {
 
 	private static Logger logger = Logger.getLogger(TLSEngineFactory.class);
-	
-    private static SSLEngine tlsEngine = null;	
 
     // TODO : obtain these from some config file
     private static String keyStoreFile = "security/keystore";
@@ -49,40 +47,29 @@ public class TLSEngineFactory {
      */
     public static SSLEngine createTLSEngine() throws Exception
     {
-    	if (tlsEngine == null)
-    	{
-	    	KeyStore ks = KeyStore.getInstance("JKS");
-	    	KeyStore ts = KeyStore.getInstance("JKS");
+    	SSLEngine tlsEngine = null;
+
+    	KeyStore ks = KeyStore.getInstance("JKS");
+	    KeyStore ts = KeyStore.getInstance("JKS");
 	
-	    	char[] passphrase = "password".toCharArray();
+	   	char[] passphrase = "password".toCharArray();
 	
-	    	ks.load(new FileInputStream(keyStoreFile), passphrase);
-	    	ts.load(new FileInputStream(trustStoreFile), passphrase);
+	   	ks.load(new FileInputStream(keyStoreFile), passphrase);
+	   	ts.load(new FileInputStream(trustStoreFile), passphrase);
 	
-	    	KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-	    	kmf.init(ks, passphrase);
+	   	KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+	   	kmf.init(ks, passphrase);
 	
-	    	TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-	    	tmf.init(ts);
+	   	TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+	   	tmf.init(ts);
 	
-	    	SSLContext sslc = SSLContext.getInstance("TLS");
+	   	SSLContext sslc = SSLContext.getInstance("TLS");
 	
-	    	sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);    	
-	      	
-	    	
-	    	tlsEngine = sslc.createSSLEngine();
-	    	tlsEngine.setUseClientMode(false);
-	    	
-	    	/*
-	    	try {
-				tlsEngine.beginHandshake();
-			} catch (SSLException e) {
-				logger.fatal("Exception on beginning handshake" + e);
-			}
-			*/
-    	}
-    	
+	   	sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);    	
+    		    	
+    	tlsEngine = sslc.createSSLEngine();
+    	tlsEngine.setUseClientMode(false);
+    	    	
     	return tlsEngine;
     }
-   
 }
