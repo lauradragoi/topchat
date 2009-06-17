@@ -15,37 +15,32 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.protocol.xmpp;
+package topchat.server.protocol.xmpp.context;
 
-import java.nio.channels.SocketChannel;
+import org.apache.log4j.Logger;
 
-import topchat.server.interfaces.Net;
+
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
-public class ProcessData implements Runnable 
-{
-	XMPPProtocol prot;
-	Net net = null;
-	SocketChannel socketChannel = null;
-	byte[] data = null;
-	int count = 0;
+/**
+ * In this context the server waits for the client
+ * to contact it and send in the start of the stream. 
+ */
+public class SecureStreamStartContext extends XMPPContext {
+
+	private static Logger logger = Logger.getLogger(SecureStreamStartContext.class);	
 	
-	public ProcessData(XMPPProtocol prot, Net net, SocketChannel socketChannel, byte[] data, int count)
-	{
-		this.prot = prot;
-		this.net = net;
-		this.socketChannel = socketChannel;
-		this.data = data;
-		this.count = count;
+	public SecureStreamStartContext(XMPPConnectionManager mgr) {
+		super(mgr);		
 	}
 
 	@Override
-	public void run()
+	public void processRead(byte[] rd) 
 	{
-		// Obtain the connection manager for this socket
-		XMPPConnectionManager connMgr = prot.getConnectionManager(socketChannel);
+		byte[] decodedReadData = decodeData(rd); 
 		
-		// Send the data to the connection manager
-		connMgr.processRead(data, count);
-	}
+		String s = new String(decodedReadData);
+		logger.debug("wait secure stream start received: " + s);	
+	}	
+	
 }

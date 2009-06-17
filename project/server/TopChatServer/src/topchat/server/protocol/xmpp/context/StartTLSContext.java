@@ -17,37 +17,53 @@
 */
 package topchat.server.protocol.xmpp.context;
 
-import java.nio.ByteBuffer;
-
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-
 import org.apache.log4j.Logger;
 
-import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.StreamElement;
+import topchat.server.protocol.xmpp.stream.parser.Parser;
+import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
  * In this context the server waits for the client
  * to contact it and send in the start of the stream. 
  */
-public class WaitSecureStreamStartContext extends XMPPContext {
+public class StartTLSContext extends XMPPContext {
 
-	private static Logger logger = Logger.getLogger(WaitSecureStreamStartContext.class);	
+	private static Logger logger = Logger.getLogger(StartTLSContext.class);	
 	
-	public WaitSecureStreamStartContext(XMPPConnectionManager mgr) {
+	public StartTLSContext(XMPPConnectionManager mgr) {
 		super(mgr);		
 	}
 
+
 	@Override
-	public void processRead(byte[] rd) 
-	{
-		byte[] decodedReadData = decodeData(rd); 
+	public void processRead(byte[] rd) {		
+		String s = new String(rd);
+		logger.debug("Received: " + s);
 		
-		String s = new String(decodedReadData);
-		logger.debug("wait secure stream start received: " + s);	
+		try {
+			StreamElement result = (StreamElement)Parser.parse(s);
+			
+			// receive starttls
+			if (result.isStartTLS())
+			{
+				// send proceed
+				sendProceedTLS();
+				
+				setDone();
+			}
+			
+		} catch (Exception e) {
+			logger.fatal("StartTLS exception " + e);
+		}
 	}	
 	
+	private void sendProceedTLS()
+	{
+		// prepare the message to be written
+		String msg = Preparer.prepareProceed();
+
+		getXMPPManager().send(msg.getBytes());		
+	}
 }

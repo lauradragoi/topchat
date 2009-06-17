@@ -19,9 +19,9 @@ package topchat.server.protocol.xmpp.context;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.stream.StreamElement;
+import topchat.server.protocol.xmpp.stream.Features;
+import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
@@ -29,44 +29,76 @@ import topchat.server.protocol.xmpp.stream.parser.Preparer;
  * In this context the server waits for the client
  * to contact it and send in the start of the stream. 
  */
-public class WaitStartTLSContext extends XMPPContext {
+public class StreamStartContext extends XMPPContext {
 
-	private static Logger logger = Logger.getLogger(WaitStartTLSContext.class);	
+	private static Logger logger = Logger.getLogger(StreamStartContext.class);	
 	
-	public WaitStartTLSContext(XMPPConnectionManager mgr) {
-		super(mgr);		
+	public StreamStartContext(XMPPConnectionManager mgr) {
+		super(mgr);			
 	}
-
 
 	@Override
 	public void processRead(byte[] rd) {		
 		String s = new String(rd);
 		logger.debug("Received: " + s);
 		
-		try {
-			StreamElement result = (StreamElement)Parser.parse(s);
-			
-			if (result.isStartTLS())
-			{
-				sendProceedTLS();
+		processStartStream(s);
 				
-				setDone();
-			}
-			
+		sendStreamStart();
+		
+		sendFeatures();
+		
+		setDone();
+	}	
+	
+	private void processStartStream(String s)
+	{
+		// process start stream
+		XMPPStream stream = null;
+		
+		try {
+			stream = (XMPPStream) Parser.parse(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			logger.warn("Error in receiving stream start from client");	
 		}
-	}	
+
+		getXMPPManager().setReceivingStream(stream);		
+	}
 	
-	private void sendProceedTLS()
+	private void sendStreamStart()
 	{
-		// prepare the message to be written
-		String msg = Preparer.prepareProceed();
+		// obtain the start of the stream from the manager
+		XMPPStream stream = null;
+		try {
+			stream = getXMPPManager().getStartStream();
+		} catch (Exception e) {			
+			logger.warn("Could not obtain sending stream start");
+			e.printStackTrace();			
+		}
 		
-		// send it
-		//write(msg);			
-		//flush();
+		// prepare the message to be written
+		String msg = Preparer.prepareStreamStart(stream);
+		
+		getXMPPManager().send(msg.getBytes());
+	}
+	
+	private void sendFeatures()
+	{
+		Features ft = null;
+		try {
+			ft = getXMPPManager().getFeatures();
+		} catch (Exception e) {			
+			logger.warn("Could not obtain features info");
+			e.printStackTrace();			
+		}
+		
+		// prepare the message to be written
+		String msg = Preparer.prepareFeatures(ft);
+		
 		getXMPPManager().send(msg.getBytes());		
 	}
+	
 }

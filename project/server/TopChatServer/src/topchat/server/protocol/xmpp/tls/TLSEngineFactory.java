@@ -23,18 +23,13 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
-
-import org.apache.log4j.Logger;
 
 /**
  * Factory for creating TLS Engine object
  */
 public class TLSEngineFactory {
-
-	private static Logger logger = Logger.getLogger(TLSEngineFactory.class);
 
     // TODO : obtain these from some config file
     private static String keyStoreFile = "security/keystore";
