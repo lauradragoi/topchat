@@ -23,6 +23,7 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 
 
@@ -71,6 +72,14 @@ public class TLSEngineFactory {
 	    	
 	    	tlsEngine = sslc.createSSLEngine();
 	    	tlsEngine.setUseClientMode(false);
+	    	
+	    	/*
+	    	try {
+				tlsEngine.beginHandshake();
+			} catch (SSLException e) {
+				logger.fatal("Exception on beginning handshake" + e);
+			}
+			*/
     	}
     	
     	return tlsEngine;

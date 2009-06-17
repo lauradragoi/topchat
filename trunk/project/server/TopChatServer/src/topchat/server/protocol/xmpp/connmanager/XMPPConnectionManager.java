@@ -23,7 +23,7 @@ import javax.net.ssl.SSLException;
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
-import topchat.server.protocol.xmpp.context.HappyContext;
+import topchat.server.protocol.xmpp.context.WaitSecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.TLSHandshakeContext;
 import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
 import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
@@ -102,7 +102,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof TLSHandshakeContext)
 		{
-			nextContext = new HappyContext(this, old);
+			nextContext = new WaitSecureStreamStartContext(this, old);
 		}
 		else if (old instanceof SendProceedTLS)
 		{
@@ -196,12 +196,6 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 			} catch (Exception e1) {
 				logger.fatal("Exception on creating TLS engine" + e1);			
 				return null;
-			}
-			
-			try {
-				tlsEngine.beginHandshake();
-			} catch (SSLException e) {
-				logger.fatal("Exception on beginning handshake" + e);
 			}
 		}	
 		
