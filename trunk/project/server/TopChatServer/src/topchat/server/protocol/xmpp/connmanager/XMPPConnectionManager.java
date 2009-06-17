@@ -192,4 +192,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return tlsEngine;
 	}
 	
+	public void execute(Runnable r)
+	{
+		protocol.execute(r);
+	}
 }

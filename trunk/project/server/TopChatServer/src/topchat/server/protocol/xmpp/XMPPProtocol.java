@@ -115,4 +115,9 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	{
 		net.send(socketChannel, data);
 	}
+	
+	public void execute(Runnable r)
+	{
+		pool.execute(r);
+	}
 }

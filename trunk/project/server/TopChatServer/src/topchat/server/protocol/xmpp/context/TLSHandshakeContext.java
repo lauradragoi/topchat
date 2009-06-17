@@ -59,9 +59,6 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 	private ByteBuffer readBuffer;
 	private ByteBuffer writeBuffer;
 	
-
-	/** Semaphores used for synchronizing the thread of this context with the read and write events of the stream */
-	//private Semaphore writeSem = new Semaphore(0);
 	private Semaphore readSem = new Semaphore(0);	   
 	
 	public TLSHandshakeContext(XMPPConnectionManager mgr) {
@@ -84,8 +81,8 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         appBB = ByteBuffer.allocate(appBBSize);
         
         // start the context thread - its job is to handle initial handshake
-        // TODO: use an executor pool for this
-        new Thread(this).start();
+        // on a thread from an executor pool 
+        getXMPPManager().execute(this);
 	}
 
 	@Override
@@ -100,26 +97,12 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		readSem.release();	
 		
 		// put read data back in buffer to be unwrapped
-		//readBuffer.clear();
 		readBuffer.put(rd);
 		
 		logger.debug("read released");		
 	}	
 	
-	/*
-	@Override
-	public void processWrite()
-	{	
-		// announce write
-		writeSem.release();
-		
-		logger.debug("write released");
-		
-		// check finished here
-		
-	}
-	*/
-	
+
 	@Override
     public void run()
     {
@@ -237,12 +220,10 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
     }
 
    /**
-    * Blocks until information in Buffer has been sent on the stream.
+    * Schedule send
     */
    private void flush(ByteBuffer bb)
    {
-	   // announce manager reading desire
-	//   mgr.registerForWrite();
 		int count = bb.remaining();
 		byte[] rd = new byte[count];
 	
@@ -250,11 +231,6 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		getXMPPManager().send(rd);
 		
 		logger.debug("Send "  + new String(rd));
-		//bb.clear();
-	   
-	   // block until write is signaled
-	   //logger.debug("Block until write");
-	   //writeSem.acquireUninterruptibly();			   
    }
 
    /**
