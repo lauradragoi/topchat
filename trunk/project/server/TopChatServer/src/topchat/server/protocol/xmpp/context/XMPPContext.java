@@ -18,6 +18,11 @@ public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
 	
+	public XMPPContext(DefaultConnectionManager mgr) {
+		super(mgr);	
+	}
+	
+	/*
 	public XMPPContext() {
 			super();
 	}
@@ -34,6 +39,7 @@ public class XMPPContext extends DefaultContext {
 	public XMPPContext(DefaultConnectionManager mgr, DefaultContext old) {
 		super(mgr, old);	
 	}
+	*/
 
 	public void processWrite()
 	{

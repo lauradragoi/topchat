@@ -23,6 +23,7 @@ import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stream.StreamElement;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
+import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
  * In this context the server waits for the client
@@ -32,8 +33,8 @@ public class WaitStartTLSContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(WaitStartTLSContext.class);	
 	
-	public WaitStartTLSContext(XMPPConnectionManager mgr, DefaultContext old) {
-		super(mgr, old);		
+	public WaitStartTLSContext(XMPPConnectionManager mgr) {
+		super(mgr);		
 	}
 
 
@@ -46,7 +47,11 @@ public class WaitStartTLSContext extends XMPPContext {
 			StreamElement result = (StreamElement)Parser.parse(s);
 			
 			if (result.isStartTLS())
+			{
+				sendProceedTLS();
+				
 				setDone();
+			}
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -54,4 +59,14 @@ public class WaitStartTLSContext extends XMPPContext {
 		}
 	}	
 	
+	private void sendProceedTLS()
+	{
+		// prepare the message to be written
+		String msg = Preparer.prepareProceed();
+		
+		// send it
+		//write(msg);			
+		//flush();
+		getXMPPManager().send(msg.getBytes());		
+	}
 }

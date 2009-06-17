@@ -57,13 +57,17 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 	
 	/** A buffer to hold application data */
 	private ByteBuffer appBB;
+	
+	private ByteBuffer readBuffer;
+	private ByteBuffer writeBuffer;
+	
 
 	/** Semaphores used for synchronizing the thread of this context with the read and write events of the stream */
-	private Semaphore writeSem = new Semaphore(0);
+	//private Semaphore writeSem = new Semaphore(0);
 	private Semaphore readSem = new Semaphore(0);	   
 	
-	public TLSHandshakeContext(XMPPConnectionManager mgr, DefaultContext old) {
-		super(mgr, old);
+	public TLSHandshakeContext(XMPPConnectionManager mgr) {
+		super(mgr);
 						
 		tlsEngine = mgr.getTLSEngine();
 		
@@ -74,7 +78,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         appBBSize = tlsEngine.getSession().getApplicationBufferSize();
 
         // resize buffers to fit TLS needs
-        readBuffer = ByteBuffer.allocate(netBBSize);
+        readBuffer = ByteBuffer.allocate(appBBSize);
         writeBuffer = ByteBuffer.allocate(netBBSize);
         writeBuffer.position(0);
         writeBuffer.limit(0);
@@ -98,12 +102,13 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		readSem.release();	
 		
 		// put read data back in buffer to be unwrapped
-		readBuffer.clear();
+		//readBuffer.clear();
 		readBuffer.put(rd);
 		
 		logger.debug("read released");		
 	}	
 	
+	/*
 	@Override
 	public void processWrite()
 	{	
@@ -115,10 +120,12 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 		// check finished here
 		
 	}
+	*/
 	
 	@Override
     public void run()
     {
+		
         SSLEngineResult result = null;
         
         // this will run until handshake is complete
@@ -173,6 +180,11 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
 									continue;
 								}
 							}
+					
+					if (initialHSStatus != HandshakeStatus.NEED_WRAP)
+					{
+						break;
+					}
 	
 				// fall through	
 	        	case NEED_WRAP:
@@ -223,6 +235,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         // if loop is exited handshake is complete
         // signal end of this context
         setDone();
+        
     }
 
    /**
@@ -231,11 +244,19 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
    private void flush(ByteBuffer bb)
    {
 	   // announce manager reading desire
-	   mgr.registerForWrite();
+	//   mgr.registerForWrite();
+		int count = bb.remaining();
+		byte[] rd = new byte[count];
+	
+		bb.get(rd);
+		getXMPPManager().send(rd);
+		
+		logger.debug("Send "  + new String(rd));
+		//bb.clear();
 	   
 	   // block until write is signaled
-	   logger.debug("Block until write");
-	   writeSem.acquireUninterruptibly();			   
+	   //logger.debug("Block until write");
+	   //writeSem.acquireUninterruptibly();			   
    }
 
    /**

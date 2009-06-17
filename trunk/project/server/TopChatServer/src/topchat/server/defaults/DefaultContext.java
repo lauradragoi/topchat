@@ -29,11 +29,11 @@ import topchat.server.util.Utils;
 public abstract class DefaultContext 
 {	
 	// Size of the buffers
-	protected static final int BUF_SIZE	= 8192;		// 2^13
+	//protected static final int BUF_SIZE	= 8192;		// 2^13
 	
 	// Buffers for read and write operations
-	protected ByteBuffer readBuffer = null;
-	protected ByteBuffer writeBuffer = null;
+	//protected ByteBuffer readBuffer = null;
+	//protected ByteBuffer writeBuffer = null;
 	
 	// Connection manager handling this context
 	protected DefaultConnectionManager mgr = null;
@@ -42,12 +42,13 @@ public abstract class DefaultContext
 	/**
 	 * Constructs context
 	 */
+	/*
 	public DefaultContext()
 	{		
 		// allocate buffers
-		readBuffer = ByteBuffer.allocateDirect(BUF_SIZE);
-		writeBuffer = ByteBuffer.allocateDirect(BUF_SIZE);		
-	}
+		//readBuffer = ByteBuffer.allocateDirect(BUF_SIZE);
+		//writeBuffer = ByteBuffer.allocateDirect(BUF_SIZE);		
+	}*/
 	
 	/**
 	 * Constructs context controlled by a connection manager
@@ -55,20 +56,22 @@ public abstract class DefaultContext
 	 */
 	public DefaultContext(DefaultConnectionManager mgr)
 	{
-		this();
 		this.mgr = mgr;
 	}
+	
 	
 	/**
 	 * Constructs context starting from an existing context
 	 * @param old
 	 */
+	/*
 	public DefaultContext(DefaultContext old) 
 	{		
 		// use old buffers
 		this.readBuffer  = old.readBuffer;		
 		this.writeBuffer = old.writeBuffer;		
 	}
+	*/
 	
 	/**
 	 * Constructs context starting from an existing context
@@ -77,29 +80,35 @@ public abstract class DefaultContext
 	 * @param mgr the connection manager controlling the context being created 
 	 * @param old
 	 */
+	/*
 	public DefaultContext(DefaultConnectionManager mgr, DefaultContext old) 
 	{
 		this(old);
 		this.mgr = mgr;
 	}
+	*/
 
 	/**
 	 * Obtain buffer used for reading on this connection 
 	 * @return read buffer
 	 */	
+	/*
 	public ByteBuffer getReadBuffer()
 	{
 		return readBuffer;
 	}
+	*/
 
 	/**
 	 * Obtain buffer used for writing on this connection 
 	 * @return write buffer
 	 */
+	/*
 	public ByteBuffer getWriteBuffer()
 	{
 		return writeBuffer;
 	}
+	*/
 
 	/** 
 	 * Method to be executed after a reading operation has completed.
@@ -110,21 +119,24 @@ public abstract class DefaultContext
 	/**
 	 * Method to be executed after a writing operation has completed.
 	 */
-	public abstract void processWrite();
+	//public abstract void processWrite();
 	
 	/**
 	 * Prepare write buffer for draining and announce interest in writing
 	 */
+	/*
 	public void flush()
 	{
 		writeBuffer.flip();
 		mgr.registerForWrite();
 	}
+	*/
 	
 	/**
 	 * Put a string into the write buffer
 	 * @param s
 	 */
+	/*
 	public void write(String s)
 	{
 		Utils.putStringToBuffer(s, writeBuffer);	
@@ -135,4 +147,5 @@ public abstract class DefaultContext
 		readBuffer = read;
 		writeBuffer = write;
 	}
+	*/
 } 

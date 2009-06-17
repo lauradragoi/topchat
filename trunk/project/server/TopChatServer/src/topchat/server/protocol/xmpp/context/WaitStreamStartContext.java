@@ -20,8 +20,10 @@ package topchat.server.protocol.xmpp.context;
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
+import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
  * In this context the server waits for the client
@@ -40,6 +42,17 @@ public class WaitStreamStartContext extends XMPPContext {
 		String s = new String(rd);
 		logger.debug("Received: " + s);
 		
+		processStartStream(s);
+				
+		sendStreamStart();
+		
+		sendFeatures();
+		
+		setDone();
+	}	
+	
+	private void processStartStream(String s)
+	{
 		// process start stream
 		XMPPStream stream = null;
 		
@@ -52,9 +65,48 @@ public class WaitStreamStartContext extends XMPPContext {
 			logger.warn("Error in receiving stream start from client");	
 		}
 
-		getXMPPManager().setReceivingStream(stream);
+		getXMPPManager().setReceivingStream(stream);		
+	}
+	
+	private void sendStreamStart()
+	{
+		// obtain the start of the stream from the manager
+		XMPPStream stream = null;
+		try {
+			stream = getXMPPManager().getStartStream();
+		} catch (Exception e) {			
+			logger.warn("Could not obtain sending stream start");
+			e.printStackTrace();			
+		}
 		
-		setDone();
-	}	
+		logger.debug("prepare");
+		// prepare the message to be written
+		String msg = Preparer.prepareStreamStart(stream);
+		logger.debug("after prepare");
+		// send it
+		
+		//write(msg);			
+		//flush();
+		getXMPPManager().send(msg.getBytes());
+	}
+	
+	private void sendFeatures()
+	{
+		Features ft = null;
+		try {
+			ft = getXMPPManager().getFeatures();
+		} catch (Exception e) {			
+			logger.warn("Could not obtain features info");
+			e.printStackTrace();			
+		}
+		
+		// prepare the message to be written
+		String msg = Preparer.prepareFeatures(ft);
+		
+		// send it
+		//write(msg);			
+		//flush();
+		getXMPPManager().send(msg.getBytes());		
+	}
 	
 }

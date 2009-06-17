@@ -37,8 +37,8 @@ public class WaitSecureStreamStartContext extends XMPPContext {
 
 	private static Logger logger = Logger.getLogger(WaitSecureStreamStartContext.class);	
 	
-	public WaitSecureStreamStartContext(XMPPConnectionManager mgr, DefaultContext old) {
-		super(mgr, old);		
+	public WaitSecureStreamStartContext(XMPPConnectionManager mgr) {
+		super(mgr);		
 	}
 
 	@Override

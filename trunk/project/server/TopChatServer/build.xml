@@ -50,7 +50,7 @@
 		<echo message="Finished." />
 	</target>
 	
-	<target name="run_client" depends="compile" description="run the dumb client" >
+	<target name="run_client" depends="" description="run the dumb client" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning client..." />
 		<java classname="topchat.server.dummyclient.DumbClient"  fork="true">

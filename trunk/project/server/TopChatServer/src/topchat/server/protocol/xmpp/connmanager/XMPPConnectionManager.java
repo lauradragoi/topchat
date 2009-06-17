@@ -17,19 +17,19 @@
  */
 package topchat.server.protocol.xmpp.connmanager;
 
+import java.nio.channels.SocketChannel;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
+import topchat.server.protocol.xmpp.XMPPProtocol;
 import topchat.server.protocol.xmpp.context.WaitSecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.TLSHandshakeContext;
 import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
 import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
-import topchat.server.protocol.xmpp.context.SendFeaturesContext;
-import topchat.server.protocol.xmpp.context.SendProceedTLS;
-import topchat.server.protocol.xmpp.context.SendStreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
@@ -53,40 +53,59 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 
 	/** Used for securing the stream using TLS */
 	protected SSLEngine tlsEngine = null;	
-
 	
-	public XMPPConnectionManager()
+	/** The protocol handling this connection manager */
+	private XMPPProtocol protocol = null;
+	
+	/** The SocketChannel handled by this connection manager */
+	private SocketChannel socketChannel = null;
+	
+	public XMPPConnectionManager(XMPPProtocol protocol, SocketChannel socketChannel)
 	{
+		this.protocol = protocol;
+		this.socketChannel = socketChannel;
+		
+		// initiate context
 		context  = new WaitStreamStartContext(this); 		
 	}
 	
+	/*
 	@Override
 	public synchronized void processWrite() 
 	{
 		context.processWrite();							
 	}
+	*/
 
 	@Override
-	public synchronized void processRead(byte[] rd) 
+	public synchronized void processRead(byte[] rd, int count) 
 	{
 		String s = new String(rd);
+		
+		logger.debug("received: " + s);
 		
 		context.processRead(rd);			
 	}	
 	
+	public void send(byte[] data)
+	{
+		protocol.sendData(socketChannel, data);
+	}
 	
+/*	
 	@Override
 	public void close()
 	{
 		key.cancel();
 		logger.info("Client out");		
 	}
+	*/
 	
 	/**
 	 * Method called by the current context to announce 
 	 * it has finished his job.
 	 */
-	public void contextDone()
+	public synchronized void contextDone()
 	{		
 		switchKeyContext((XMPPContext) context);
 	}
@@ -102,26 +121,30 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof TLSHandshakeContext)
 		{
-			nextContext = new WaitSecureStreamStartContext(this, old);
+			nextContext = new WaitSecureStreamStartContext(this);
 		}
+		/*
 		else if (old instanceof SendProceedTLS)
 		{
-			nextContext = new TLSHandshakeContext(this, old);
-		}
+			nextContext = new TLSHandshakeContext(this);
+		}*/
 		else if (old instanceof WaitStartTLSContext)
 		{
-			nextContext = new SendProceedTLS(this, old);
-		}
-		else if (old instanceof SendFeaturesContext)
+			nextContext = new TLSHandshakeContext(this);
+			//nextContext = new SendProceedTLS(this);
+		/* 
+		} else if (old instanceof SendFeaturesContext)
 		{	
-			nextContext = new WaitStartTLSContext(this, old);					
+			nextContext = new WaitStartTLSContext(this);					
 		}
 		else if (old instanceof SendStreamStartContext)
 		{
-			nextContext = new SendFeaturesContext(this, old);						
+			nextContext = new SendFeaturesContext(this);
+			*/						
 		} else if (old instanceof WaitStreamStartContext)
 		{			
-			nextContext = new SendStreamStartContext(this, old);						
+			nextContext = new WaitStartTLSContext(this);	
+			// nextContext = new SendStreamStartContext(this);						
 		} else if (old instanceof XMPPContext)
 		{				
 			nextContext = new WaitStreamStartContext(this);
@@ -139,6 +162,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	 */
 	public void setReceivingStream(XMPPStream stream)
 	{
+		logger.debug("set");
 		this.receivingStream = stream;
 	}
 	

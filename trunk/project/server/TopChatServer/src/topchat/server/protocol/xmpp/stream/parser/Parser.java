@@ -88,6 +88,8 @@ public class Parser implements Constants {
 		
 		XMLEventReader reader = Utils.createReader(msg);
 		
+		logger.debug("parsing : " + msg);
+		
 		while (reader.hasNext(  )) 
 		{
 		    XMLEvent event = null;
