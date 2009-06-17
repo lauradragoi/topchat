@@ -20,16 +20,15 @@ package topchat.server.protocol.xmpp.connmanager;
 import java.nio.channels.SocketChannel;
 
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
 
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
-import topchat.server.protocol.xmpp.context.WaitSecureStreamStartContext;
+import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.TLSHandshakeContext;
-import topchat.server.protocol.xmpp.context.WaitStartTLSContext;
-import topchat.server.protocol.xmpp.context.WaitStreamStartContext;
+import topchat.server.protocol.xmpp.context.StartTLSContext;
+import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
@@ -66,17 +65,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		this.socketChannel = socketChannel;
 		
 		// initiate context
-		context  = new WaitStreamStartContext(this); 		
+		context  = new StreamStartContext(this); 		
 	}
 	
-	/*
-	@Override
-	public synchronized void processWrite() 
-	{
-		context.processWrite();							
-	}
-	*/
-
 	@Override
 	public synchronized void processRead(byte[] rd, int count) 
 	{
@@ -91,15 +82,6 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{
 		protocol.sendData(socketChannel, data);
 	}
-	
-/*	
-	@Override
-	public void close()
-	{
-		key.cancel();
-		logger.info("Client out");		
-	}
-	*/
 	
 	/**
 	 * Method called by the current context to announce 
@@ -121,33 +103,17 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof TLSHandshakeContext)
 		{
-			nextContext = new WaitSecureStreamStartContext(this);
+			nextContext = new SecureStreamStartContext(this);
 		}
-		/*
-		else if (old instanceof SendProceedTLS)
+		else if (old instanceof StartTLSContext)
 		{
-			nextContext = new TLSHandshakeContext(this);
-		}*/
-		else if (old instanceof WaitStartTLSContext)
-		{
-			nextContext = new TLSHandshakeContext(this);
-			//nextContext = new SendProceedTLS(this);
-		/* 
-		} else if (old instanceof SendFeaturesContext)
-		{	
-			nextContext = new WaitStartTLSContext(this);					
-		}
-		else if (old instanceof SendStreamStartContext)
-		{
-			nextContext = new SendFeaturesContext(this);
-			*/						
-		} else if (old instanceof WaitStreamStartContext)
+			nextContext = new TLSHandshakeContext(this);				
+		} else if (old instanceof StreamStartContext)
 		{			
-			nextContext = new WaitStartTLSContext(this);	
-			// nextContext = new SendStreamStartContext(this);						
+			nextContext = new StartTLSContext(this);						
 		} else if (old instanceof XMPPContext)
 		{				
-			nextContext = new WaitStreamStartContext(this);
+			nextContext = new StreamStartContext(this);
 		}
 									
 		// enter next context

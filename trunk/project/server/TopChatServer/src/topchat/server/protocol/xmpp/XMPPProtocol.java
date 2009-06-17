@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;

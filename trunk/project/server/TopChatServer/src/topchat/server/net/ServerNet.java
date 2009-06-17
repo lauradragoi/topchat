@@ -31,12 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.NetMediator;
 import topchat.server.interfaces.Protocol;
@@ -56,20 +53,17 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	
 	private Selector selector = null;
 	
+	@SuppressWarnings("unused")
 	private int port;
 	
 	// The buffer into which we'll read data when it's available
-	private ByteBuffer readBuffer = ByteBuffer.allocate(8192);
+	private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 	
 	// A list of ChangeRequest instances
-	private List changeRequests = new LinkedList();
+	private List<ChangeRequest> changeRequests = new LinkedList<ChangeRequest>();
 
 	// Maps a SocketChannel to a list of ByteBuffer instances
-	private Map pendingData = new HashMap();
-
-
-	//private static ExecutorService pool = Executors
-	//		.newFixedThreadPool(DEFAULT_EXECUTOR_THREADS);
+	private Map<SocketChannel, List<ByteBuffer> > pendingData = new HashMap<SocketChannel, List<ByteBuffer> >();
 
 	private static Logger logger = Logger.getLogger(ServerNet.class);
 
@@ -188,10 +182,10 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	        // Process any pending changes
 	        synchronized(this.changeRequests) 
 	        {
-	        	Iterator changes = this.changeRequests.iterator();
+	        	Iterator<ChangeRequest> changes = this.changeRequests.iterator();
 	        	while (changes.hasNext()) 
 	        	{
-	        		ChangeRequest change = (ChangeRequest) changes.next();
+	        		ChangeRequest change = changes.next();
 	        		switch(change.type) 
 	        		{
 	        			case ChangeRequest.CHANGEOPS:
@@ -274,9 +268,9 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	    	// And queue the data we want written
 	    	synchronized (this.pendingData) 
 	    	{
-	    		List queue = (List) this.pendingData.get(socket);
+	    		List<ByteBuffer> queue = this.pendingData.get(socket);
 	    		if (queue == null) {
-	    			queue = new ArrayList();
+	    			queue = new ArrayList<ByteBuffer>();
 	    			this.pendingData.put(socket, queue);
 	    		}
 	    		queue.add(ByteBuffer.wrap(data));
@@ -359,7 +353,7 @@ public class ServerNet implements Net, NetConstants, Runnable {
 
 		    synchronized (this.pendingData) 
 		    {
-		    	List queue = (List) this.pendingData.get(socketChannel);
+		    	List<ByteBuffer> queue = this.pendingData.get(socketChannel);
 		      
 		    	// Write until there's not more data ...
 		    	while (!queue.isEmpty()) 

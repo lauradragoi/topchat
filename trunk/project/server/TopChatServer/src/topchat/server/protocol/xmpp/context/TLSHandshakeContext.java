@@ -17,7 +17,6 @@
 */
 package topchat.server.protocol.xmpp.context;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 
@@ -28,7 +27,6 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.defaults.DefaultContext;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
 /**
@@ -78,7 +76,7 @@ public class TLSHandshakeContext extends XMPPContext implements Runnable {
         appBBSize = tlsEngine.getSession().getApplicationBufferSize();
 
         // resize buffers to fit TLS needs
-        readBuffer = ByteBuffer.allocate(appBBSize);
+        readBuffer = ByteBuffer.allocate(netBBSize);
         writeBuffer = ByteBuffer.allocate(netBBSize);
         writeBuffer.position(0);
         writeBuffer.limit(0);

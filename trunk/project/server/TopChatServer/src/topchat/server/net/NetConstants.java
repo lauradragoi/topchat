@@ -24,6 +24,5 @@ import topchat.server.util.Constants;
  */
 public interface NetConstants extends Constants 
 {
-	/** The default number of threads in the executor pool */
-	public static final int DEFAULT_EXECUTOR_THREADS = 5;
+	public static final int BUFFER_SIZE = 8192;
 }
