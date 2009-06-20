@@ -85,6 +85,25 @@ public class Utils {
 	 * @param namespaceUri
 	 */
 	static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
+			String namespaceUri)
+	{
+		XMLEvent event = eventFactory.createNamespace(namespaceUri);
+	    try {
+			writer.add(event);
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
+	
+	/**
+	 * Method used to add a namespace to an event writer
+	 * @param eventFactory
+	 * @param writer
+	 * @param prefix
+	 * @param namespaceUri
+	 */
+	static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
 			String prefix, String namespaceUri)
 	{
 		XMLEvent event = eventFactory.createNamespace(prefix, namespaceUri);

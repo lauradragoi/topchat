@@ -162,8 +162,10 @@ public class Preparer {
 		XMLEventFactory  eventFactory = XMLEventFactory.newInstance();
 		
 		Utils.addStartElement(eventFactory, writer, 
-						"stream", "http://etherx.jabber.org/streams", "stream");		
-	
+						"stream", "http://etherx.jabber.org/streams", "stream");	
+		
+		Utils.addNamespace(eventFactory, writer, "jabber:client");
+		
 		Utils.addNamespace(eventFactory, writer, "stream", "http://etherx.jabber.org/streams");
 				
 		Utils.addAttribute(eventFactory, writer, "from", stream.getFrom());

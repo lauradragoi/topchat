@@ -23,7 +23,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
-public class DumbClient {
+public class DumbClient implements Runnable {
 
     public static XMPPConnection conn;
     
@@ -42,17 +42,29 @@ public class DumbClient {
         }
     }
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+    public void run()
+    {
+    	boolean running = true;
+    	
 		try {
 			makeConnection();
 		} catch (XMPPException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
+    	while (running)
+    	{
+    		
+    	}
+    }
+    
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+ 		
+		(new Thread(new DumbClient())).start();
 	}
 
 }
