@@ -31,7 +31,7 @@ import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
 import topchat.server.protocol.xmpp.context.ExtraSecureStreamStartContext;
-import topchat.server.protocol.xmpp.context.LaLaContext;
+import topchat.server.protocol.xmpp.context.ResourceBindingContext;
 import topchat.server.protocol.xmpp.context.SASLContext;
 import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
@@ -113,7 +113,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof ExtraSecureStreamStartContext)
 		{
-			nextContext = new LaLaContext(this);
+			nextContext = new ResourceBindingContext(this);
 		} else if (old instanceof SASLContext)
 		{
 			nextContext = new ExtraSecureStreamStartContext(this);	

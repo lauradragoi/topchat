@@ -17,6 +17,43 @@
  */
 package topchat.server.protocol.xmpp.stanzas;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+
 public class IQStanza extends XMPPStanza {
 
+	private Map<String, String> attributes = new HashMap<String, String>();
+	private Map<String, String> data = new HashMap<String, String>();	
+	
+	private static Logger logger = Logger.getLogger(IQStanza.class);
+	
+	public IQStanza()
+	{
+		
+	}
+	
+	public void addAttribute(String name, String value)
+	{
+		logger.debug("add attribute : " + name + " : " + value);
+		attributes.put(name, value);
+	}
+	
+	public void addData(String name, String value)
+	{
+		logger.debug("add data : " + name + " : " + value);
+		data.put(name, value);
+	}
+	
+	public String getAttribute(String name)
+	{	
+		return attributes.get(name);
+	}
+	
+	public String getData(String name)
+	{		
+		return data.get(name);
+	}
 }
