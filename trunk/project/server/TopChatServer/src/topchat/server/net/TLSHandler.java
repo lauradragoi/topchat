@@ -92,6 +92,9 @@ public class TLSHandler implements Runnable {
 			readBuffer.flip();
 			
 			SSLEngineResult result = null;
+			
+			appBB = ByteBuffer.allocate(sslEngine.getSession().getApplicationBufferSize());
+			
 			try {
 				result = sslEngine.unwrap(readBuffer, appBB);
 			} catch (SSLException e) {

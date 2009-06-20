@@ -15,51 +15,37 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.protocol.xmpp.stream;
+package topchat.server.protocol.xmpp.context;
 
-public class Features {
+import org.apache.log4j.Logger;
 
-	private boolean useOfTLS = false;
-	private boolean useOfSASL = false;
-	private boolean useMD5 = false;
-	private boolean usePlain = false;
-	
-	public Features(boolean useTLS)
-	{
-		useOfTLS = useTLS;
+
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+
+/**
+* In this context the server waits for the client
+* to contact it and send in the start of the stream. 
+*/
+public class SASLContext extends XMPPContext 
+{
+
+	private static Logger logger = Logger.getLogger(SASLContext.class);	
+
+	public SASLContext(XMPPConnectionManager mgr) {
+		super(mgr);		
 	}
-	
-	public Features(boolean useTLS, boolean useSASL)
+
+	@Override
+	public void processRead(byte[] rd) 
 	{
-		useOfTLS = useTLS;
-		useOfSASL = useSASL;
+		String s = new String(rd);
+		logger.debug("received: " + s);	
 		
-		if (useSASL)
-		{
-			useMD5 = true;
-			usePlain = true;
-		}
-	}
+		//processStartStream(s);
+		
+		//sendStreamStart();
+		
+		//setDone();
+	}	
 
-	
-	public boolean usesTLS()
-	{
-		return useOfTLS;
-	}
-	
-	public boolean usesSASL()
-	{
-		return useOfSASL;
-	}
-	
-	public boolean usesMD5()
-	{
-		return useMD5;
-	}
-	
-	public boolean usesPlain()
-	{
-		return usePlain;
-	}
-	
 }

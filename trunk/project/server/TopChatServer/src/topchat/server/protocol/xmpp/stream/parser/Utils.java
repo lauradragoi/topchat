@@ -114,6 +114,17 @@ public class Utils {
 			e.printStackTrace();
 		}
 	}
+	
+	static void addContent(XMLEventFactory eventFactory, XMLEventWriter writer, String content)
+	{
+		XMLEvent event = eventFactory.createCharacters(content);
+	    try {
+			writer.add(event);
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Method used to finish writing to an event writer
