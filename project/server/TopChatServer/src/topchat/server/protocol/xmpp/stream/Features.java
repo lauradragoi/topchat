@@ -24,6 +24,7 @@ public class Features {
 	private boolean useMD5 = false;
 	private boolean usePlain = false;
 	private boolean offerBinding = false;
+	private boolean sessionSupported = false;
 	
 	public Features(boolean useTLS)
 	{
@@ -53,6 +54,11 @@ public class Features {
 			useMD5 = true;
 			usePlain = true;
 		}
+		
+		if (offerBinding)
+		{
+			sessionSupported = true;
+		}
 	}
 
 	
@@ -79,5 +85,10 @@ public class Features {
 	public boolean offersBinding()
 	{
 		return offerBinding;
+	}
+	
+	public boolean sessionSupported()
+	{
+		return sessionSupported;
 	}
 }

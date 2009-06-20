@@ -29,7 +29,9 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.smack.packet.IQ;
 
+import topchat.server.protocol.xmpp.stanzas.IQStanza;
 import topchat.server.protocol.xmpp.stream.Constants;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.StreamElement;
@@ -119,7 +121,7 @@ public class Parser implements Constants {
 		    		parseMessage(startElement, reader);
 		    	
 		    	if ("iq".equals(local))
-	    			parseIq(startElement, reader);
+	    			result = parseIq(startElement, reader);
 		    	
 		    	if ("presence".equals(local))
 	    			parsePresence(startElement, reader);
@@ -215,9 +217,17 @@ public class Parser implements Constants {
 	 * @param start
 	 * @param reader
 	 */
-	private static void parseIq(StartElement start, XMLEventReader reader ) throws Exception
+	private static IQStanza parseIq(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
+		
+		IQStanza iqStanza = new IQStanza();
+		
+		Iterator it = start.getAttributes();
+		while (it.hasNext()) {
+			Attribute attrib = (Attribute) it.next();
+			iqStanza.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
+		}
 		
 		while (reader.hasNext(  ) && !end) 
 		{
@@ -236,7 +246,18 @@ public class Parser implements Constants {
 		    if (event.isStartElement()) 
 		    {		  
 		    	StartElement startElement = ((StartElement) event);
-		    	logger.debug("start: " + startElement.toString());		    			    	
+		    	logger.debug("start: " + startElement.toString());		
+		    	
+		    	if ("resource".equals(startElement.getName().getLocalPart()))
+		    	{
+		    		event = reader.nextEvent();
+		    		if (event.isCharacters())
+		    		{
+		    			logger.debug("chars " + event.toString());
+		    			iqStanza.addData("resource", event.toString());
+		    		}
+		    	}
+		    	
 		    }
 		    else if (event.isEndElement())
 		    {
@@ -252,6 +273,8 @@ public class Parser implements Constants {
 		    	logger.debug(event.toString());
 		    }
 		}	
+		
+		return iqStanza;
 	}
 	
 	/**

@@ -85,7 +85,18 @@ public class Preparer {
 			Utils.addNamespace(eventFactory, writer, "", "urn:ietf:params:xml:ns:xmpp-bind");
 			Utils.addEndElement(eventFactory, writer, 
 					"", null, "bind");	
+			
+			if (features.sessionSupported())
+			{
+				Utils.addStartElement(eventFactory, writer, 
+						"", "urn:ietf:params:xml:ns:xmpp-session", "session");
+				Utils.addNamespace(eventFactory, writer, "", "urn:ietf:params:xml:ns:xmpp-session");
+				Utils.addEndElement(eventFactory, writer, 
+						"", null, "session");	
+			}
 		}
+		
+		
 		
 		Utils.addEndElement(eventFactory, writer, 
 				"stream", null, "features");
