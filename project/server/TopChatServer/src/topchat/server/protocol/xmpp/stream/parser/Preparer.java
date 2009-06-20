@@ -48,6 +48,35 @@ public class Preparer {
 					"", null, "starttls");				
 		}
 
+		if (features.usesSASL())
+		{
+			Utils.addStartElement(eventFactory, writer, 
+					"", "urn:ietf:params:xml:ns:xmpp-sasl", "mechanisms");
+			Utils.addNamespace(eventFactory, writer, "", "urn:ietf:params:xml:ns:xmpp-sasl");
+			
+			if (features.usesMD5())
+			{
+				Utils.addStartElement(eventFactory, writer, 
+						"", null, "mechanism");
+				Utils.addContent(eventFactory, writer, "DIGEST-MD5");
+				Utils.addEndElement(eventFactory, writer, 
+						"", null, "mechanism");
+			}
+			
+			if (features.usesPlain())
+			{
+				Utils.addStartElement(eventFactory, writer, 
+						"", null, "mechanism");
+				Utils.addContent(eventFactory, writer, "PLAIN");
+				Utils.addEndElement(eventFactory, writer, 
+						"", null, "mechanism");
+			}
+			
+			
+			Utils.addEndElement(eventFactory, writer, 
+					"", null, "mechanisms");		
+		}
+		
 		Utils.addEndElement(eventFactory, writer, 
 				"stream", null, "features");
 

@@ -290,8 +290,10 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	 */
 	public void send(SocketChannel socket, byte[] data) 
 	{
+		logger.debug("will send " + new String(data));
+		
 	    // check if socket channel is secure
-	    TLSHandler tlsHandler = securingData.get(socket);
+		TLSHandler tlsHandler = securingData.get(socket);
 	    if ( tlsHandler != null )
 	    {
 	    	byte[] secureData = tlsHandler.getSecureData(data);

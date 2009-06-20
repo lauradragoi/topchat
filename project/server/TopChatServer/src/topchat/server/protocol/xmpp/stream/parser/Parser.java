@@ -346,6 +346,7 @@ public class Parser implements Constants {
 		boolean end = false;
 		
 		boolean usesTLS = false;
+		boolean usesSASL = false;
 		
 		while (reader.hasNext(  ) && !end) 
 		{
@@ -369,6 +370,9 @@ public class Parser implements Constants {
 		    	if ("starttls".equals(startElement.getName().getLocalPart()))
 		    		usesTLS = true;
 		    	
+		    	if ("mechanisms".equals(startElement.getName().getLocalPart()))
+		    		usesSASL = true;
+		    	
 		    }
 		    else if (event.isEndElement())
 		    {
@@ -385,7 +389,7 @@ public class Parser implements Constants {
 		    }
 		}	
 		
-		return new Features(usesTLS);
+		return new Features(usesTLS, usesSASL);
 	}
 	
 	/**

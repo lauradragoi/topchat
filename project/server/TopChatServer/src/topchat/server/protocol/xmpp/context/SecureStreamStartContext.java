@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
@@ -45,9 +46,10 @@ public class SecureStreamStartContext extends XMPPContext {
 		
 		processStartStream(s);
 		
-		//sendStreamStart();
+		sendStreamStart();
+		sendFeatures();
 		
-		//setDone();
+		setDone();
 	}	
 	
 	private void processStartStream(String s)
@@ -83,5 +85,22 @@ public class SecureStreamStartContext extends XMPPContext {
 		
 		getXMPPManager().send(msg.getBytes());
 	}	
+	
+	private void sendFeatures()
+	{
+		Features ft = null;
+		try {
+			ft = getXMPPManager().getFeatures();
+			
+		} catch (Exception e) {			
+			logger.warn("Could not obtain features info");
+			e.printStackTrace();			
+		}
+		
+		// prepare the message to be written
+		String msg = Preparer.prepareFeatures(ft);
+		
+		getXMPPManager().send(msg.getBytes());		
+	}
 	
 }

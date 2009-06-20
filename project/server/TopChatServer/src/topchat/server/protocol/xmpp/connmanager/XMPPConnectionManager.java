@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
+import topchat.server.protocol.xmpp.context.SASLContext;
 import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
@@ -100,7 +101,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof StartTLSContext)
+		if (old instanceof SecureStreamStartContext)
+		{
+			nextContext = new SASLContext(this);			
+		} else if (old instanceof StartTLSContext)
 		{
 			nextContext = new SecureStreamStartContext(this);		
 		} else if (old instanceof StreamStartContext)
@@ -164,7 +168,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	 */
 	public Features getFeatures() throws Exception
 	{
-		return new Features(true);
+		if (tlsEngine == null)
+			return new Features(true);
+		else
+			return new Features(false, true);
 	}
 	
 
