@@ -39,4 +39,6 @@ public interface Protocol {
 	 * @return
 	 */
 	public DefaultConnectionManager getConnectionManager(SocketChannel socketChannel);
+	
+	public void execute(Runnable r);
 }
