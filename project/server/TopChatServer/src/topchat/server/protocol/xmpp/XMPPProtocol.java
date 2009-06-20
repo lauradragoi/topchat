@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.SSLEngine;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.interfaces.Net;
@@ -114,6 +116,11 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public void sendData(SocketChannel socketChannel, byte[] data)
 	{
 		net.send(socketChannel, data);
+	}
+	
+	public void secure(SocketChannel socketChannel, SSLEngine sslEngine)
+	{
+		net.secure(socketChannel, sslEngine);
 	}
 	
 	public void execute(Runnable r)

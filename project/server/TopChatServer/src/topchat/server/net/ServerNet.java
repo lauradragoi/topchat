@@ -26,11 +26,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.net.ssl.SSLEngine;
 
 import org.apache.log4j.Logger;
 
@@ -62,9 +63,13 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	// A list of ChangeRequest instances
 	private List<ChangeRequest> changeRequests = new LinkedList<ChangeRequest>();
 
+	// A map of data to be sent on the sockets 
 	// Maps a SocketChannel to a list of ByteBuffer instances
-	private Map<SocketChannel, List<ByteBuffer> > pendingData = new HashMap<SocketChannel, List<ByteBuffer> >();
+	private ConcurrentHashMap<SocketChannel, List<ByteBuffer> > pendingData = new ConcurrentHashMap<SocketChannel, List<ByteBuffer> >();
 
+	// A map of TLSHandlers used to secure the socket channels
+	private ConcurrentHashMap<SocketChannel, TLSHandler> securingData = new ConcurrentHashMap<SocketChannel, TLSHandler>();
+	
 	private static Logger logger = Logger.getLogger(ServerNet.class);
 
 	/**
@@ -189,8 +194,32 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	        		switch(change.type) 
 	        		{
 	        			case ChangeRequest.CHANGEOPS:
+	        			{
 	        					SelectionKey key = change.socket.keyFor(this.selector);
 	        					key.interestOps(change.ops);
+	        			}
+	        					break;
+	        			case ChangeRequest.REGISTER:
+	        			{
+	        					SelectionKey key = change.socket.keyFor(this.selector);
+	        					// check if socket is registered with selector
+	        					if (key != null)
+	        					{
+	        						// check if socket is already secured
+        							if (securingData.get(change.socket) == null)
+        							{
+        								// socket was not previously secured - secure it now
+        								TLSHandler tlsHandler = new TLSHandler(this, change.socket, change.sslEngine);
+        								prot.execute(tlsHandler);
+        								securingData.put(change.socket, tlsHandler);        								
+        							}
+        							else
+        							{
+        								logger.debug("Attempt to re-secure socket " + change.socket + " ignored.");
+        							}        							        						
+	        					}
+	        			}
+	        					break;
 	        		}
 	        	}
 	        	this.changeRequests.clear(); 
@@ -261,6 +290,26 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	 */
 	public void send(SocketChannel socket, byte[] data) 
 	{
+	    // check if socket channel is secure
+	    TLSHandler tlsHandler = securingData.get(socket);
+	    if ( tlsHandler != null )
+	    {
+	    	byte[] secureData = tlsHandler.getSecureData(data);
+	    	sendRaw(socket, secureData);
+	    }	
+	    else
+	    {
+	    	sendRaw(socket, data);
+	    }
+	}
+	
+	/**
+	 * Initiate a write request of some data on a certain socket
+	 * @param socket
+	 * @param data
+	 */
+	public void sendRaw(SocketChannel socket, byte[] data) 
+	{
 	    synchronized (this.changeRequests) {
 	    	// Indicate we want the interest ops set changed
 	    	this.changeRequests.add(new ChangeRequest(socket, ChangeRequest.CHANGEOPS, SelectionKey.OP_WRITE));
@@ -280,6 +329,22 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	    // Finally, wake up our selecting thread so it can make the required changes
 	    this.selector.wakeup();
 	}
+	
+	/**
+	 * Initiate a request to secure the stream using TLS on one socket
+	 * @param socket
+	 * @param data
+	 */
+	public void secure(SocketChannel socket, SSLEngine sslEngine) 
+	{
+	    synchronized (this.changeRequests) {
+	    	// Indicate we want the interest ops set changed
+	    	this.changeRequests.add(new ChangeRequest(socket, ChangeRequest.REGISTER, sslEngine));	      
+	    }
+	    
+	    // Finally, wake up our selecting thread so it can make the required changes
+	    this.selector.wakeup();
+	}	
 
 	
 	/**
@@ -295,21 +360,12 @@ public class ServerNet implements Net, NetConstants, Runnable {
 		
 	    // Accept the connection and make it non-blocking
 		SocketChannel socketChannel = serverSocketChannel.accept();
-		socketChannel.configureBlocking(false);
+		socketChannel.configureBlocking(false);				
 		
 	    // Register the new SocketChannel with our Selector, indicating
 	    // we'd like to be notified when there's data waiting to be read
 	    socketChannel.register(this.selector, SelectionKey.OP_READ);
-				
-		// manage this connection
-		// DefaultConnectionManager connManager = prot.getConnectionManager();		
-		
-		// start reading after accept
-		// SelectionKey newKey = socketChannel.register(key.selector(), SelectionKey.OP_READ, connManager);
-		
-		// this is WRONG! : only this thread should modify selection key
-		// connManager.setKey(newKey);
-		
+						
 		logger.info("Accepted connection from "
 				+ socketChannel.socket().getRemoteSocketAddress());
 	}
@@ -318,6 +374,20 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	private void read(SelectionKey key) throws IOException 
 	{
 		    SocketChannel socketChannel = (SocketChannel) key.channel();
+		    
+		    // check if socket channel is secure
+		    TLSHandler tlsHandler = securingData.get(socketChannel);
+		    if ( tlsHandler != null )
+		    {
+		    		logger.debug("Read on secured socket " + socketChannel);
+		    		System.out.println("Handshake status " + tlsHandler.sslEngine.getHandshakeStatus());
+		    		
+		    	    int netBBSize = tlsHandler.sslEngine.getSession().getPacketBufferSize();
+		    	    
+		    	    // resize read buffer to fit data
+		    	    readBuffer = ByteBuffer.allocate(netBBSize);
+		    }	
+			
 
 		    // Clear out our read buffer so it's ready for new data
 		    this.readBuffer.clear();
@@ -327,6 +397,7 @@ public class ServerNet implements Net, NetConstants, Runnable {
 		    try {
 		      numRead = socketChannel.read(this.readBuffer);
 		    } catch (IOException e) {
+		      logger.debug("Client forced quit. " + e);
 		      // The remote forcibly closed the connection, cancel
 		      // the selection key and close the channel.
 		      key.cancel();
@@ -335,22 +406,42 @@ public class ServerNet implements Net, NetConstants, Runnable {
 		    }
 
 		    if (numRead == -1) {
+		      logger.debug("Client quit cleanly");
 		      // Remote entity shut the socket down cleanly. Do the
 		      // same from our end and cancel the channel.
 		      key.channel().close();
 		      key.cancel();
 		      return;
 		    }
-
-		    // Hand the data off to the protocol
-		    // The protocol itself only hands it out to an executor thread and returns
-		    prot.processData(this, socketChannel, this.readBuffer.array(), numRead);
+		    
+		    if ( tlsHandler != null )
+		    {		    	
+		    	byte[] data = tlsHandler.processData(readBuffer);
+		    
+		    	if (data != null)
+		    	{
+		    		 // Hand the data off to the protocol
+				    // The protocol itself only hands it out to an executor thread and returns
+		    		prot.processData(this, socketChannel, data, data.length);
+		    	}
+		    }
+		    else
+		    {
+	
+			    // Hand the data off to the protocol
+			    // The protocol itself only hands it out to an executor thread and returns
+			    prot.processData(this, socketChannel, this.readBuffer.array(), numRead);
+		    }
 	}
 	
 	private void write(SelectionKey key) throws IOException 
 	{
 		    SocketChannel socketChannel = (SocketChannel) key.channel();
 
+		    // check if socket channel is secure
+	    	if (securingData.get(socketChannel) != null)
+		    	logger.debug("Write on secured socket " + socketChannel);		    
+		    
 		    synchronized (this.pendingData) 
 		    {
 		    	List<ByteBuffer> queue = this.pendingData.get(socketChannel);
@@ -377,109 +468,6 @@ public class ServerNet implements Net, NetConstants, Runnable {
 		    }
 	}
 	
-	
-	/**
-	 * Handle the read operation on a thread from the pool
-	 * 
-	 * @param key the key associated with the operation
-	 * @throws IOException
-	 */
-	/*
-	private void read(final SelectionKey key) throws IOException {
-		// remove all interests
-		key.interestOps(0);
-
-		pool.execute(new Runnable() {
-			public void run() {
-				int bytes;
-				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
-				ByteBuffer buf = conn.getReadBuffer();
-				SocketChannel socketChannel = (SocketChannel) key.channel();
-				
-
-				try {
-					// read as much as you can
-					while ((bytes = socketChannel.read(buf)) > 0)
-						;
-
-					// check for EOF
-					if (bytes == -1)
-						throw new IOException("EOF");
-
-					processRead(conn, buf);
-
-					// keep on reading
-					key.interestOps(SelectionKey.OP_READ);
-
-					// update selector
-					key.selector().wakeup();
-				} catch (IOException e) {
-					logger.fatal("Connection closed: " + e.getMessage());
-
-					conn.close();
-					try {
-						socketChannel.close();
-					} catch (IOException exc) {
-					}
-				}
-			}
-		});
-	}
-	*/
-
-	/**
-	 * Handle the write operation on a thread from the pool
-	 * 
-	 * @param key the key associated with the operation
-	 * @throws IOException
-	 */	
-	/*
-	private void write(final SelectionKey key) throws IOException {
-		// remove all interests
-		key.interestOps(0);
-
-		pool.execute(new Runnable() {
-			public void run() {		
-				DefaultConnectionManager conn = (DefaultConnectionManager) key.attachment();
-				ByteBuffer buf = conn.getWriteBuffer();
-				SocketChannel socketChannel = (SocketChannel) key.channel();
-		
-				try {
-					while ((socketChannel.write(buf)) > 0)
-						;
-		
-					if (!buf.hasRemaining()) {
-						buf.clear();
-						
-						processWrite(conn, buf);
-																		
-						//keep on reading
-						key.interestOps( SelectionKey.OP_READ);
-						
-						// update selector
-						key.selector().wakeup();
-					}
-					
-					
-		
-				} catch (IOException e) {
-					logger.fatal("Connection closed: " + e.getMessage());
-					
-					conn.close();
-					try 
-					{						
-						socketChannel.close();					
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		
-				}
-			}
-		});
-	}
-	*/
-	
 	/**
 	 * Method used to close resources.
 	 */
@@ -497,42 +485,4 @@ public class ServerNet implements Net, NetConstants, Runnable {
 			}
 	}
 
-	/**
-	 * Method executed when a read operation has finished
-	 * @param conn the connection manager associated with the connection on which the operation took place
-	 * @param buf the buffer used for the operation
-	 */
-	/*
-	private void processRead(DefaultConnectionManager conn, ByteBuffer buf) 
-	{		
-		// drain buffer
-		buf.flip();
-
-		int count = buf.remaining();
-		byte[] rd = new byte[count];
-	
-		buf.get(rd);
-		buf.clear();
-			
-		// inform connection manager
-		conn.processRead(rd);						
-	}
-	*/
-	
-
-	/**
-	 * Method executed when a write operation has finished
-	 * @param conn the connection manager associated with the connection on which the operation took place
-	 * @param buf the buffer used for the operation
-	 */
-	/*
-	private void processWrite(DefaultConnectionManager conn, ByteBuffer buf) 
-	{
-		// clean buffer
-		buf.clear();	
-		
-		// inform connection manager
-		conn.processWrite();
-	}
-	*/
 }

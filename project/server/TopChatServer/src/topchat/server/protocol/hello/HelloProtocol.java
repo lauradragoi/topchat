@@ -110,6 +110,15 @@ public class HelloProtocol implements Protocol {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.Protocol#execute(java.lang.Runnable)
+	 */
+	@Override
+	public void execute(Runnable r) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }

@@ -19,6 +19,8 @@ package topchat.server.interfaces;
 
 import java.nio.channels.SocketChannel;
 
+import javax.net.ssl.SSLEngine;
+
 /**
  * Interface describing the network module of the server
  * 
@@ -35,4 +37,8 @@ public interface Net {
 	public void start(int port);	
 	
 	public void send(SocketChannel socket, byte[] data);
+	
+	public void sendRaw(SocketChannel socket, byte[] data);
+	
+	public void secure(SocketChannel socket, SSLEngine sslEngine) ;
 }

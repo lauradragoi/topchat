@@ -19,6 +19,8 @@ package topchat.server.net;
 
 import java.nio.channels.SocketChannel;
 
+import javax.net.ssl.SSLEngine;
+
 public class ChangeRequest 
 {
 	  public static final int REGISTER = 1;
@@ -27,10 +29,17 @@ public class ChangeRequest
 	  public SocketChannel socket;
 	  public int type;
 	  public int ops;
+	  public SSLEngine sslEngine;
 	  
 	  public ChangeRequest(SocketChannel socket, int type, int ops) {
 	    this.socket = socket;
 	    this.type = type;
 	    this.ops = ops;
 	  }
+	  
+	  public ChangeRequest(SocketChannel socket, int type, SSLEngine sslEngine) {
+		    this.socket = socket;
+		    this.type = type;
+		    this.sslEngine = sslEngine;
+	  }	  
 }

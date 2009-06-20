@@ -51,6 +51,9 @@ public class StartTLSContext extends XMPPContext {
 				// send proceed
 				sendProceedTLS();
 				
+				// secure the connection
+				getXMPPManager().secure();
+				
 				setDone();
 			}
 			
