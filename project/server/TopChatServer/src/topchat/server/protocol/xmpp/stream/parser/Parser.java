@@ -20,6 +20,7 @@ package topchat.server.protocol.xmpp.stream.parser;
 import java.util.Iterator;
 
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
@@ -32,6 +33,7 @@ import org.apache.log4j.Logger;
 import topchat.server.protocol.xmpp.stream.Constants;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.StreamElement;
+import topchat.server.protocol.xmpp.stream.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 
 /**
@@ -140,6 +142,11 @@ public class Parser implements Constants {
 		    	
 		    	if ("failure".equals(local))
 		    		parseFailure(startElement, reader);
+		    	
+		    	if ("auth".equals(local))
+		    	{
+		    		result = parseAuth(startElement, reader);
+		    	}
 		    	
 		    	if ("stream".equals(local))
 		    	{
@@ -527,6 +534,57 @@ public class Parser implements Constants {
 		}	
 	}		
 	
+	/**
+	 * Method that parses auth
+	 * @param start
+	 * @param reader
+	 */
+	private static XMPPAuth parseAuth(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		String mechanism = start.getAttributeByName(new QName("mechanism")).getValue().toString();
+		String initialChallenge = null;
+		logger.debug("auth mechanism " + mechanism);
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());		
+		    	
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("failure".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else if (event.isCharacters())
+		    {
+		    	initialChallenge = event.toString();
+		    	logger.debug("other: " + event.toString());
+		    }
+		}	
+			
+		return new XMPPAuth(mechanism, initialChallenge);
+	}			
 	
 	/**
 	 * Parse the message sent by the client to initiate the communication

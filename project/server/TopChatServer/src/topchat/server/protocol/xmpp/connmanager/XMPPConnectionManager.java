@@ -18,19 +18,27 @@
 package topchat.server.protocol.xmpp.connmanager;
 
 import java.nio.channels.SocketChannel;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.net.ssl.SSLEngine;
+import javax.security.sasl.Sasl;
+import javax.security.sasl.SaslException;
+import javax.security.sasl.SaslServer;
 
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
+import topchat.server.protocol.xmpp.context.ExtraSecureStreamStartContext;
+import topchat.server.protocol.xmpp.context.LaLaContext;
 import topchat.server.protocol.xmpp.context.SASLContext;
 import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.stream.Features;
+import topchat.server.protocol.xmpp.stream.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
 
@@ -52,6 +60,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 
 	/** Used for securing the stream using TLS */
 	protected SSLEngine tlsEngine = null;	
+	
+	private XMPPAuth auth = null;
 	
 	/** The protocol handling this connection manager */
 	private XMPPProtocol protocol = null;
@@ -101,7 +111,13 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof SecureStreamStartContext)
+		if (old instanceof ExtraSecureStreamStartContext)
+		{
+			nextContext = new LaLaContext(this);
+		} else if (old instanceof SASLContext)
+		{
+			nextContext = new ExtraSecureStreamStartContext(this);	
+		} else if (old instanceof SecureStreamStartContext)
 		{
 			nextContext = new SASLContext(this);			
 		} else if (old instanceof StartTLSContext)
@@ -146,6 +162,34 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		sendingStream = new XMPPStream(null, "example.com", "someid", null, "1.0");
 	}
 	
+	public void setAuth(XMPPAuth auth)
+	{
+		/*
+		SaslServer ss = null;
+		Map<String, String> props = new TreeMap<String, String>();
+        props.put(Sasl.QOP, "auth");
+
+		try {
+			logger.debug("auth mec "  + auth.mechanism);
+			ss = Sasl.createSaslServer("PLAIN", 
+				    "xmpp", "TopChatServer", props, null);
+		} catch (SaslException e) {
+			logger.debug("Exception on creating sasl server");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		logger.debug("sasl server up " + ss);
+		
+		*/
+		
+		this.auth = auth;
+	}
+	
+	public XMPPAuth getAuth()
+	{
+		return auth;
+	}
+	
 	/**
 	 * Obtain the stream initiated by the server
 	 * If it was not set yet it will be set now.
@@ -170,8 +214,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{
 		if (tlsEngine == null)
 			return new Features(true);
-		else
+		else if (auth == null)
 			return new Features(false, true);
+		else
+			return new Features(false, false, true);
 	}
 	
 
