@@ -77,6 +77,16 @@ public class Preparer {
 					"", null, "mechanisms");		
 		}
 		
+		
+		if (features.offersBinding())
+		{
+			Utils.addStartElement(eventFactory, writer, 
+					"", "urn:ietf:params:xml:ns:xmpp-bind", "bind");
+			Utils.addNamespace(eventFactory, writer, "", "urn:ietf:params:xml:ns:xmpp-bind");
+			Utils.addEndElement(eventFactory, writer, 
+					"", null, "bind");	
+		}
+		
 		Utils.addEndElement(eventFactory, writer, 
 				"stream", null, "features");
 

@@ -63,6 +63,25 @@ public class PreparerTest  extends TestCase {
 		assertEquals("use of sals not detected", true,  newFt.usesSASL() );
 	}	
 	
+	
+	/**
+	 * Test writing correct xml as start of features message
+	 * @throws Exception
+	 */
+	public void testPrepareFeaturesBind() throws Exception {
+		
+		setName("Testing if features is correctly created");
+		
+		Features ft = new Features(false, false, true);
+		
+		String result = Preparer.prepareFeatures(ft);		
+		
+		Features newFt = (Features) Parser.parse(result);
+		
+		// assertEquals("use of sals not detected", true,  newFt.usesSASL() );
+	}	
+		
+	
 	/**
 	 * Test writing correct xml as start of 'proceed' message
 	 * @throws Exception

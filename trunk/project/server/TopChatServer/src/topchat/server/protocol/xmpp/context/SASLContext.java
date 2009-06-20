@@ -21,6 +21,10 @@ import org.apache.log4j.Logger;
 
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.XMPPAuth;
+import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.parser.Parser;
+import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
 * In this context the server waits for the client
@@ -28,8 +32,10 @@ import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 */
 public class SASLContext extends XMPPContext 
 {
-
-	private static Logger logger = Logger.getLogger(SASLContext.class);	
+	private boolean authReceived = false;
+	
+	private static Logger logger = Logger.getLogger(SASLContext.class);
+	
 
 	public SASLContext(XMPPConnectionManager mgr) {
 		super(mgr);		
@@ -40,12 +46,53 @@ public class SASLContext extends XMPPContext
 	{
 		String s = new String(rd);
 		logger.debug("received: " + s);	
-		
-		//processStartStream(s);
-		
-		//sendStreamStart();
+
+		if (!authReceived)
+		{
+			processAuth(s);
+			authReceived = true;
+			
+			if ("PLAIN".equals(getXMPPManager().getAuth().mechanism))
+			{
+				sendSuccess();
+				setDone();
+			}
+			else
+			{
+				logger.debug("still to implement other SASL mechanisms");
+			}
+				
+		}
+		else
+		{
+			logger.debug("still to implement other SASL mechanisms");
+		}
 		
 		//setDone();
 	}	
 
+	
+	private void sendSuccess()
+	{
+		// prepare the message to be written
+		String msg = "<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>";
+		
+		getXMPPManager().send(msg.getBytes());	
+	}
+	
+	private void processAuth(String s)
+	{
+		XMPPAuth auth = null;
+		
+		try {
+			auth = (XMPPAuth) Parser.parse(s);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			logger.warn("Error in receiving stream start from client");	
+		}
+
+		getXMPPManager().setAuth(auth);		
+	}
 }

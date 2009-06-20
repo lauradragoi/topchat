@@ -23,6 +23,7 @@ public class Features {
 	private boolean useOfSASL = false;
 	private boolean useMD5 = false;
 	private boolean usePlain = false;
+	private boolean offerBinding = false;
 	
 	public Features(boolean useTLS)
 	{
@@ -33,6 +34,19 @@ public class Features {
 	{
 		useOfTLS = useTLS;
 		useOfSASL = useSASL;
+		
+		if (useSASL)
+		{
+			useMD5 = true;
+			usePlain = true;
+		}
+	}
+	
+	public Features(boolean useTLS, boolean useSASL, boolean offerBinding)
+	{
+		useOfTLS = useTLS;
+		useOfSASL = useSASL;
+		this.offerBinding = offerBinding;
 		
 		if (useSASL)
 		{
@@ -62,4 +76,8 @@ public class Features {
 		return usePlain;
 	}
 	
+	public boolean offersBinding()
+	{
+		return offerBinding;
+	}
 }
