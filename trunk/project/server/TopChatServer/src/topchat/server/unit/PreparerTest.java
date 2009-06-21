@@ -76,9 +76,8 @@ public class PreparerTest  extends TestCase {
 		
 		String result = Preparer.prepareFeatures(ft);		
 		
-		Features newFt = (Features) Parser.parse(result);
-		
-		// assertEquals("use of sals not detected", true,  newFt.usesSASL() );
+		@SuppressWarnings("unused")
+		Features newFt = (Features) Parser.parse(result);		
 	}	
 		
 	

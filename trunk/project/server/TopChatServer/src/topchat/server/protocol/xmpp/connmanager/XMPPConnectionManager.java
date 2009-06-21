@@ -22,7 +22,6 @@ import java.nio.channels.SocketChannel;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.log4j.Logger;
-import org.jivesoftware.smack.packet.Session;
 
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
