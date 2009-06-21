@@ -18,13 +18,14 @@
 package topchat.server.protocol.xmpp.context;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.smack.util.Base64;
 
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.jid.User;
 import topchat.server.protocol.xmpp.stream.XMPPAuth;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
-import topchat.server.protocol.xmpp.stream.parser.Preparer;
+
 
 /**
 * In this context the server waits for the client
@@ -52,10 +53,18 @@ public class SASLContext extends XMPPContext
 			processAuth(s);
 			authReceived = true;
 			
-			if ("PLAIN".equals(getXMPPManager().getAuth().mechanism))
+			XMPPAuth auth = getXMPPManager().getAuth();
+			if ("PLAIN".equals(auth.mechanism))
 			{
-				sendSuccess();
-				setDone();
+				//auth.initialChallenge
+				User user = decodeUser(auth.initialChallenge);
+				if  ( isValidUser( user ))
+				{					
+					sendSuccess();
+					getXMPPManager().setUser(user);
+					
+					setDone();
+				}
 			}
 			else
 			{
@@ -65,12 +74,46 @@ public class SASLContext extends XMPPContext
 		}
 		else
 		{
-			logger.debug("still to implement other SASL mechanisms");
+			logger.debug("received smth else");
 		}
 		
 		//setDone();
 	}	
 
+	
+	private boolean isValidUser(User user)
+	{					
+		// TODO : check this
+		logger.debug("Authentification info is : " + user.username + " " + user.something + " " + user.pass);
+		
+		return true;
+	}
+	
+	private User decodeUser(String initialChallenge)
+	{
+        byte[] token = new byte[0];
+        if (initialChallenge.length() > 0) {
+            // If auth request includes a value then validate it
+            token = Base64.decode(initialChallenge.trim());
+            if (token == null) {
+                token = new byte[0];
+            }           
+        }	
+        
+        logger.debug("auth " + new String(token));
+        
+        String info =  new String(token);
+        
+        byte[] regex = new byte[1];
+		regex[0] = 0;
+		String[] authInfo= info.split(new String(regex));
+		
+		String username = authInfo[0];
+		String something = authInfo[1];
+		String pass = authInfo[2];
+        
+        return new User(username, something, pass);
+	}
 	
 	private void sendSuccess()
 	{
