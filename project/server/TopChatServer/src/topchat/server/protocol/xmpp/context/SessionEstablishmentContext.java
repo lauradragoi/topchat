@@ -21,17 +21,16 @@ import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stanzas.IQStanza;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
-public class ResourceBindingContext extends XMPPContext 
+public class SessionEstablishmentContext extends XMPPContext 
 {	
 	
 	private static Logger logger = Logger.getLogger(ResourceBindingContext.class);
 	
 	IQStanza iqStanza = null;
 
-	public ResourceBindingContext(XMPPConnectionManager mgr) {
+	public SessionEstablishmentContext(XMPPConnectionManager mgr) {
 		super(mgr);		
 	}
 
@@ -43,19 +42,16 @@ public class ResourceBindingContext extends XMPPContext
 		
 		if (iqStanza == null)
 		{
-			iqStanza = processIqBind(s);
+			iqStanza = processIq(s);
+									
+			sendIqResult(iqStanza);
 			
-			getXMPPManager().setUserResource(iqStanza.getData("resource"));
-	
-			// 	to do
-			sendIqBind(iqStanza);
-			
-			setDone();
+		//	setDone();
 		}
 				
 	}
 	
-	private IQStanza processIqBind(String s)
+	private IQStanza processIq(String s)
 	{
 		// process start stream
 		IQStanza iqStanza = null;
@@ -73,14 +69,9 @@ public class ResourceBindingContext extends XMPPContext
 			
 	}
 	
-	private void sendIqBind(IQStanza iqStanza)
+	private void sendIqResult(IQStanza iqStanza)
 	{
 		String msg = "<iq type='result' id='" + iqStanza.getAttribute("id") + "'>" +
-					 "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"+
-					 "<jid>" + getXMPPManager().getUserName() + 
-					 "@" + getXMPPManager().getServerDomain() +
-					 "/" + getXMPPManager().getUserResource() +"</jid>"+
-					 "</bind>"+
 					 "</iq>";
 		
 		getXMPPManager().send(msg.getBytes());	
