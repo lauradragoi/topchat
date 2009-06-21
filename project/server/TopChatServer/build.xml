@@ -43,6 +43,7 @@
 			<classpath>
 				<pathelement location="${bin.dir}"/>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
 				<pathelement location="${config.dir}"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>

@@ -29,7 +29,6 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
-import org.jivesoftware.smack.packet.IQ;
 
 import topchat.server.protocol.xmpp.stanzas.IQStanza;
 import topchat.server.protocol.xmpp.stream.Constants;

@@ -18,13 +18,8 @@
 package topchat.server.protocol.xmpp.connmanager;
 
 import java.nio.channels.SocketChannel;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.net.ssl.SSLEngine;
-import javax.security.sasl.Sasl;
-import javax.security.sasl.SaslException;
-import javax.security.sasl.SaslServer;
 
 import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
@@ -37,6 +32,7 @@ import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
+import topchat.server.protocol.xmpp.jid.User;
 import topchat.server.protocol.xmpp.stream.Features;
 import topchat.server.protocol.xmpp.stream.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
@@ -68,6 +64,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	/** The SocketChannel handled by this connection manager */
 	private SocketChannel socketChannel = null;
+	
+	private User user = null;
 	
 	public XMPPConnectionManager(XMPPProtocol protocol, SocketChannel socketChannel)
 	{
@@ -248,5 +246,33 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	public void execute(Runnable r)
 	{
 		protocol.execute(r);
+	}
+	
+	public void setUser(User user)
+	{
+		this.user = user;
+	}
+	
+	public String getUserName()
+	{
+		return user.username;
+	}
+	
+	public void setUserResource(String resource)
+	{
+		if (resource == null)
+			user.resource = user.username + "1";
+		else
+			user.resource = resource;
+	}
+	
+	public String getUserResource()
+	{
+		return user.resource;
+	}
+	
+	public String getServerDomain()
+	{
+		return "example.com";
 	}
 }

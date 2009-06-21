@@ -44,6 +44,8 @@ public class ResourceBindingContext extends XMPPContext
 		if (iqStanza == null)
 		{
 			iqStanza = processIqBind(s);
+			
+			getXMPPManager().setUserResource(iqStanza.getData("resource"));
 	
 			// 	to do
 			sendIqBind(iqStanza);
@@ -73,7 +75,9 @@ public class ResourceBindingContext extends XMPPContext
 	{
 		String msg = "<iq type='result' id='" + iqStanza.getAttribute("id") + "'>" +
 					 "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"+
-					 "<jid>gheorghe@example.com/someresource</jid>"+
+					 "<jid>" + getXMPPManager().getUserName() + 
+					 "@" + getXMPPManager().getServerDomain() +
+					 "/" + getXMPPManager().getUserResource() +"</jid>"+
 					 "</bind>"+
 					 "</iq>";
 		
