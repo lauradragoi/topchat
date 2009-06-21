@@ -22,6 +22,8 @@ import java.nio.channels.SocketChannel;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.smack.packet.Session;
+
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
@@ -29,6 +31,7 @@ import topchat.server.protocol.xmpp.context.ExtraSecureStreamStartContext;
 import topchat.server.protocol.xmpp.context.ResourceBindingContext;
 import topchat.server.protocol.xmpp.context.SASLContext;
 import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
+import topchat.server.protocol.xmpp.context.SessionEstablishmentContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
@@ -109,7 +112,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	{						
 		XMPPContext nextContext = old;
 		
-		if (old instanceof ExtraSecureStreamStartContext)
+		if (old instanceof ResourceBindingContext)
+		{
+			nextContext = new SessionEstablishmentContext(this);
+		} else if (old instanceof ExtraSecureStreamStartContext)
 		{
 			nextContext = new ResourceBindingContext(this);
 		} else if (old instanceof SASLContext)
