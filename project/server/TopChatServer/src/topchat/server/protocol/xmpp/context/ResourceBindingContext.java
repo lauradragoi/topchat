@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stanzas.IQStanza;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 public class ResourceBindingContext extends XMPPContext 

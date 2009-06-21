@@ -30,7 +30,6 @@ import topchat.server.protocol.xmpp.XMPPProtocol;
 /**
  * Main class of the server implementation.
  */
-
 public class TopChatServer {
 
 	private static Logger logger = Logger.getLogger(TopChatServer.class);

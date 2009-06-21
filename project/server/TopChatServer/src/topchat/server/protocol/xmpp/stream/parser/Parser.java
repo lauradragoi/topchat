@@ -19,7 +19,6 @@ package topchat.server.protocol.xmpp.stream.parser;
 
 import java.util.Iterator;
 
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -216,15 +215,16 @@ public class Parser implements Constants {
 	 * @param start
 	 * @param reader
 	 */
+	@SuppressWarnings("unchecked")
 	private static IQStanza parseIq(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
 		
 		IQStanza iqStanza = new IQStanza();
 		
-		Iterator it = start.getAttributes();
+		Iterator<Attribute> it = start.getAttributes();
 		while (it.hasNext()) {
-			Attribute attrib = (Attribute) it.next();
+			Attribute attrib = it.next();
 			iqStanza.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
 		}
 		
@@ -622,9 +622,9 @@ public class Parser implements Constants {
 	
   	
 		// walk through start element attributes
-		for (Iterator it = start.getAttributes(); it.hasNext();) 
+		for (Iterator<Attribute> it = start.getAttributes(); it.hasNext();) 
 		{
-			Attribute attribute = (Attribute) it.next();
+			Attribute attribute = it.next();
 			
 			logger.debug("attribute name: " + attribute.getName());
 			logger.debug("attribute value: " + attribute.getValue());
