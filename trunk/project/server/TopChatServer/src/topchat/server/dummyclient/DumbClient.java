@@ -62,8 +62,7 @@ public class DumbClient implements Runnable {
 		try {
 			makeConnection();
 		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.debug("Exception on connection " + e);
 		}
     	
     	while (running)

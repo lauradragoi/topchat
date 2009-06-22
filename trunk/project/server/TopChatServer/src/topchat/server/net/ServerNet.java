@@ -40,14 +40,12 @@ import topchat.server.interfaces.NetMediator;
 import topchat.server.interfaces.Protocol;
 
 /**
- * The network module of the server
- * 
- * @author ldragoi
- * 
+ * The network module of the server 
  */
-public class ServerNet implements Net, NetConstants, Runnable {
-
+public class ServerNet implements Net, NetConstants, Runnable 
+{
 	private NetMediator med = null;
+	
 	private Protocol prot = null;
 
 	private ServerSocketChannel serverSocketChannel = null;
@@ -424,7 +422,7 @@ public class ServerNet implements Net, NetConstants, Runnable {
 		    	{
 		    		 // Hand the data off to the protocol
 				    // The protocol itself only hands it out to an executor thread and returns
-		    		prot.processData(this, socketChannel, data, data.length);
+		    		prot.processData(socketChannel, data, data.length);
 		    	}
 		    }
 		    else
@@ -432,7 +430,7 @@ public class ServerNet implements Net, NetConstants, Runnable {
 	
 			    // Hand the data off to the protocol
 			    // The protocol itself only hands it out to an executor thread and returns
-			    prot.processData(this, socketChannel, this.readBuffer.array(), numRead);
+			    prot.processData(socketChannel, this.readBuffer.array(), numRead);
 		    }
 	}
 	

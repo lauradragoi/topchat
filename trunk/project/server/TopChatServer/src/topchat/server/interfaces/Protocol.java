@@ -36,10 +36,12 @@ public interface Protocol
 	/** Start the protocol using the specified network module */
 	public void start(Net net);
 
-	
-	public void processData(Net net, SocketChannel socketChannel, byte[] data, int count);
+	/** Called when the protocol should process certain data received on a specific socket */
+	public void processData(SocketChannel socketChannel, byte[] data, int count);
 
+	/** Obtain the connection manager for a specific socket */
 	public DefaultConnectionManager getConnectionManager(SocketChannel socketChannel);
 	
+	/** Request execution of specific tasks by the protocol */
 	public void execute(Runnable r);
 }

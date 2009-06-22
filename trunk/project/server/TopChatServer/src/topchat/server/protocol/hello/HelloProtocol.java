@@ -94,7 +94,7 @@ public class HelloProtocol implements Protocol {
 	 * @see topchat.server.interfaces.Protocol#processData(topchat.server.interfaces.Net, java.nio.channels.SocketChannel, byte[], int)
 	 */
 	@Override
-	public void processData(Net net, SocketChannel socketChannel, byte[] data,
+	public void processData(SocketChannel socketChannel, byte[] data,
 			int count) {
 		// TODO Auto-generated method stub
 		

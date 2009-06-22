@@ -23,9 +23,12 @@ package topchat.server.interfaces;
  */
 public interface ProtocolMediator {
 	
+	/** Connect to the protocol */
 	public void setProtocol(Protocol prot);
 
+	/** Called when a user is added */
 	public void addUser(String user);
 
+	/** Called when a room is added */
 	public void addRoom(String room);
 }
