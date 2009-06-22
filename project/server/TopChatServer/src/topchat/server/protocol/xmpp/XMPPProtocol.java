@@ -102,7 +102,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	/**
 	 * Schedules for the received data to be processed on a thread from the executor pool
 	 */
-	public void processData(Net net, SocketChannel socketChannel, byte[] data, int count)
+	public void processData(SocketChannel socketChannel, byte[] data, int count)
 	{		
 	    byte[] dataCopy = new byte[count];
 	    System.arraycopy(data, 0, dataCopy, 0, count);		

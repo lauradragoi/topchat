@@ -21,6 +21,10 @@ import java.nio.channels.SocketChannel;
 
 import javax.net.ssl.SSLEngine;
 
+/**
+ * Defines a change request to a network module 
+ * (like change socket operation from read to write)
+ */
 public class ChangeRequest 
 {
 	  public static final int REGISTER = 1;
