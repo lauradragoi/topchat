@@ -25,19 +25,20 @@ import topchat.server.defaults.DefaultConnectionManager;
  * Interface describing the protocol used by the server
  * 
  */
-public interface Protocol {
+public interface Protocol 
+{
+	/** Connects to the mediator */
 	public void setMediator(ProtocolMediator med);
 
+	/** Obtain the port used for listening for connections */
 	public int getListeningPort();
 	
+	/** Start the protocol using the specified network module */
 	public void start(Net net);
 
+	
 	public void processData(Net net, SocketChannel socketChannel, byte[] data, int count);
 
-	/**
-	 * @param socketChannel
-	 * @return
-	 */
 	public DefaultConnectionManager getConnectionManager(SocketChannel socketChannel);
 	
 	public void execute(Runnable r);

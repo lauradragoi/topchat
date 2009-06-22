@@ -23,7 +23,7 @@ package topchat.server.defaults;
  */
 public abstract class DefaultContext 
 {	
-	// Connection manager handling this context
+	/** Connection manager handling this context */
 	protected DefaultConnectionManager mgr = null;
 		
 	/**
