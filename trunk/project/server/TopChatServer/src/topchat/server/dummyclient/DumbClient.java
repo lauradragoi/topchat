@@ -24,6 +24,11 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 
+/**
+ * Dumb client used for testing purposes only.
+ * Only connects to the server and then stays idle.
+ *
+ */
 public class DumbClient implements Runnable {
 
     public static XMPPConnection conn;

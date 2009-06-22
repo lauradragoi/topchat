@@ -23,5 +23,6 @@ package topchat.server.interfaces;
  */
 public interface NetMediator {
 
+	/** Connects to the net module */ 
 	public void setNet(Net net);
 }

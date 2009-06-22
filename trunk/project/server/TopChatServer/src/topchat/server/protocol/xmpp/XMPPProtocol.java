@@ -109,6 +109,10 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 		pool.execute(new ProcessData(this, net, socketChannel, dataCopy, count));
 	}
 	
+    public void secure(SocketChannel socketChannel, SSLEngine sslEngine)
+    {
+            net.secure(socketChannel, sslEngine);
+    }
 	
 	/**
 	 * Schedules the specified data to be sent on that SocketChannel
@@ -116,11 +120,6 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public void sendData(SocketChannel socketChannel, byte[] data)
 	{
 		net.send(socketChannel, data);
-	}
-	
-	public void secure(SocketChannel socketChannel, SSLEngine sslEngine)
-	{
-		net.secure(socketChannel, sslEngine);
 	}
 	
 	public void execute(Runnable r)

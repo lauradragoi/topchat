@@ -36,9 +36,15 @@ public interface Net {
 	/** Starts the network module and sets the port for listening */
 	public void start(int port);	
 	
+	/** Send some data on a specific socket */
 	public void send(SocketChannel socket, byte[] data);
 	
+	/** 
+	 * Send data on a specific socket without modifying it 
+	 * ( TLS encoding, etc )
+	 */
 	public void sendRaw(SocketChannel socket, byte[] data);
-	
-	public void secure(SocketChannel socket, SSLEngine sslEngine) ;
+
+	/** Initiate a request to secure the stream using TLS on one socket */
+	public void secure(SocketChannel socketChannel, SSLEngine sslEngine);	
 }
