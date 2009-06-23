@@ -43,8 +43,6 @@ import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
 
 /**
  * Manages a connection between the XMPP server and a client
- * @author ldragoi
- *
  */
 public class XMPPConnectionManager extends DefaultConnectionManager 
 			implements XMPPConstants 
@@ -59,6 +57,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	/** Used for securing the stream using TLS */
 	protected SSLEngine tlsEngine = null;	
 	
+	/** Authentication information */
 	private XMPPAuth auth = null;
 	
 	/** The protocol handling this connection manager */
@@ -67,6 +66,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	/** The SocketChannel handled by this connection manager */
 	private SocketChannel socketChannel = null;
 	
+	/** User information */
 	private User user = null;
 	
 	public XMPPConnectionManager(XMPPProtocol protocol, SocketChannel socketChannel)
@@ -166,25 +166,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	}
 	
 	public void setAuth(XMPPAuth auth)
-	{
-		/*
-		SaslServer ss = null;
-		Map<String, String> props = new TreeMap<String, String>();
-        props.put(Sasl.QOP, "auth");
-
-		try {
-			logger.debug("auth mec "  + auth.mechanism);
-			ss = Sasl.createSaslServer("PLAIN", 
-				    "xmpp", "TopChatServer", props, null);
-		} catch (SaslException e) {
-			logger.debug("Exception on creating sasl server");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		logger.debug("sasl server up " + ss);
-		
-		*/
-		
+	{			
 		this.auth = auth;
 	}
 	

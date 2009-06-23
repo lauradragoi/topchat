@@ -34,7 +34,7 @@ public class ChangeRequest
 	  public int type;
 	  public int ops;
 	  public SSLEngine sslEngine;
-	  
+	  	  
 	  public ChangeRequest(SocketChannel socket, int type, int ops) {
 	    this.socket = socket;
 	    this.type = type;

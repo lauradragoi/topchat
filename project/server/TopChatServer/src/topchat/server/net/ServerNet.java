@@ -43,7 +43,7 @@ import topchat.server.interfaces.Protocol;
  * The network module of the server 
  */
 public class ServerNet implements Net, NetConstants, Runnable 
-{
+{	
 	private NetMediator med = null;
 	
 	private Protocol prot = null;
@@ -55,17 +55,19 @@ public class ServerNet implements Net, NetConstants, Runnable
 	@SuppressWarnings("unused")
 	private int port;
 	
-	// The buffer into which we'll read data when it's available
+	/** The buffer into which we'll read data when it's available */
 	private ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 	
-	// A list of ChangeRequest instances
+	/** A list of ChangeRequest instances */
 	private List<ChangeRequest> changeRequests = new LinkedList<ChangeRequest>();
 
-	// A map of data to be sent on the sockets 
-	// Maps a SocketChannel to a list of ByteBuffer instances
+	/** 
+	 * A map of data to be sent on the sockets 
+	 * Maps a SocketChannel to a list of ByteBuffer instances
+	 */
 	private ConcurrentHashMap<SocketChannel, List<ByteBuffer> > pendingData = new ConcurrentHashMap<SocketChannel, List<ByteBuffer> >();
 
-	// A map of TLSHandlers used to secure the socket channels
+	/** A map of TLSHandlers used to secure the socket channels */
 	private ConcurrentHashMap<SocketChannel, TLSHandler> securingData = new ConcurrentHashMap<SocketChannel, TLSHandler>();
 	
 	private static Logger logger = Logger.getLogger(ServerNet.class);
@@ -190,15 +192,17 @@ public class ServerNet implements Net, NetConstants, Runnable
 	        	{
 	        		ChangeRequest change = changes.next();
 	        		switch(change.type) 
-	        		{
+	        		{	        			
 	        			case ChangeRequest.CHANGEOPS:
 	        			{
+	        					// change interest ops
 	        					SelectionKey key = change.socket.keyFor(this.selector);
 	        					key.interestOps(change.ops);
 	        			}
 	        					break;
 	        			case ChangeRequest.REGISTER:
 	        			{
+	        					// register for secure communication
 	        					SelectionKey key = change.socket.keyFor(this.selector);
 	        					// check if socket is registered with selector
 	        					if (key != null)
@@ -370,7 +374,11 @@ public class ServerNet implements Net, NetConstants, Runnable
 				+ socketChannel.socket().getRemoteSocketAddress());
 	}
 	
-	
+	/**
+	 * Method called to read received data
+	 * @param key
+	 * @throws IOException
+	 */
 	private void read(SelectionKey key) throws IOException 
 	{
 		    SocketChannel socketChannel = (SocketChannel) key.channel();
@@ -434,6 +442,11 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    }
 	}
 	
+	/**
+	 * Method called to write pending data
+	 * @param key
+	 * @throws IOException
+	 */
 	private void write(SelectionKey key) throws IOException 
 	{
 		    SocketChannel socketChannel = (SocketChannel) key.channel();

@@ -76,6 +76,11 @@ public class TLSHandler implements Runnable {
         writeBuffer.limit(0);
 	}
 	
+	/**
+	 * Decode secure received data into raw application data 
+	 * @param readBuffer
+	 * @return
+	 */
 	public byte[] processData(ByteBuffer readBuffer)
 	{		
 		if (!handshakeComplete)
@@ -115,6 +120,11 @@ public class TLSHandler implements Runnable {
 		}		
 	}
 	
+	/**
+	 * Obtain secure data corresponding to raq data
+	 * @param data
+	 * @return
+	 */
 	public byte[] getSecureData(byte[] data)
 	{
 		SSLEngineResult result = null;
@@ -136,6 +146,9 @@ public class TLSHandler implements Runnable {
 		return secureData;
 	}
 	
+	/**
+	 * Handles the TLS negotiation
+	 */
 	public void run()
 	{
 		logger.debug("processing");
@@ -252,6 +265,10 @@ public class TLSHandler implements Runnable {
         }
 	}
 	
+	/**
+	 * Send data to the network module to be sent
+	 * @param bb
+	 */
 	private void flush(ByteBuffer bb)
 	{
 		int count = bb.remaining();
