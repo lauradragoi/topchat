@@ -19,7 +19,6 @@ package topchat.server.net;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
@@ -50,9 +49,7 @@ public class TLSHandler implements Runnable {
 	private static ByteBuffer dummyBB = ByteBuffer.allocate(0);
 	
 	private ByteBuffer readBuffer;
-	private ByteBuffer writeBuffer;
-	
-	private Semaphore readSem = new Semaphore(0);	 
+	private ByteBuffer writeBuffer;	 
 	
 	private static Logger logger = Logger.getLogger(TLSHandler.class);		
 	
@@ -76,19 +73,23 @@ public class TLSHandler implements Runnable {
         writeBuffer.limit(0);
 	}
 	
+	private boolean dataToProcess = false;
+	
 	/**
 	 * Decode secure received data into raw application data 
 	 * @param readBuffer
 	 * @return
 	 */
-	public byte[] processData(ByteBuffer readBuffer)
-	{		
+	public synchronized byte[] processData(ByteBuffer readBuffer)
+	{	
 		if (!handshakeComplete)
 		{		
 			readBuffer.flip();
 			this.readBuffer.put(readBuffer);
 			
-			readSem.release();
+			//readSem.release();
+			dataToProcess = true;
+									
 			return null;
 		}
 		else
@@ -146,124 +147,147 @@ public class TLSHandler implements Runnable {
 		return secureData;
 	}
 	
+	SSLEngineResult result = null;
+	
 	/**
 	 * Handles the TLS negotiation
 	 */
+
 	public void run()
 	{
 		logger.debug("processing");
 			
-		SSLEngineResult result = null;
 		
         // this will run until handshake is complete
         while (!handshakeComplete) 
-        {  
-	   		switch (status) 
-	   		{    		
-	   			case NEED_UNWRAP:	
-	   				
-	   					
-	   					readSem.acquireUninterruptibly();
-	   					needIO: 
-	   					while (status == HandshakeStatus.NEED_UNWRAP) 
-	    				{
-	    		    		
-	    					readBuffer.flip();
-	    					
-	    		            try {
-	    						result = sslEngine.unwrap(readBuffer, appBB);
-	    					} catch (SSLException e) {									
-	    						logger.warn("unwrap exception " + e);									
-	    					}
-	    		
-	    					readBuffer.compact();
-	    			                
-	    					logger.debug("unwrap result " + result);
-	    		
-	    					status = result.getHandshakeStatus();
-	    		
-	    					switch (result.getStatus()) 
-	    					{
-	    						case OK:
-	    							switch (status) 
-	    							{
-	    								case NOT_HANDSHAKING:
-	    									logger.debug("Not handshaking in initial handshake");
-	    									continue;
-	    								case NEED_TASK:
-	    									status = doTasks();
-	    									break;
-	    								case FINISHED:
-	    									handshakeComplete = true;
-	    									;
-	    							}	
-	    						break;
-	    		
-	    						case BUFFER_UNDERFLOW:
-	    							break needIO;
-	    		
-	    						default: // BUFFER_OVERFLOW/CLOSED:
-	    							logger.debug("Received" + result.getStatus()
-	    									        	+ "during initial handshaking");
-	    						continue;
-	    					}
-	    					
-	    					logger.debug("new status " + status);
-	    					
-	    				}
-	    		    	
-	    		    	if (status != HandshakeStatus.NEED_WRAP)
-	    		    		break;
-	
-	    		// fall through	
-	        	case NEED_WRAP:
-	        		
-	        		writeBuffer.clear();
-	        		try {
-						result = sslEngine.wrap(dummyBB, writeBuffer);
-					} catch (SSLException e) {
-						logger.warn("wrap exception: " + e);
-					}
-					writeBuffer.flip();
-	
-					status = result.getHandshakeStatus();
-	
-					logger.debug("wrap result " + result);
-	            
-					switch (result.getStatus()) 
-					{
-							case OK:
-								if (status == HandshakeStatus.NEED_TASK) {
-									status = doTasks();
-								}
-								
-								// drain the buffer that was filled
-								flush(writeBuffer);
-								
-		            
-								if (status == HandshakeStatus.FINISHED)
-								{
-									logger.debug("Handshake complete.");		            			
-									handshakeComplete = true;
-									return;
-								}	
-								
-								
-								break;
-	
-							default: // BUFFER_OVERFLOW/BUFFER_UNDERFLOW/CLOSED:
-								logger.debug("Received" + result.getStatus()
-										+ "during initial handshaking");	
-							
-							continue;
-					}
-					break;
-	
-	        	default: // NOT_HANDSHAKING/NEED_TASK/FINISHED
-	        		logger.warn("Invalid Handshaking State" + status);
+        {          	
+        	boolean result = processHandshaking();
+        	
+        	if (!result)
+        	{
+        		// have some beauty sleep until new data is received
+        		try
+        		{
+        			Thread.sleep(50);
+        		} catch (Exception e) {					
 				}
+        	}
         }
 	}
+
+	public synchronized boolean processHandshaking()
+	{
+
+   		switch (status) 
+   		{    		
+   			case NEED_UNWRAP:	
+   				
+   					if (!dataToProcess)
+   						return false;
+   					
+   					dataToProcess = false;   				
+   					needIO: 	   						
+   					while (status == HandshakeStatus.NEED_UNWRAP) 	   					
+    				{
+    					readBuffer.flip();
+    					
+    		            try {
+    						result = sslEngine.unwrap(readBuffer, appBB);
+    					} catch (SSLException e) {									
+    						logger.warn("unwrap exception " + e);									
+    					}
+    		
+    					readBuffer.compact();
+    			                
+    					logger.debug("unwrap result " + result);
+    		
+    					status = result.getHandshakeStatus();
+    		
+    					switch (result.getStatus()) 
+    					{
+    						case OK:
+    							switch (status) 
+    							{
+    								case NOT_HANDSHAKING:
+    									logger.debug("Not handshaking in initial handshake");
+    									continue;
+    								case NEED_TASK:
+    									status = doTasks();
+    									break;
+    								case FINISHED:
+    									handshakeComplete = true;
+    									return true;
+    							}	
+    						break;
+    		
+    						case BUFFER_UNDERFLOW:
+    							break needIO;
+    		
+    						default: // BUFFER_OVERFLOW/CLOSED:
+    							logger.debug("Received" + result.getStatus()
+    									        	+ "during initial handshaking");
+    						continue;
+    					}
+    					
+    					logger.debug("new status " + status);
+    					
+    				}
+    		    	
+    		    	if (status != HandshakeStatus.NEED_WRAP)
+    		    		break;
+
+    		// fall through	
+        	case NEED_WRAP:
+        		
+        		writeBuffer.clear();
+        		try {
+					result = sslEngine.wrap(dummyBB, writeBuffer);
+				} catch (SSLException e) {
+					logger.warn("wrap exception: " + e);
+				}
+				writeBuffer.flip();
+
+				status = result.getHandshakeStatus();
+
+				logger.debug("wrap result " + result);
+            
+				switch (result.getStatus()) 
+				{
+						case OK:
+							if (status == HandshakeStatus.NEED_TASK) {
+								status = doTasks();
+							}
+							
+							// drain the buffer that was filled
+							flush(writeBuffer);
+							
+	            
+							if (status == HandshakeStatus.FINISHED)
+							{
+								logger.debug("Handshake complete.");		            			
+								handshakeComplete = true;
+								return true;
+							}	
+							
+							
+							break;
+
+						default: // BUFFER_OVERFLOW/BUFFER_UNDERFLOW/CLOSED:
+							logger.debug("Received" + result.getStatus()
+									+ "during initial handshaking");	
+						
+						//continue;
+				}
+				break;
+
+        	default: // NOT_HANDSHAKING/NEED_TASK/FINISHED
+        		logger.warn("Invalid Handshaking State" + status);
+			}	
+   		
+   			return true;
+	}
+	
+
 	
 	/**
 	 * Send data to the network module to be sent
