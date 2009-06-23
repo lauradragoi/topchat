@@ -22,6 +22,9 @@ import java.nio.channels.SocketChannel;
 import topchat.server.interfaces.Net;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
+/**
+ * Runnable to execute data processing request
+ */
 public class ProcessData implements Runnable 
 {
 	XMPPProtocol prot;
@@ -45,7 +48,7 @@ public class ProcessData implements Runnable
 		// Obtain the connection manager for this socket
 		XMPPConnectionManager connMgr = prot.getConnectionManager(socketChannel);
 		
-		// Send the data to the connection manager
+		// Send the data to the connection manager to handle it
 		connMgr.processRead(data, count);
 	}
 }

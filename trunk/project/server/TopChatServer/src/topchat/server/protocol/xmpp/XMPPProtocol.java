@@ -122,6 +122,8 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 		net.send(socketChannel, data);
 	}
 	
+	@Override
+	/** Called to request execution of specific tasks by the protocol */
 	public void execute(Runnable r)
 	{
 		pool.execute(r);
