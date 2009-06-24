@@ -97,6 +97,8 @@ public class TLSHandler implements Runnable {
 			logger.debug("Decoding data");
 			readBuffer.flip();
 			
+			logger.debug("za limit " + readBuffer.limit());
+			
 			SSLEngineResult result = null;
 			
 			appBB = ByteBuffer.allocate(sslEngine.getSession().getApplicationBufferSize());
@@ -108,6 +110,8 @@ public class TLSHandler implements Runnable {
 				e.printStackTrace();
 			}
 			logger.debug("Unwrap result " + result);
+			readBuffer.compact();
+			
 			
 			// drain
 			appBB.flip();

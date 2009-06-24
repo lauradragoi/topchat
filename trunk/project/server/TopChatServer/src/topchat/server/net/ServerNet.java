@@ -207,18 +207,12 @@ public class ServerNet implements Net, NetConstants, Runnable
 	        					// check if socket is registered with selector
 	        					if (key != null)
 	        					{
-	        						// check if socket is already secured
-        							if (securingData.get(change.socket) == null)
-        							{
-        								// socket was not previously secured - secure it now
-        								TLSHandler tlsHandler = new TLSHandler(this, change.socket, change.sslEngine);
-        								prot.execute(tlsHandler);
-        								securingData.put(change.socket, tlsHandler);        								
-        							}
-        							else
-        							{
-        								logger.debug("Attempt to re-secure socket " + change.socket + " ignored.");
-        							}        							        						
+    								TLSHandler tlsHandler = securingData.get(change.socket);
+    								if (tlsHandler != null)
+    									prot.execute(tlsHandler);
+    								
+    								logger.debug("securing just started");
+	        						   							        						
 	        					}
 	        			}
 	        					break;
@@ -296,7 +290,7 @@ public class ServerNet implements Net, NetConstants, Runnable
 		
 	    // check if socket channel is secure
 		TLSHandler tlsHandler = securingData.get(socket);
-	    if ( tlsHandler != null )
+	    if ( tlsHandler != null && tlsHandler.handshakeComplete)
 	    {
 	    	byte[] secureData = tlsHandler.getSecureData(data);
 	    	sendRaw(socket, secureData);
@@ -341,6 +335,12 @@ public class ServerNet implements Net, NetConstants, Runnable
 	 */
 	public void secure(SocketChannel socket, SSLEngine sslEngine) 
 	{
+		TLSHandler tlsHandler = new TLSHandler(this, socket, sslEngine);
+		
+		securingData.put(socket, tlsHandler);        								
+
+		logger.debug("Securing data initiated");
+		
 	    synchronized (this.changeRequests) {
 	    	// Indicate we want the interest ops set changed
 	    	this.changeRequests.add(new ChangeRequest(socket, ChangeRequest.REGISTER, sslEngine));	      
@@ -385,6 +385,8 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    
 		    // check if socket channel is secure
 		    TLSHandler tlsHandler = securingData.get(socketChannel);
+		    
+		    
 		    if ( tlsHandler != null )
 		    {
 		    		logger.debug("Read on secured socket " + socketChannel);
@@ -394,7 +396,11 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    	    
 		    	    // resize read buffer to fit data
 		    	    readBuffer = ByteBuffer.allocate(netBBSize);
-		    }	
+		    }
+		    else
+		    {
+		    		logger.debug("insecure socket");
+		    }
 			
 
 		    // Clear out our read buffer so it's ready for new data
@@ -424,6 +430,7 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    
 		    if ( tlsHandler != null )
 		    {		    	
+		    	logger.debug("data to tls");
 		    	byte[] data = tlsHandler.processData(readBuffer);
 		    
 		    	if (data != null)
@@ -435,7 +442,8 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    }
 		    else
 		    {
-	
+		    	logger.debug("data to prot");
+		    	
 			    // Hand the data off to the protocol
 			    // The protocol itself only hands it out to an executor thread and returns
 			    prot.processData(socketChannel, this.readBuffer.array(), numRead);
