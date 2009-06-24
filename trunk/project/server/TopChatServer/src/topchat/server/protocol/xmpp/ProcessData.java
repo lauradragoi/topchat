@@ -18,25 +18,28 @@
 package topchat.server.protocol.xmpp;
 
 import java.nio.channels.SocketChannel;
-
-import topchat.server.interfaces.Net;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
 /**
  * Runnable to execute data processing request
  */
 public class ProcessData implements Runnable 
-{
+{	
 	XMPPProtocol prot;
-	Net net = null;
 	SocketChannel socketChannel = null;
 	byte[] data = null;
 	int count = 0;
 	
-	public ProcessData(XMPPProtocol prot, Net net, SocketChannel socketChannel, byte[] data, int count)
+	/**
+	 * Constructs a process data entity
+	 * @param prot
+	 * @param socketChannel
+	 * @param data
+	 * @param count
+	 */
+	public ProcessData(XMPPProtocol prot, SocketChannel socketChannel, byte[] data, int count)
 	{
 		this.prot = prot;
-		this.net = net;
 		this.socketChannel = socketChannel;
 		this.data = data;
 		this.count = count;

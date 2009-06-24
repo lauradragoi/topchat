@@ -1,11 +1,5 @@
 package topchat.server.protocol.xmpp.context;
 
-import java.nio.ByteBuffer;
-
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLException;
-
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -17,87 +11,42 @@ public class XMPPContext extends DefaultContext {
 
 	private static Logger logger = Logger.getLogger(XMPPContext.class);	
 	
+	/**
+	 * Construct a new XMPPContext
+	 * @param mgr the connection manager for that context
+	 */
 	public XMPPContext(DefaultConnectionManager mgr) {
 		super(mgr);	
 	}
 	
-	/*
-	public XMPPContext() {
-			super();
-	}
-	 
-
-	public XMPPContext(DefaultContext old) {
-		super(old);
-	}
-	
-	public XMPPContext(DefaultConnectionManager mgr) {
-		super(mgr);	
-	}
-	
-	public XMPPContext(DefaultConnectionManager mgr, DefaultContext old) {
-		super(mgr, old);	
-	}
-	*/
-
-	public void processWrite()
-	{
-		//logger.debug("Written");
-	}
-	
+	/**
+	 * Process received data
+	 * @param rd the received data
+	 */
 	public void processRead(byte[] rd) {
 		String s = new String(rd);
 		logger.debug("Received: " + s);
-				
-		rd = null;
-		s = null;
 	}	
 	
+	/**
+	 * Obtain the connection manager for this context
+	 * @return the connection manager
+	 */
 	public XMPPConnectionManager getXMPPManager()
 	{
 		return (XMPPConnectionManager) mgr;
 	}
 	
-
+	/**
+	 * Announce the connection manager that the current context
+	 * has finished its operations.
+	 * 
+	 * This should be called from processRead to prevent
+	 * receiving data that should not be processed by this context
+	 * before switching to the next context.
+	 */
 	public void setDone()
 	{
 		getXMPPManager().contextDone();
-	}
-	
-
-	
-	protected byte[] decodeData(byte[] data)
-	{
-		//String s = new String(data);
-		//logger.debug("Happy receive: " + s);
-		
-		ByteBuffer src = ByteBuffer.wrap(data);
-		
-		SSLEngine tlsEngine = getXMPPManager().getTLSEngine();
-						
-		int appSize = tlsEngine.getSession().getApplicationBufferSize();
-		ByteBuffer dst = ByteBuffer.allocate(appSize);
-		
-		// unwrap
-		SSLEngineResult result = null;
-		try {
-			result = tlsEngine.unwrap(src, dst);
-		} catch (SSLException e) {
-			logger.fatal("unwrap error");
-			e.printStackTrace();
-		}
-		logger.debug("Unwrap result " + result);
-		
-		// drain
-		dst.flip();
-		
-		int count = dst.remaining();
-		byte[] dataResult = new byte[count];
-
-		dst.get(dataResult);
-		
-		return dataResult;
-	}
-	
-	
+	}	
 }

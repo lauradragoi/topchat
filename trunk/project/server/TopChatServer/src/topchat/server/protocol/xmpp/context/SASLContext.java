@@ -46,8 +46,9 @@ public class SASLContext extends XMPPContext
 	public void processRead(byte[] rd) 
 	{
 		String s = new String(rd);
-		logger.debug("received: " + s);	
+		logger.debug("Received: " + s);	
 
+		// if the authentication data was not received
 		if (!authReceived)
 		{
 			processAuth(s);
@@ -74,17 +75,18 @@ public class SASLContext extends XMPPContext
 		}
 		else
 		{
-			logger.debug("received smth else");
-		}
-		
-		//setDone();
+			logger.debug("Received smth else");
+		}		
 	}	
 
-	
+	/**
+	 * @param user
+	 * @return
+	 */
 	private boolean isValidUser(User user)
 	{					
 		// TODO : check this
-		logger.debug("Authentification info is : " + user.username + " " + user.something + " " + user.pass);
+		logger.debug("Authentication info is : " + user.username + " " + user.something + " " + user.pass);
 		
 		return true;
 	}
