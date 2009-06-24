@@ -6,6 +6,10 @@
 package topchat.client.chat;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -20,17 +24,16 @@ public class Room extends MultiUserChat{
 
     ArrayList <ContactDetails> roomUsers;
     //String subject;
+    DefaultListModel listModel;
 
-    public Room(String roomName,String roomNick) throws XMPPException{
+    public Room(String roomName,String roomNick,DefaultListModel model) throws XMPPException{
 
        super(ClientConnection.connection,roomName);
-       // Create the room
-       this.create(roomNick);
-       this.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
-       //this.addParticipantListener(listener);
+       this.listModel = model;
+
        this.addParticipantStatusListener(new ParticipantStatusListener() {
 
-            public void joined(String arg0) {
+            public void joined(String newName) {
                 
             }
 
@@ -91,11 +94,18 @@ public class Room extends MultiUserChat{
             }
         }
        );
-       //join this room
-       this.join(roomNick);
        //RoomInfo info = MultiUserChat.getRoomInfo(ClientConnection.connection,roomName);
        //.out.println("aa"+ info.getOccupantsCount());
        roomUsers = new ArrayList<ContactDetails>();
+    }
+    public void createRoom(String roomNick) throws XMPPException{
+        // Create the room
+       create(roomNick);
+       sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+    }
+    public void joinRoom(String roomNick) throws XMPPException{
+        //join this room
+        join(roomNick);
     }
 
     public void addUserInRoom(ContactDetails newContact){

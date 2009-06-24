@@ -14,8 +14,6 @@ package topchat.client.gui;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
 import topchat.client.connection.ClientConnection;
 
 /**
@@ -148,11 +146,11 @@ public class NewRoom extends javax.swing.JFrame {
 
     private void SaveRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SaveRoomButton
         try {
-            ClientConnection.user.addRoom(jTextField1.getText(), jTextField2.getText(),ChatGUI.listModel);
+            ClientConnection.user.addRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),ChatGUI.listModel);
         } catch (XMPPException ex) {
             Logger.getLogger(NewRoom.class.getName()).log(Level.SEVERE, null, ex);
         }
-        ChatGUI.room.hide();
+        ChatGUI.addRoom.hide();
     }//GEN-LAST:event_SaveRoomButton
 
     /**
