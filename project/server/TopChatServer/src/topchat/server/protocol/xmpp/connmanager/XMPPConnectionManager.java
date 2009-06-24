@@ -26,10 +26,10 @@ import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
-import topchat.server.protocol.xmpp.context.ExtraSecureStreamStartContext;
+import topchat.server.protocol.xmpp.context.SASLSecuredStreamStartContext;
 import topchat.server.protocol.xmpp.context.ResourceBindingContext;
 import topchat.server.protocol.xmpp.context.SASLContext;
-import topchat.server.protocol.xmpp.context.SecureStreamStartContext;
+import topchat.server.protocol.xmpp.context.TLSSecuredStreamStartContext;
 import topchat.server.protocol.xmpp.context.SessionEstablishmentContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
@@ -109,23 +109,24 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	 */
 	protected synchronized void switchKeyContext(XMPPContext old)
 	{						
+		// My FSM
 		XMPPContext nextContext = old;
 		
 		if (old instanceof ResourceBindingContext)
 		{
 			nextContext = new SessionEstablishmentContext(this);
-		} else if (old instanceof ExtraSecureStreamStartContext)
+		} else if (old instanceof SASLSecuredStreamStartContext)
 		{
 			nextContext = new ResourceBindingContext(this);
 		} else if (old instanceof SASLContext)
 		{
-			nextContext = new ExtraSecureStreamStartContext(this);	
-		} else if (old instanceof SecureStreamStartContext)
+			nextContext = new SASLSecuredStreamStartContext(this);	
+		} else if (old instanceof TLSSecuredStreamStartContext)
 		{
 			nextContext = new SASLContext(this);			
 		} else if (old instanceof StartTLSContext)
 		{
-			nextContext = new SecureStreamStartContext(this);		
+			nextContext = new TLSSecuredStreamStartContext(this);		
 		} else if (old instanceof StreamStartContext)
 		{			
 			nextContext = new StartTLSContext(this);						

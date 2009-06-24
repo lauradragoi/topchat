@@ -58,16 +58,16 @@ public class StreamStartContext extends XMPPContext {
 		
 		try {
 			stream = (XMPPStream) Parser.parse(s);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-			logger.warn("Error in receiving stream start from client");	
+		} catch (Exception e) {		
+			logger.warn("Error in receiving stream start from client " + e);	
 		}
 
 		getXMPPManager().setReceivingStream(stream);		
 	}
 	
+	/**
+	 * Send the stream start response
+	 */
 	private void sendStreamStart()
 	{
 		// obtain the start of the stream from the manager
@@ -75,8 +75,7 @@ public class StreamStartContext extends XMPPContext {
 		try {
 			stream = getXMPPManager().getStartStream();
 		} catch (Exception e) {			
-			logger.warn("Could not obtain sending stream start");
-			e.printStackTrace();			
+			logger.warn("Could not obtain sending stream start " + e);				
 		}
 		
 		// prepare the message to be written
@@ -85,20 +84,21 @@ public class StreamStartContext extends XMPPContext {
 		getXMPPManager().send(msg.getBytes());
 	}
 	
+	/**
+	 * Advertise the features currently offered by the server
+	 */
 	private void sendFeatures()
 	{
 		Features ft = null;
 		try {
 			ft = getXMPPManager().getFeatures();
 		} catch (Exception e) {			
-			logger.warn("Could not obtain features info");
-			e.printStackTrace();			
+			logger.warn("Could not obtain features info " + e);
 		}
 		
 		// prepare the message to be written
 		String msg = Preparer.prepareFeatures(ft);
 		
 		getXMPPManager().send(msg.getBytes());		
-	}
-	
+	}	
 }

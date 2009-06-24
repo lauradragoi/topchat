@@ -106,7 +106,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	{		
 	    byte[] dataCopy = new byte[count];
 	    System.arraycopy(data, 0, dataCopy, 0, count);		
-		pool.execute(new ProcessData(this, net, socketChannel, dataCopy, count));
+		pool.execute(new ProcessData(this, socketChannel, dataCopy, count));
 	}
 	
     public void secure(SocketChannel socketChannel, SSLEngine sslEngine)

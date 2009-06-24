@@ -38,7 +38,7 @@ public class Features {
 		
 		if (useSASL)
 		{
-			useMD5 = true;
+			useMD5 = false;
 			usePlain = true;
 		}
 	}
