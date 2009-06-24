@@ -12,6 +12,7 @@
 package topchat.client.gui;
 
 import javax.swing.DefaultListModel;
+import topchat.client.connection.ClientConnection;
 
 /**
  *
@@ -19,14 +20,15 @@ import javax.swing.DefaultListModel;
  */
 public class ChatGUI extends javax.swing.JFrame {
     public static DefaultListModel listModel;
-    public static NewRoom room;
+    public static NewRoom addRoom;
+    public static JoinNewRoom joinRoom;
 
     /** Creates new form ChatGUI */
     public ChatGUI() {
         listModel = new DefaultListModel();
         initComponents();
-        room = new NewRoom();
-        
+        addRoom = new NewRoom();
+        joinRoom = new JoinNewRoom();
     }
 
     /** This method is called from within the constructor to
@@ -44,12 +46,12 @@ public class ChatGUI extends javax.swing.JFrame {
         jList1 = new javax.swing.JList();
         jScrollPane3 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList();
-        jButton1 = new javax.swing.JButton();
+        joinButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane();
         jTextField1 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
-        addRoom = new javax.swing.JButton();
+        addRoomButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,7 +74,12 @@ public class ChatGUI extends javax.swing.JFrame {
 
         roomsTabbedPane.addTab("Rooms", jScrollPane3);
 
-        jButton1.setText("Join Room");
+        joinButton.setText("Join Room");
+        joinButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                joinRoomButton(evt);
+            }
+        });
 
         jEditorPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jScrollPane1.setViewportView(jEditorPane1);
@@ -81,10 +88,10 @@ public class ChatGUI extends javax.swing.JFrame {
 
         jButton2.setText("Send");
 
-        addRoom.setText("Add Room");
-        addRoom.addMouseListener(new java.awt.event.MouseAdapter() {
+        addRoomButton.setText("Add Room");
+        addRoomButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                addRoomButton(evt);
+                addRoomButtonButton(evt);
             }
         });
 
@@ -103,9 +110,9 @@ public class ChatGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(joinButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(addRoom))
+                        .addComponent(addRoomButton))
                     .addComponent(roomsTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         jPanel1Layout.setVerticalGroup(
@@ -119,8 +126,8 @@ public class ChatGUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)
                     .addComponent(jButton2)
-                    .addComponent(jButton1)
-                    .addComponent(addRoom))
+                    .addComponent(joinButton)
+                    .addComponent(addRoomButton))
                 .addContainerGap())
         );
 
@@ -134,15 +141,19 @@ public class ChatGUI extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addRoomButton
-       room.show();
-    }//GEN-LAST:event_addRoomButton
+    private void addRoomButtonButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addRoomButtonButton
+       addRoom.show();
+}//GEN-LAST:event_addRoomButtonButton
+
+    private void joinRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_joinRoomButton
+        joinRoom.show();
+    }//GEN-LAST:event_joinRoomButton
 
     /**
     * @param args the command line arguments
@@ -156,8 +167,7 @@ public class ChatGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addRoom;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton addRoomButton;
     private javax.swing.JButton jButton2;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JList jList1;
@@ -167,6 +177,7 @@ public class ChatGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton joinButton;
     private javax.swing.JTabbedPane roomsTabbedPane;
     // End of variables declaration//GEN-END:variables
 
