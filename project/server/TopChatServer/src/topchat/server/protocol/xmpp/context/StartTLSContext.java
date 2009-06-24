@@ -48,11 +48,16 @@ public class StartTLSContext extends XMPPContext {
 			// receive starttls
 			if (result.isStartTLS())
 			{
-				// send proceed
-				sendProceedTLS();
-				
+				logger.debug("sec now");
 				// secure the connection
 				getXMPPManager().secure();
+				logger.debug("sec now done");
+				
+				// send proceed
+				sendProceedTLS();				
+				
+
+
 				
 				setDone();
 			}
