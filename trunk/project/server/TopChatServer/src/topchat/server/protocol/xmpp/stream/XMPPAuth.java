@@ -17,13 +17,14 @@
 */
 package topchat.server.protocol.xmpp.stream;
 
-public class XMPPAuth {
+public class XMPPAuth extends StreamElement implements Constants {
 
 	public String mechanism;
 	public String initialChallenge;
 	
 	public XMPPAuth(String mechanism, String initialChallenge)
 	{
+		super(AUTH_TYPE);
 		this.mechanism = mechanism;
 		this.initialChallenge = initialChallenge;
 	}

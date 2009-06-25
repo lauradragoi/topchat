@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stream.Features;
+import topchat.server.protocol.xmpp.stream.StreamElement;
 import topchat.server.protocol.xmpp.stream.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
@@ -42,27 +43,39 @@ public class StreamStartContext extends XMPPContext {
 		String s = new String(rd);
 		logger.debug("Received: " + s);
 		
-		processStartStream(s);
-				
-		sendStreamStart();
-		
-		sendFeatures();
-		
-		setDone();
+		try
+		{
+			processStartStream(s);
+					
+			sendStreamStart();
+			
+			sendFeatures();
+			
+			setDone();
+		} catch (Exception e) {
+			logger.warn("Error in processing stream start." + e);
+		}
 	}	
 	
-	private void processStartStream(String s)
+	private void processStartStream(String s) throws Exception
 	{
 		// process start stream
-		XMPPStream stream = null;
+		
+		StreamElement streamElement = null; 
 		
 		try {
-			stream = (XMPPStream) Parser.parse(s);
+			streamElement = (StreamElement) Parser.parse(s);
 		} catch (Exception e) {		
 			logger.warn("Error in receiving stream start from client " + e);	
 		}
 
-		getXMPPManager().setReceivingStream(stream);		
+		if (streamElement.isXMPPStream())
+		{
+			XMPPStream stream = (XMPPStream) streamElement;
+			getXMPPManager().setReceivingStream(stream);
+		}
+		else
+			throw new Exception("Element is not an XMPPStream. " + s);
 	}
 	
 	/**

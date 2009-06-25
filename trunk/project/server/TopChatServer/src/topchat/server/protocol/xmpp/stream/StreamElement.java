@@ -30,4 +30,9 @@ public class StreamElement implements Constants {
 	{
 		return type == STARTTLS_TYPE;
 	}
+	
+	public boolean isXMPPStream()
+	{
+		return type == XMPPSTREAM_TYPE;
+	}
 }
