@@ -17,7 +17,7 @@
 */
 package topchat.server.protocol.xmpp.stream;
 
-public class Features {
+public class Features extends StreamElement implements Constants {
 
 	private boolean useOfTLS = false;
 	private boolean useOfSASL = false;
@@ -28,11 +28,13 @@ public class Features {
 	
 	public Features(boolean useTLS)
 	{
+		super(FEATURES_TYPE);
 		useOfTLS = useTLS;
 	}
 	
 	public Features(boolean useTLS, boolean useSASL)
 	{
+		super(FEATURES_TYPE);
 		useOfTLS = useTLS;
 		useOfSASL = useSASL;
 		
@@ -45,6 +47,7 @@ public class Features {
 	
 	public Features(boolean useTLS, boolean useSASL, boolean offerBinding)
 	{
+		super(FEATURES_TYPE);
 		useOfTLS = useTLS;
 		useOfSASL = useSASL;
 		this.offerBinding = offerBinding;

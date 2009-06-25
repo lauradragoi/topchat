@@ -18,6 +18,9 @@
 package topchat.server.protocol.xmpp.stream;
 
 public interface Constants {
-	public static final int EMPTY_TYPE 		= -1;
-	public static final int STARTTLS_TYPE 	=  0;
+	public static final int EMPTY_TYPE 		=  -1;
+	public static final int STARTTLS_TYPE 	=  	0;
+	public static final int XMPPSTREAM_TYPE =  	1;
+	public static final int AUTH_TYPE		=	2;
+	public static final int FEATURES_TYPE	= 	3;
 }

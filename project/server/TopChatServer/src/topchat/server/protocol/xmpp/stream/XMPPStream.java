@@ -31,7 +31,7 @@ package topchat.server.protocol.xmpp.stream;
  *	version  |  signals XMPP 1.0 support |  signals XMPP 1.0 support
  * 
  */
-public class XMPPStream {
+public class XMPPStream extends StreamElement implements Constants {
 
 	private String to = null;
 	private String from = null;
@@ -41,6 +41,8 @@ public class XMPPStream {
 	
 	public XMPPStream(String to, String from, String id, String lang, String version)
 	{
+		super(XMPPSTREAM_TYPE);
+		
 		this.to = to;
 		this.from = from;
 		this.id = id;
