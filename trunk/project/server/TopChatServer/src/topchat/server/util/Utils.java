@@ -1,31 +1,47 @@
 package topchat.server.util;
 
 import java.nio.ByteBuffer;
+import java.util.Vector;
 
 /**
  * Useful methods
  */
 public class Utils {
 	
-	/**
-	 * Obtain a string from a buffer
-	 * @param buf
-	 * @return
-	 */
-	public static String getStringFromBuffer(ByteBuffer buf) {
-		byte length = buf.get();
-		byte[] contents = new byte[length];
-		buf.get(contents);
-		return new String(contents);
+	public static byte[] ByteBufferToByteArray(ByteBuffer byteBuffer)
+	{
+		byteBuffer.flip();
+				
+		int count = byteBuffer.remaining();
+		byte[] byteArray = new byte[count];
+
+		byteBuffer.get(byteArray);
+		
+		return byteArray;
 	}
 	
-	/**
-	 * Put a string in a buffer
-	 * @param str
-	 * @param buf
-	 */
-	public static void putStringToBuffer(String str, ByteBuffer buf) {
-		buf.put(str.getBytes());
+	public static byte[] ByteArrayVectorToByteArray(Vector<byte[]> vector)
+	{
+		int count = 0;
+		for (byte[] b : vector)
+			if (b != null)
+				count += b.length;
+		
+		if (count == 0)
+			return null;
+				
+		byte[] byteArray = new byte[count];
+		
+		int offset = 0;
+		for (byte[] b : vector)
+		{
+			if (b != null)
+			{
+				System.arraycopy(b, 0, byteArray, offset, b.length);
+				offset += b.length;
+			}
+		}
+
+		return byteArray;
 	}
-	
 }
