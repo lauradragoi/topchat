@@ -17,8 +17,8 @@
 */
 package topchat.server.unit;
 
-import topchat.server.protocol.xmpp.stream.Features;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 import junit.framework.TestCase;

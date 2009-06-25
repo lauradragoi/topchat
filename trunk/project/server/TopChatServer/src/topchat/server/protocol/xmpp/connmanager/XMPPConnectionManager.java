@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import topchat.server.defaults.DefaultConnectionManager;
 import topchat.server.protocol.xmpp.XMPPConstants;
 import topchat.server.protocol.xmpp.XMPPProtocol;
+import topchat.server.protocol.xmpp.context.ConnectedClientContext;
 import topchat.server.protocol.xmpp.context.SASLSecuredStreamStartContext;
 import topchat.server.protocol.xmpp.context.ResourceBindingContext;
 import topchat.server.protocol.xmpp.context.SASLContext;
@@ -35,9 +36,9 @@ import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.jid.User;
-import topchat.server.protocol.xmpp.stream.Features;
-import topchat.server.protocol.xmpp.stream.XMPPAuth;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
+import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
 
 
@@ -112,7 +113,10 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		// My FSM
 		XMPPContext nextContext = old;
 		
-		if (old instanceof ResourceBindingContext)
+		if (old instanceof SessionEstablishmentContext)
+		{
+			nextContext = new ConnectedClientContext(this);
+		} else if (old instanceof ResourceBindingContext)
 		{
 			nextContext = new SessionEstablishmentContext(this);
 		} else if (old instanceof SASLSecuredStreamStartContext)

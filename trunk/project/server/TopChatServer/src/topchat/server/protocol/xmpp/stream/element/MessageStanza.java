@@ -14,13 +14,14 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-package topchat.server.protocol.xmpp.stream;
+ */
+package topchat.server.protocol.xmpp.stream.element;
 
-public interface Constants {
-	public static final int EMPTY_TYPE 		=  -1;
-	public static final int STARTTLS_TYPE 	=  	0;
-	public static final int XMPPSTREAM_TYPE =  	1;
-	public static final int AUTH_TYPE		=	2;
-	public static final int FEATURES_TYPE	= 	3;
+
+public class MessageStanza extends XMPPStanza {
+
+	public MessageStanza() {
+		super(MESSAGE_STANZA_TYPE);		
+	}
+
 }

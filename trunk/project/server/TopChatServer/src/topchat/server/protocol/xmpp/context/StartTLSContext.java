@@ -20,7 +20,7 @@ package topchat.server.protocol.xmpp.context;
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-import topchat.server.protocol.xmpp.stream.StreamElement;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 

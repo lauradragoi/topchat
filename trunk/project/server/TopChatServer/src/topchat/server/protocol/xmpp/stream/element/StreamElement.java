@@ -15,17 +15,25 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.protocol.xmpp.stream;
+package topchat.server.protocol.xmpp.stream.element;
 
-public class XMPPAuth extends StreamElement implements Constants {
 
-	public String mechanism;
-	public String initialChallenge;
+public class StreamElement implements Constants {
 	
-	public XMPPAuth(String mechanism, String initialChallenge)
+	private int type = EMPTY_TYPE;
+	
+	public StreamElement(int type)
 	{
-		super(AUTH_TYPE);
-		this.mechanism = mechanism;
-		this.initialChallenge = initialChallenge;
+		this.type = type;
+	}
+	
+	public boolean isStartTLS()
+	{
+		return type == STARTTLS_TYPE;
+	}
+	
+	public boolean isXMPPStream()
+	{
+		return type == XMPPSTREAM_TYPE;
 	}
 }

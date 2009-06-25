@@ -14,9 +14,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package topchat.server.protocol.xmpp.stanzas;
+*/
+package topchat.server.protocol.xmpp.stream.element;
 
-public class XMPPStanza {
 
+public class XMPPAuth extends StreamElement implements Constants {
+
+	public String mechanism;
+	public String initialChallenge;
+	
+	public XMPPAuth(String mechanism, String initialChallenge)
+	{
+		super(AUTH_TYPE);
+		this.mechanism = mechanism;
+		this.initialChallenge = initialChallenge;
+	}
 }

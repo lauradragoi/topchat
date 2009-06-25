@@ -15,12 +15,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package topchat.server.protocol.xmpp.stanzas;
+package topchat.server.protocol.xmpp.stream.element;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
 
 
 public class IQStanza extends XMPPStanza {
@@ -32,7 +33,7 @@ public class IQStanza extends XMPPStanza {
 	
 	public IQStanza()
 	{
-		
+		super(IQSTANZA_TYPE);
 	}
 	
 	public void addAttribute(String name, String value)
