@@ -135,7 +135,7 @@ public class LoginGUI extends javax.swing.JFrame {
         if(ClientConnection.connection.isConnected()){
             Main.login_gui.hide();
             chat_gui.show();
-            ClientConnection.user.getContacts();
+            //ClientConnection.user.getContacts();
         }
     }//GEN-LAST:event_LoginButton
 
