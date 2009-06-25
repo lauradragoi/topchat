@@ -11,5 +11,5 @@ package topchat.client.connection;
  */
 public interface ConnectConstants {
     public static final int PORT = 5222;
-    public static final String SERVER_NAME = "jabber.org";
+    public static final String SERVER_NAME = "jabber.org";//useless
 }
