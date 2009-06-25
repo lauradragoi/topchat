@@ -18,6 +18,7 @@
 package topchat.server.protocol.xmpp.stream.parser;
 
 import java.util.Iterator;
+import java.util.Vector;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -88,6 +89,8 @@ public class Parser implements Constants {
 	
 	private static Object genericParse(String msg) throws Exception
 	{
+		Vector<StreamElement> resultElements = new Vector<StreamElement>();
+		
 		Object result = null;
 		
 		XMLEventReader reader = Utils.createReader(msg);
@@ -121,10 +124,17 @@ public class Parser implements Constants {
 		    		parseMessage(startElement, reader);
 		    	
 		    	if ("iq".equals(local))
+		    	{		    		
 	    			result = parseIq(startElement, reader);
+	    			
+	    			resultElements.add((StreamElement)result);
+		    	}
 		    	
 		    	if ("presence".equals(local))
+		    	{
 	    			result = parsePresence(startElement, reader);
+	    			resultElements.add((StreamElement)result);
+		    	}
 		    	
 		    	if ("error".equals(local))
 		    		parseError(startElement, reader);
@@ -283,6 +293,7 @@ public class Parser implements Constants {
 	 * @param start
 	 * @param reader
 	 */
+	@SuppressWarnings("unchecked")
 	private static PresenceStanza parsePresence(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
