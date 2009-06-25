@@ -36,4 +36,15 @@ public class StreamElement implements Constants {
 	{
 		return type == XMPPSTREAM_TYPE;
 	}
+	
+	public boolean isIq()
+	{
+		return type == IQSTANZA_TYPE;
+	}
+	
+	public boolean isPresence()
+	{
+		return type == PRESENCE_STANZA_TYPE;
+	}
+
 }

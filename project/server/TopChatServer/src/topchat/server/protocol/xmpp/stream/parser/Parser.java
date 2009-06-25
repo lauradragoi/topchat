@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import topchat.server.protocol.xmpp.stream.element.Constants;
 import topchat.server.protocol.xmpp.stream.element.Features;
 import topchat.server.protocol.xmpp.stream.element.IQStanza;
+import topchat.server.protocol.xmpp.stream.element.PresenceStanza;
 import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
@@ -72,6 +73,7 @@ public class Parser implements Constants {
 		
 		logger.debug("after cleanupStreamPrefix: " + msg);
 		
+		msg = wrapRootTag(msg);
 		// hack: don't parse empty messages	(end of stream becomes empty after cleanup)	
 		if ( msg.trim().length() > 0)
 		{
@@ -122,7 +124,7 @@ public class Parser implements Constants {
 	    			result = parseIq(startElement, reader);
 		    	
 		    	if ("presence".equals(local))
-	    			parsePresence(startElement, reader);
+	    			result = parsePresence(startElement, reader);
 		    	
 		    	if ("error".equals(local))
 		    		parseError(startElement, reader);
@@ -281,9 +283,17 @@ public class Parser implements Constants {
 	 * @param start
 	 * @param reader
 	 */
-	private static void parsePresence(StartElement start, XMLEventReader reader ) throws Exception
+	private static PresenceStanza parsePresence(StartElement start, XMLEventReader reader ) throws Exception
 	{
 		boolean end = false;
+		
+		PresenceStanza presenceStanza = new PresenceStanza();
+		
+		Iterator<Attribute> it = start.getAttributes();
+		while (it.hasNext()) {
+			Attribute attrib = it.next();
+			presenceStanza.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
+		}
 		
 		while (reader.hasNext(  ) && !end) 
 		{
@@ -317,7 +327,9 @@ public class Parser implements Constants {
 		    {
 		    	logger.debug(event.toString());
 		    }
-		}	
+		}
+		
+		return presenceStanza;
 	}	
 	
 	
@@ -693,6 +705,10 @@ public class Parser implements Constants {
 	private static String cleanupEndOfStream(String msg)
 	{
 		return msg.replace("</stream:stream>", "");
+	}
+	private static String wrapRootTag(String msg)
+	{
+		return "<root>".concat(msg).concat("</root>");
 	}
 
 }

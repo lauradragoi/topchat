@@ -20,10 +20,14 @@ package topchat.server.protocol.xmpp.context;
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.stream.element.IQStanza;
+import topchat.server.protocol.xmpp.stream.element.PresenceStanza;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
+import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 public class ConnectedClientContext extends XMPPContext 
 {		
-	private static Logger logger = Logger.getLogger(ResourceBindingContext.class);
+	private static Logger logger = Logger.getLogger(ConnectedClientContext.class);
 	
 
 	public ConnectedClientContext(XMPPConnectionManager mgr) {
@@ -36,7 +40,36 @@ public class ConnectedClientContext extends XMPPContext
 		String s = new String(rd);
 		logger.debug("received: " + s);	
 		
+		StreamElement streamElement = null;
+				
+		try {		
+			streamElement = (StreamElement) Parser.parse(s);						
+		} catch (Exception e) {		
+			logger.warn("Error in parsing " + e);
+			return ;
+		}
+		
+		if (streamElement != null)
+			processElement(streamElement);
+		
+
+		
 		//	setDone();
 	}
 		
+	
+	private void processElement(StreamElement streamElement)
+	{
+		if (streamElement.isIq())
+		{
+			IQStanza iqStanza = (IQStanza) streamElement;
+			logger.debug("FOUND IQ");
+		}
+		else if (streamElement.isPresence())
+		{
+			PresenceStanza presenceStanza = (PresenceStanza) streamElement;
+			logger.debug("FOUND PRESENCE");
+
+		}
+	}
 }
