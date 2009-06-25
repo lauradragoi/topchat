@@ -17,13 +17,6 @@
  */
 package topchat.server.protocol.xmpp.stream.element;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
-
-
 public class IQStanza extends XMPPStanza {
 
 	public IQStanza()
