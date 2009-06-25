@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.NetMediator;
 import topchat.server.interfaces.Protocol;
+import topchat.server.protocol.xmpp.tls.TLSHandler;
 
 /**
  * The network module of the server 

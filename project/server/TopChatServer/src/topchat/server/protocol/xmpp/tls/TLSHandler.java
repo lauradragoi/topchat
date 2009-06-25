@@ -15,10 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.net;
+package topchat.server.protocol.xmpp.tls;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Vector;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
@@ -28,6 +29,7 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import org.apache.log4j.Logger;
 
 import topchat.server.interfaces.Net;
+import topchat.server.util.Utils;
 
 /**
  * Created when a connection needs to be secured with TLS.
@@ -84,71 +86,109 @@ public class TLSHandler implements Runnable {
 	{	
 		if (!handshakeComplete)
 		{		
+			// put the data in my local buffer
 			readBuffer.flip();
 			this.readBuffer.put(readBuffer);
 			
-			//readSem.release();
-			dataToProcess = true;
-									
+			// modify flag to announce new data
+			dataToProcess = true;									
 			return null;
 		}
 		else
 		{
 			logger.debug("Decoding data");
-			readBuffer.flip();
-			
-			logger.debug("za limit " + readBuffer.limit());
 			
 			SSLEngineResult result = null;
+			Vector< byte[] > secureDataVector = new Vector<byte[]>();
 			
+			// prepare buffer for draining
+			readBuffer.flip();					
+			
+			// allocate the buffer to contain the decoded application data
 			appBB = ByteBuffer.allocate(sslEngine.getSession().getApplicationBufferSize());
 			
-			try {
-				result = sslEngine.unwrap(readBuffer, appBB);
-			} catch (SSLException e) {
-				logger.fatal("unwrap error");
-				e.printStackTrace();
+			// while there is undecoded data
+			while (readBuffer.hasRemaining())			
+			{
+				// prepare the buffer that will contain decoded data
+				appBB.clear();
+							
+				try {
+					result = sslEngine.unwrap(readBuffer, appBB);
+				} catch (SSLException e) {
+					logger.fatal("unwrap error");
+					e.printStackTrace();
+				}
+				
+				logger.debug("Unwrap result " + result);
+				
+				if (result.getStatus() == SSLEngineResult.Status.OK) 
+				{
+					// add the data to secured data vector
+					secureDataVector.add(Utils.ByteBufferToByteArray(appBB));
+				}
+				else if (result.getStatus() == SSLEngineResult.Status.BUFFER_UNDERFLOW) 
+				{
+					// The data left in the buffer will be unwrapped
+					// after more data is added to the read buffer.
+					break;
+				}
 			}
-			logger.debug("Unwrap result " + result);
+			
+			// prepare it for next reading
 			readBuffer.compact();
-			
-			
-			// drain
-			appBB.flip();
-			
-			int count = appBB.remaining();
-			byte[] dataResult = new byte[count];
-
-			appBB.get(dataResult);
-			
-			return dataResult;
+						
+			return Utils.ByteArrayVectorToByteArray(secureDataVector);
 		}		
 	}
 	
 	/**
-	 * Obtain secure data corresponding to raq data
+	 * Obtain secure data corresponding to raw data
 	 * @param data
 	 * @return
 	 */
-	public byte[] getSecureData(byte[] data)
+	public synchronized byte[] getSecureData(byte[] data)
 	{
+		// The result of the SSL Engine operation (wrap in this case)
 		SSLEngineResult result = null;
-		writeBuffer.clear();
-		try {
-			result = sslEngine.wrap(ByteBuffer.wrap(data), writeBuffer);
-		} catch (SSLException e) {
-			logger.warn("wrap exception: " + e);
+				
+		// The secured data will not necessarily
+		// be obtained only in one single step.
+		// The bits of secured data that are obtained are collected
+		// in this vector.
+		Vector< byte[] > secureDataVector = new Vector<byte[]>();
+		
+		// Buffer used for holding the data that needs to be secured
+		appBB = ByteBuffer.allocate(sslEngine.getSession().getApplicationBufferSize());
+		appBB.put(data);
+		appBB.flip();
+		
+		// While I still have data to be secured
+		while (appBB.hasRemaining()) 
+		{
+			// clear the buffer in which I put the secured data
+			writeBuffer.clear();
+			
+			// wrap it - it might not all be wrapped now
+			try {
+				result = sslEngine.wrap( appBB, writeBuffer);
+			} catch (SSLException e) {
+				logger.warn("wrap exception: " + e);
+			}
+			
+			logger.debug("wrap result " + result);
+			
+			// if wrap was ok
+			if (result.getStatus() == SSLEngineResult.Status.OK) 
+			{
+				// add the data to secured data vector
+				secureDataVector.add(Utils.ByteBufferToByteArray(writeBuffer));
+		    }	
+			else
+				logger.warn("wrap was not ok " + result);
 		}
-		writeBuffer.flip();
-		
-		logger.debug("wrap result " + result);
-		
-		int count = writeBuffer.remaining();
-		byte[] secureData = new byte[count];
-
-		writeBuffer.get(secureData);
-		
-		return secureData;
+				
+		return Utils.ByteArrayVectorToByteArray(secureDataVector);
 	}
 	
 	SSLEngineResult result = null;
@@ -327,4 +367,6 @@ public class TLSHandler implements Runnable {
 	       
 	       return sslEngine.getHandshakeStatus();	      	       
 	}
+	
+
 }
