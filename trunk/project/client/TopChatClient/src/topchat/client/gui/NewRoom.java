@@ -21,7 +21,7 @@ import topchat.client.connection.ClientConnection;
  * @author Serbi
  */
 public class NewRoom extends javax.swing.JFrame {
-
+    public ChatGUI mainGUI;
     /** Creates new form NewRoom */
     public NewRoom() {
         initComponents();
@@ -51,7 +51,7 @@ public class NewRoom extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 24));
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/topchat/client/resources/logo.png"))); // NOI18N
         jLabel1.setText("    TopChat");
 
@@ -61,15 +61,15 @@ public class NewRoom extends javax.swing.JFrame {
 
         jTextField3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel2.setText("      Address");
         jLabel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel3.setText("     Room Nick");
+        jLabel3.setText("          Nick");
         jLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel4.setText("        Status");
         jLabel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
@@ -106,7 +106,7 @@ public class NewRoom extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(95, 95, 95)
                 .addComponent(jButton1)
-                .addContainerGap(203, Short.MAX_VALUE))
+                .addContainerGap(189, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,8 +145,10 @@ public class NewRoom extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SaveRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SaveRoomButton
+        ChatPanel newRoom = new ChatPanel();
+        mainGUI.TabbedRooms.add(jTextField1.getText(), newRoom);
         try {
-            ClientConnection.user.addRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),ChatGUI.listModel);
+            ClientConnection.user.addRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),jTextField3.getText(),newRoom);
         } catch (XMPPException ex) {
             Logger.getLogger(NewRoom.class.getName()).log(Level.SEVERE, null, ex);
         }
