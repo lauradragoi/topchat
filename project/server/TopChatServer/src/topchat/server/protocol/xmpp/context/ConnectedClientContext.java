@@ -14,9 +14,29 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package topchat.server.protocol.xmpp.stanzas;
+*/
+package topchat.server.protocol.xmpp.context;
 
-public class PresenceStanza extends XMPPStanza {
+import org.apache.log4j.Logger;
 
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+
+public class ConnectedClientContext extends XMPPContext 
+{		
+	private static Logger logger = Logger.getLogger(ResourceBindingContext.class);
+	
+
+	public ConnectedClientContext(XMPPConnectionManager mgr) {
+		super(mgr);		
+	}
+
+	@Override
+	public void processRead(byte[] rd) 
+	{
+		String s = new String(rd);
+		logger.debug("received: " + s);	
+		
+		//	setDone();
+	}
+		
 }

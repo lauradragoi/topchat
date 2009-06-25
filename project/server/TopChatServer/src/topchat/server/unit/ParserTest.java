@@ -19,7 +19,7 @@ package topchat.server.unit;
 
 import org.junit.Test;
 
-import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import junit.framework.TestCase;
 

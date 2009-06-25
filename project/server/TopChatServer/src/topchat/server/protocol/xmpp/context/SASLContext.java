@@ -23,7 +23,7 @@ import org.jivesoftware.smack.util.Base64;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.jid.User;
-import topchat.server.protocol.xmpp.stream.XMPPAuth;
+import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 

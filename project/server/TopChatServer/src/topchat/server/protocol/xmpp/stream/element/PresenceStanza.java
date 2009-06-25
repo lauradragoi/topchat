@@ -15,8 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package topchat.server.protocol.xmpp.stanzas;
+package topchat.server.protocol.xmpp.stream.element;
 
-public class MessageStanza extends XMPPStanza {
 
+public class PresenceStanza extends XMPPStanza {
+
+	public PresenceStanza() 
+	{
+		super(PRESENCE_STANZA_TYPE);
+	}
+	
 }

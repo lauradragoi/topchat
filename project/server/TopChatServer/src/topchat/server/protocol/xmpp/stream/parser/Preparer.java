@@ -7,8 +7,8 @@ import javax.xml.stream.XMLEventWriter;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.protocol.xmpp.stream.Features;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 
 public class Preparer {
 

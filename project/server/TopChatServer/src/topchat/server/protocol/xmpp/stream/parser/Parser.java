@@ -29,12 +29,12 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.protocol.xmpp.stanzas.IQStanza;
-import topchat.server.protocol.xmpp.stream.Constants;
-import topchat.server.protocol.xmpp.stream.Features;
-import topchat.server.protocol.xmpp.stream.StreamElement;
-import topchat.server.protocol.xmpp.stream.XMPPAuth;
-import topchat.server.protocol.xmpp.stream.XMPPStream;
+import topchat.server.protocol.xmpp.stream.element.Constants;
+import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.IQStanza;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
+import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
+import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 
 /**
  * Contains methods used for parsing messages sent by the client
