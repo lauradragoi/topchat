@@ -17,6 +17,8 @@
 */
 package topchat.server.protocol.xmpp.context;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
@@ -59,23 +61,20 @@ public class StreamStartContext extends XMPPContext {
 	
 	private void processStartStream(String s) throws Exception
 	{
-		// process start stream
+		// process start stream	
 		
-		StreamElement streamElement = null; 
-		
-		try {
-			streamElement = (StreamElement) Parser.parse(s);
-		} catch (Exception e) {		
-			logger.warn("Error in receiving stream start from client " + e);	
-		}
+		Vector<StreamElement> streamElements = Parser.parse(s);		
 
-		if (streamElement.isXMPPStream())
+		for (StreamElement element : streamElements)
 		{
-			XMPPStream stream = (XMPPStream) streamElement;
-			getXMPPManager().setReceivingStream(stream);
+			if (element.isXMPPStream())
+			{
+				XMPPStream stream = (XMPPStream) element;
+				getXMPPManager().setReceivingStream(stream);
+			}
+			else
+				throw new Exception("Element is not an XMPPStream. " + s);
 		}
-		else
-			throw new Exception("Element is not an XMPPStream. " + s);
 	}
 	
 	/**

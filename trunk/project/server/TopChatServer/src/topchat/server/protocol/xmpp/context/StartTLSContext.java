@@ -17,6 +17,8 @@
 */
 package topchat.server.protocol.xmpp.context;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
@@ -43,23 +45,23 @@ public class StartTLSContext extends XMPPContext {
 		logger.debug("Received: " + s);
 		
 		try {
-			StreamElement result = (StreamElement)Parser.parse(s);
+			Vector<StreamElement> streamElements = Parser.parse(s);
 			
-			// receive starttls
-			if (result.isStartTLS())
+			for (StreamElement element : streamElements)
 			{
-				logger.debug("sec now");
-				// secure the connection
-				getXMPPManager().secure();
-				logger.debug("sec now done");
-				
-				// send proceed
-				sendProceedTLS();				
-				
-
-
-				
-				setDone();
+				// receive starttls
+				if (element.isStartTLS())
+				{
+					logger.debug("sec now");
+					// secure the connection
+					getXMPPManager().secure();
+					logger.debug("sec now done");
+					
+					// send proceed
+					sendProceedTLS();				
+		
+					setDone();
+				}
 			}
 			
 		} catch (Exception e) {

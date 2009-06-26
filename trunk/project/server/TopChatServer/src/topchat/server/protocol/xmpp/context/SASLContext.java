@@ -17,12 +17,15 @@
 */
 package topchat.server.protocol.xmpp.context;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.util.Base64;
 
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.jid.User;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
@@ -51,27 +54,30 @@ public class SASLContext extends XMPPContext
 		// if the authentication data was not received
 		if (!authReceived)
 		{
-			processAuth(s);
-			authReceived = true;
-			
-			XMPPAuth auth = getXMPPManager().getAuth();
-			if ("PLAIN".equals(auth.mechanism))
+			try
 			{
-				//auth.initialChallenge
-				User user = decodeUser(auth.initialChallenge);
-				if  ( isValidUser( user ))
-				{					
-					sendSuccess();
-					getXMPPManager().setUser(user);
-					
-					setDone();
-				}
-			}
-			else
-			{
-				logger.debug("still to implement other SASL mechanisms");
-			}
+				processAuth(s);
+				authReceived = true;
 				
+				XMPPAuth auth = getXMPPManager().getAuth();
+				if ("PLAIN".equals(auth.mechanism))
+				{
+					User user = decodeUser(auth.initialChallenge);
+					if  ( isValidUser( user ))
+					{					
+						sendSuccess();
+						getXMPPManager().setUser(user);
+						
+						setDone();
+					}
+				}
+				else
+				{
+					logger.debug("still to implement other SASL mechanisms");
+				}
+			} catch (Exception e) {
+				logger.debug("Unexpected content." + s);
+			}
 		}
 		else
 		{
@@ -125,17 +131,30 @@ public class SASLContext extends XMPPContext
 		getXMPPManager().send(msg.getBytes());	
 	}
 	
-	private void processAuth(String s)
+	private void processAuth(String s) throws Exception
 	{
 		XMPPAuth auth = null;
 		
-		try {
-			auth = (XMPPAuth) Parser.parse(s);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-			logger.warn("Error in receiving stream start from client");	
+		Vector<StreamElement> streamElements = null;
+		
+		try {		
+			streamElements = Parser.parse(s);						
+		} catch (Exception e) {		
+			logger.warn("Error in parsing " + e);
+			return ;
+		}
+		
+		for (StreamElement element : streamElements)	
+		{
+			if (element.isAuth())
+			{
+				auth = (XMPPAuth) element;
+				logger.debug("Auth found " + auth);
+			}
+			else
+			{
+				logger.debug("Unexpected element received " + element);
+			}
 		}
 
 		getXMPPManager().setAuth(auth);		

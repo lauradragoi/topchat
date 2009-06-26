@@ -17,7 +17,10 @@
 */
 package topchat.server.unit;
 
+import java.util.Vector;
+
 import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
@@ -41,9 +44,17 @@ public class PreparerTest  extends TestCase {
 		
 		String result = Preparer.prepareFeatures(ft);		
 		
-		Features newFt = (Features) Parser.parse(result);
+		Vector<StreamElement> streamElements = Parser.parse(result);
 		
-		assertEquals("use of tls not detected", true,  newFt.usesTLS() );
+		for (StreamElement element : streamElements)
+		{
+			if (element.isFeatures())
+			{
+				Features newFt = (Features) element;
+		
+				assertEquals("use of tls not detected", true,  newFt.usesTLS() );
+			}
+		}
 	}		
 	
 	/**
@@ -58,9 +69,17 @@ public class PreparerTest  extends TestCase {
 		
 		String result = Preparer.prepareFeatures(ft);		
 		
-		Features newFt = (Features) Parser.parse(result);
+		Vector<StreamElement> streamElements = Parser.parse(result);
 		
-		assertEquals("use of sals not detected", true,  newFt.usesSASL() );
+		for (StreamElement element : streamElements)
+		{
+			if (element.isFeatures())
+			{
+				Features newFt = (Features) element;
+		
+				assertEquals("use of sals not detected", true,  newFt.usesSASL() );
+			}
+		}
 	}	
 	
 	
@@ -76,8 +95,16 @@ public class PreparerTest  extends TestCase {
 		
 		String result = Preparer.prepareFeatures(ft);		
 		
-		@SuppressWarnings("unused")
-		Features newFt = (Features) Parser.parse(result);		
+		Vector<StreamElement> streamElements = Parser.parse(result);
+		
+		for (StreamElement element : streamElements)
+		{
+			if (element.isFeatures())
+			{
+				@SuppressWarnings("unused")
+				Features newFt = (Features) element;
+			}
+		}
 	}	
 		
 	
@@ -121,11 +148,19 @@ public class PreparerTest  extends TestCase {
 		
 		String result = Preparer.prepareStreamStart(stream);		
 		
-		XMPPStream newStream = (XMPPStream) Parser.parse(result);
+		Vector<StreamElement> streamElements = Parser.parse(result);
 		
-		assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
-		assertEquals("'to' incorrectly set ", null, newStream.getTo());
-		assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
-		assertEquals("'id' incorrectly set ", "someid", newStream.getId());
+		for (StreamElement element : streamElements)
+		{
+			if (element.isXMPPStream())
+			{
+				XMPPStream newStream = (XMPPStream) element;
+		
+				assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
+				assertEquals("'to' incorrectly set ", null, newStream.getTo());
+				assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
+				assertEquals("'id' incorrectly set ", "someid", newStream.getId());
+			}
+		}		
 	}	
 }
