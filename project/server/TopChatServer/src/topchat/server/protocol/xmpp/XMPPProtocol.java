@@ -33,6 +33,7 @@ import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.entities.Room;
 import topchat.server.protocol.xmpp.entities.RoomParticipant;
 import topchat.server.protocol.xmpp.entities.User;
+import topchat.server.protocol.xmpp.stream.element.MessageStanza;
 
 /**
  * Implementation of the XMPP protocol
@@ -192,5 +193,41 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public boolean isRoomCreated(String roomName)
 	{
 		return (createdRooms.get(roomName) != null);
+	}
+	
+	public void sendGroupChat(User user, MessageStanza message)
+	{
+		String roomName = message.getAttribute("to");
+		
+		Room room = createdRooms.get(roomName);
+		
+		RoomParticipant sender = room.getParticipant(user);
+		
+		if (sender == null)
+		{
+			logger.debug("Sender invalid.");
+			return;
+		}
+			
+		if (room != null)
+		{
+			logger.debug("Sending group message to " + roomName);
+			
+			for (RoomParticipant participant : room.getParticipants())
+			{
+				String msg = "<message id='" + message.getAttribute("id") +
+						"' to='" + participant.getUser().toString() + "'" +
+						" from='" + roomName + "/" + sender.getRoomUser() + "'" + 
+						" type='groupchat'" +
+						"><body>" + message.getData("body") + "</body></message>"; 
+				
+				participant.getUser().manager.send(msg.getBytes());
+
+			}			
+		}
+		else
+		{
+			logger.debug("Cannot send group message to non exiting group " + roomName);
+		}
 	}
 }

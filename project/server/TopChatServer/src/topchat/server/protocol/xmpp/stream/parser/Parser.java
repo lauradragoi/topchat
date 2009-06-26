@@ -230,7 +230,17 @@ public class Parser implements Constants {
 		    if (event.isStartElement()) 
 		    {		  
 		    	StartElement startElement = ((StartElement) event);
-		    	logger.debug("start: " + startElement.toString());		    			    	
+		    	logger.debug("start: " + startElement.toString());	
+		    	
+		    	if ("body".equals(startElement.getName().getLocalPart()))
+		    	{
+		    		event = reader.nextEvent();
+		    		if (event.isCharacters())
+		    		{
+		    			logger.debug("chars " + event.toString());
+		    			messageStanza.addData("body", event.toString());
+		    		}
+		    	}
 		    }
 		    else if (event.isEndElement())
 		    {

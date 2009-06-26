@@ -25,6 +25,7 @@ import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.entities.Room;
 import topchat.server.protocol.xmpp.entities.RoomParticipant;
 import topchat.server.protocol.xmpp.stream.element.IQStanza;
+import topchat.server.protocol.xmpp.stream.element.MessageStanza;
 import topchat.server.protocol.xmpp.stream.element.PresenceStanza;
 import topchat.server.protocol.xmpp.stream.element.Query;
 import topchat.server.protocol.xmpp.stream.element.StreamElement;
@@ -178,6 +179,16 @@ public class ConnectedClientContext extends XMPPContext
 			if (status != null)
 				getXMPPManager().getUser().setStatus(status);
 									
+		}
+		else if (streamElement.isMessage())
+		{
+			MessageStanza messageStanza = (MessageStanza) streamElement;
+			logger.debug("FOUND MESSAGE " + messageStanza);
+			
+			if ("groupchat".equals(messageStanza.getAttribute("type")))
+			{
+				getXMPPManager().sendGroupchat(messageStanza);
+			}
 		}
 	}
 	

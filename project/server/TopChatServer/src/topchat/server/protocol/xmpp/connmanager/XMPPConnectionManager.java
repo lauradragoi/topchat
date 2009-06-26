@@ -38,6 +38,7 @@ import topchat.server.protocol.xmpp.context.XMPPContext;
 import topchat.server.protocol.xmpp.entities.Room;
 import topchat.server.protocol.xmpp.entities.User;
 import topchat.server.protocol.xmpp.stream.element.Features;
+import topchat.server.protocol.xmpp.stream.element.MessageStanza;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
@@ -282,4 +283,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		return protocol.isRoomCreated(roomName);
 	}
 
+	public void sendGroupchat(MessageStanza message)
+	{
+		protocol.sendGroupChat(user, message);
+	}
+	
 }
