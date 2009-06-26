@@ -17,6 +17,10 @@
 */
 package topchat.server.protocol.xmpp.entities;
 
+import org.apache.log4j.Logger;
+
+import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+
 
 
 public class User {
@@ -25,6 +29,11 @@ public class User {
 	public String serverDomain = null;
 	public String pass = null;
 	public String resource = null;
+	public String status = null;
+	
+	public XMPPConnectionManager manager;
+	
+	private static Logger logger = Logger.getLogger(User.class);
 	
 	public User(String username, String something, String pass)
 	{
@@ -44,5 +53,16 @@ public class User {
 	public String toString()
 	{
 		return username + "@" + serverDomain + "/" + resource;
+	}
+	
+	public void setManager(XMPPConnectionManager manager)
+	{
+		this.manager = manager;
+	}
+	
+	public void setStatus(String status)
+	{
+		logger.debug("user " + toString() + " has status " + status);
+		this.status = status;
 	}
 }

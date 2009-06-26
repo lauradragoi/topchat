@@ -245,7 +245,9 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	public void setUser(User user)
 	{
-		this.user = user;		
+		user.setManager(this);
+		this.user = user;	
+		
 	}
 	
 	public User getUser()

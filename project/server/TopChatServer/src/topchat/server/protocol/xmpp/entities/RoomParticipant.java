@@ -60,4 +60,9 @@ public class RoomParticipant {
 		return affiliation;
 	}
 	
+	public User getUser()
+	{
+		return user;
+	}
+	
 }

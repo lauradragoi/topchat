@@ -367,6 +367,17 @@ public class Parser implements Constants {
 		    		XElement xElement= parseXElement(startElement, reader);
 		    		presenceStanza.addXElement(xElement);
 		    	}
+		    	
+		    	
+		    	if ("status".equals(startElement.getName().getLocalPart()))
+		    	{
+		    		event = reader.nextEvent();
+		    		if (event.isCharacters())
+		    		{
+		    			logger.debug("chars " + event.toString());
+		    			presenceStanza.addData("status", event.toString());
+		    		}
+		    	}
 		    		    
 		    }
 		    else if (event.isEndElement())
