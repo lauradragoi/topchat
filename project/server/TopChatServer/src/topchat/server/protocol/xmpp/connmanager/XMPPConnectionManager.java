@@ -35,7 +35,8 @@ import topchat.server.protocol.xmpp.context.SessionEstablishmentContext;
 import topchat.server.protocol.xmpp.context.StartTLSContext;
 import topchat.server.protocol.xmpp.context.StreamStartContext;
 import topchat.server.protocol.xmpp.context.XMPPContext;
-import topchat.server.protocol.xmpp.jid.User;
+import topchat.server.protocol.xmpp.entities.Room;
+import topchat.server.protocol.xmpp.entities.User;
 import topchat.server.protocol.xmpp.stream.element.Features;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
@@ -115,6 +116,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		if (old instanceof SessionEstablishmentContext)
 		{
+			protocol.userConnected(this);
+			
 			nextContext = new ConnectedClientContext(this);
 		} else if (old instanceof ResourceBindingContext)
 		{
@@ -242,12 +245,12 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	
 	public void setUser(User user)
 	{
-		this.user = user;
+		this.user = user;		
 	}
 	
-	public String getUserName()
+	public User getUser()
 	{
-		return user.username;
+		return user;
 	}
 	
 	public void setUserResource(String resource)
@@ -258,13 +261,23 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 			user.resource = resource;
 	}
 	
-	public String getUserResource()
+	public Room addRoom(String roomName, String roomUser)
 	{
-		return user.resource;
+		logger.debug("Create room " + roomName + " user " + user);
+		Room room = new Room(roomName, user, roomUser);
+		protocol.roomAdded(room);
+		return room;
 	}
 	
-	public String getServerDomain()
-	{
-		return "example.com";
+	public Room joinRoom(String roomName, String roomUser)
+	{		
+		logger.debug("Join room " + roomName + " user " + user);
+		return protocol.roomJoined(roomName, user, roomUser);
 	}
+	
+	public boolean isRoomCreated(String roomName)
+	{
+		return protocol.isRoomCreated(roomName);
+	}
+
 }

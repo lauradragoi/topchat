@@ -56,4 +56,9 @@ public class XMPPStanza extends StreamElement implements Constants {
 		return data.get(name);
 	}	
 	
+	@Override
+	public String toString()
+	{
+		return "[Stanza]";
+	}
 }

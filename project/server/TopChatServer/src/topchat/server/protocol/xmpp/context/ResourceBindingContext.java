@@ -101,9 +101,9 @@ public class ResourceBindingContext extends XMPPContext
 	{
 		String msg = "<iq type='result' id='" + iqStanza.getAttribute("id") + "'>" +
 					 "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"+
-					 "<jid>" + getXMPPManager().getUserName() + 
-					 "@" + getXMPPManager().getServerDomain() +
-					 "/" + getXMPPManager().getUserResource() +"</jid>"+
+					 "<jid>" + getXMPPManager().getUser().username + 
+					 "@" + getXMPPManager().getUser().serverDomain +
+					 "/" + getXMPPManager().getUser().resource +"</jid>"+
 					 "</bind>"+
 					 "</iq>";
 		

@@ -20,9 +20,26 @@ package topchat.server.protocol.xmpp.stream.element;
 
 public class PresenceStanza extends XMPPStanza {
 
+	private XElement xElement = null;
+	
 	public PresenceStanza() 
 	{
 		super(PRESENCE_STANZA_TYPE);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "[PRESENCE] id=" + getAttribute("id") + " to=" + getAttribute("to") + " x " + xElement; 
+	}
+	
+	public void addXElement(XElement xElement)
+	{
+		this.xElement = xElement;
+	}
+	
+	public XElement getXElement()
+	{
+		return xElement;
+	}
 }

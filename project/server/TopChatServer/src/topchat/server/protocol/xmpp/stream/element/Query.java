@@ -17,15 +17,41 @@
 */
 package topchat.server.protocol.xmpp.stream.element;
 
-public interface Constants {
-	public static final int EMPTY_TYPE 		=  -1;
-	public static final int STARTTLS_TYPE 	=  	0;
-	public static final int XMPPSTREAM_TYPE =  	1;
-	public static final int AUTH_TYPE		=	2;
-	public static final int FEATURES_TYPE	= 	3;
-	public static final int IQSTANZA_TYPE	= 	4;
-	public static final int MESSAGE_STANZA_TYPE = 5;
-	public static final int PRESENCE_STANZA_TYPE = 6;
-	public static final int QUERY_TYPE = 7;
-	public static final int X_TYPE = 8;
+public class Query extends XMPPStanza {
+
+	private String namespace = null;
+	
+	public Query() 
+	{
+		super(QUERY_TYPE);
+	}
+	
+	public void addNamespace(String namespace)
+	{
+		this.namespace = namespace;
+	}
+	
+	public String getNamespace()
+	{
+		return namespace;
+	}
+	
+	
+	@Override
+	public String toString()
+	{
+		return "[QUERY] namespace " + getNamespace(); 
+	}
+
+	public boolean isRosterQuery()
+	{
+		return "jabber:iq:roster".equals(namespace);
+	}
+	
+	public boolean isMUCOwnerQuery()
+	{
+		return "http://jabber.org/protocol/muc#owner".equals(namespace);
+	}
+			
+	
 }

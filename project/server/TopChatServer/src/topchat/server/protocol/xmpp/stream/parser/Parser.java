@@ -25,6 +25,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -35,7 +36,9 @@ import topchat.server.protocol.xmpp.stream.element.Features;
 import topchat.server.protocol.xmpp.stream.element.IQStanza;
 import topchat.server.protocol.xmpp.stream.element.PresenceStanza;
 import topchat.server.protocol.xmpp.stream.element.MessageStanza;
+import topchat.server.protocol.xmpp.stream.element.Query;
 import topchat.server.protocol.xmpp.stream.element.StreamElement;
+import topchat.server.protocol.xmpp.stream.element.XElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 
@@ -294,6 +297,13 @@ public class Parser implements Constants {
 		    		}
 		    	}
 		    	
+		    	if ("query".equals(startElement.getName().getLocalPart()))
+		    	{
+		    		
+			    	Query query = parseQuery(startElement, reader);
+			    	iqStanza.addQuery(query);
+		    	}
+		    	
 		    }
 		    else if (event.isEndElement())
 		    {
@@ -348,7 +358,16 @@ public class Parser implements Constants {
 		    if (event.isStartElement()) 
 		    {		  
 		    	StartElement startElement = ((StartElement) event);
-		    	logger.debug("start: " + startElement.toString());		    			    	
+		    	logger.debug("start: " + startElement.toString());	
+		    	
+		    	
+		    	if ("x".equals(startElement.getName().getLocalPart()))
+		    	{
+		    		
+		    		XElement xElement= parseXElement(startElement, reader);
+		    		presenceStanza.addXElement(xElement);
+		    	}
+		    		    
 		    }
 		    else if (event.isEndElement())
 		    {
@@ -366,6 +385,138 @@ public class Parser implements Constants {
 		}
 		
 		return presenceStanza;
+	}	
+	
+	/**
+	 * Method that parses a query
+	 * @param start
+	 * @param reader
+	 */
+	@SuppressWarnings("unchecked")
+	private static Query parseQuery(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		Query query = new Query();
+		
+		Iterator<Namespace> itN = start.getNamespaces();
+		while (itN.hasNext()) {
+			Namespace namespace = itN.next();
+			if ("".equals(namespace.getName().getLocalPart()))
+					query.addNamespace(namespace.getValue());
+			else
+				logger.debug("Namespace " + namespace.getName().getLocalPart() + " unsuppoted.");
+		}
+		
+		Iterator<Attribute> it = start.getAttributes();
+		while (it.hasNext()) {
+			Attribute attrib = it.next();
+			query.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
+		}
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());	
+		    	
+		    		    
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("query".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}
+		
+		return query;
+	}	
+	
+	/**
+	 * Method that parses an XElement
+	 * @param start
+	 * @param reader
+	 */
+	@SuppressWarnings("unchecked")
+	private static XElement parseXElement(StartElement start, XMLEventReader reader ) throws Exception
+	{
+		boolean end = false;
+		
+		 XElement  xElement = new  XElement();
+		
+		Iterator<Namespace> itN = start.getNamespaces();
+		while (itN.hasNext()) {
+			Namespace namespace = itN.next();
+			if ("".equals(namespace.getName().getLocalPart()))
+				 xElement.addNamespace(namespace.getValue());
+			else
+				logger.debug("Namespace " + namespace.getName().getLocalPart() + " unsuppoted.");
+		}
+		
+		Iterator<Attribute> it = start.getAttributes();
+		while (it.hasNext()) {
+			Attribute attrib = it.next();
+			 xElement.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
+		}
+		
+		while (reader.hasNext(  ) && !end) 
+		{
+		    XMLEvent event = null;
+		    
+			try 
+			{
+				event = reader.nextEvent();
+				
+			} catch (XMLStreamException e) {
+				logger.fatal("Exception when reading next event", e);
+				
+				throw new Exception("Exception on parsing");				
+			}
+			
+		    if (event.isStartElement()) 
+		    {		  
+		    	StartElement startElement = ((StartElement) event);
+		    	logger.debug("start: " + startElement.toString());	
+		    	
+		    		    
+		    }
+		    else if (event.isEndElement())
+		    {
+		    	EndElement endElement = (EndElement) event;
+		    	
+		    	if ("x".equals(endElement.getName().getLocalPart().toString()))
+		    		end = true;
+		    	
+		    	logger.debug(event.toString());
+		    }
+		    else
+		    {
+		    	logger.debug(event.toString());
+		    }
+		}
+		
+		return xElement;
 	}	
 	
 	

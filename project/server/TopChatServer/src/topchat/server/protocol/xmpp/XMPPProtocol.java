@@ -30,6 +30,9 @@ import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
 import topchat.server.interfaces.ProtocolMediator;
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
+import topchat.server.protocol.xmpp.entities.Room;
+import topchat.server.protocol.xmpp.entities.RoomParticipant;
+import topchat.server.protocol.xmpp.entities.User;
 
 /**
  * Implementation of the XMPP protocol
@@ -44,6 +47,9 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	
 	/** Map of SocketChannels and connection managers */
 	private static ConcurrentHashMap<SocketChannel, XMPPConnectionManager> connectionManagers = new ConcurrentHashMap<SocketChannel, XMPPConnectionManager>();
+	
+	/** Map of the rooms created on the server */
+	private static ConcurrentHashMap<String, Room> createdRooms = new ConcurrentHashMap<String, Room>();
 
 	private static Logger logger = Logger.getLogger(XMPPProtocol.class);		
 
@@ -127,5 +133,45 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public void execute(Runnable r)
 	{
 		pool.execute(r);
+	}
+		
+	/**
+	 * Announce that the user using the connection handled by manager
+	 * has finished connecting.
+	 * @param manager
+	 */
+	public void userConnected(XMPPConnectionManager manager)	
+	{
+		// announce the mediator
+		med.addUser(manager.getUser().toString());
+	}
+	
+	public void roomAdded(Room room)
+	{
+		logger.debug("Room added " + room);
+		createdRooms.put(room.getName(), room);
+		med.addRoom(room.getName());
+	}
+	
+	public Room roomJoined(String roomName, User user, String roomUser)
+	{
+		logger.debug("Room joined " + roomName);
+		Room room = createdRooms.get(roomName);
+		
+		if (room == null)
+		{
+			logger.debug("Cannot join a non existing room.");
+			return null;
+		}
+		
+		room.addParticipant(new RoomParticipant(user, roomUser));
+		
+		return room;
+	}
+
+	
+	public boolean isRoomCreated(String roomName)
+	{
+		return (createdRooms.get(roomName) != null);
 	}
 }
