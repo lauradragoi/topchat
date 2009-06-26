@@ -17,8 +17,11 @@
 */
 package topchat.server.unit;
 
+import java.util.Vector;
+
 import org.junit.Test;
 
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 import junit.framework.TestCase;
@@ -40,14 +43,22 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: topchatclient version");
 		
-		XMPPStream stream = (XMPPStream) Parser.parse("<stream:stream " + 
-								"to='example.com' " + 
-								"xmlns='jabber:client' " + 
-								"xmlns:stream='http://etherx.jabber.org/streams' " + 
-								"version='1.0'>");
+		Vector<StreamElement> streamElements = Parser.parse("<stream:stream " + 
+				"to='example.com' " + 
+				"xmlns='jabber:client' " + 
+				"xmlns:stream='http://etherx.jabber.org/streams' " + 
+				"version='1.0'>");
 		
-		assertEquals("'version' incorrectly retrieved", "1.0", stream.getVersion());
-		assertEquals("'to' incorrectly retrieved ", "example.com", stream.getTo());		
+		for (StreamElement element : streamElements)
+		{
+			if (element.isXMPPStream())
+			{
+				XMPPStream stream = (XMPPStream) element;
+		
+				assertEquals("'version' incorrectly retrieved", "1.0", stream.getVersion());
+				assertEquals("'to' incorrectly retrieved ", "example.com", stream.getTo());	
+			}
+		}		
 	}
 	
 	/**
@@ -58,15 +69,23 @@ public class ParserTest extends TestCase {
 		
 		setName("Testing correct parsing of stream start: pidgin version");
 		
-		XMPPStream stream = (XMPPStream) Parser.parse("<?xml version='1.0' ?>" +
+		Vector<StreamElement> streamElements = Parser.parse("<?xml version='1.0' ?>" +
 				" <stream:stream" +
 				" to='me.my'" +
 				" xmlns='jabber:client'" +
 				" xmlns:stream='http://etherx.jabber.org/streams'" +
 				" version='1.0'>");
 		
-		assertEquals("'version' incorrectly retrieved", "1.0",  stream.getVersion() );
-		assertEquals("'to' incorrectly retrieved ", "me.my", stream.getTo());
+		for (StreamElement element : streamElements)
+		{
+			if (element.isXMPPStream())
+			{
+				XMPPStream stream = (XMPPStream) element;
+		
+				assertEquals("'version' incorrectly retrieved", "1.0",  stream.getVersion() );
+				assertEquals("'to' incorrectly retrieved ", "me.my", stream.getTo());
+			}
+		}	
 	}
 		
 	/**

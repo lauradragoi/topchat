@@ -34,6 +34,7 @@ import topchat.server.protocol.xmpp.stream.element.Constants;
 import topchat.server.protocol.xmpp.stream.element.Features;
 import topchat.server.protocol.xmpp.stream.element.IQStanza;
 import topchat.server.protocol.xmpp.stream.element.PresenceStanza;
+import topchat.server.protocol.xmpp.stream.element.MessageStanza;
 import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XMPPAuth;
 import topchat.server.protocol.xmpp.stream.element.XMPPStream;
@@ -53,9 +54,9 @@ public class Parser implements Constants {
 	 * Generic parsing function
 	 * @param msg
 	 */
-	public static Object parse(String msg) throws Exception
+	public static Vector<StreamElement> parse(String msg) throws Exception
 	{
-		Object result = null;
+		Vector<StreamElement> result = null;
 		logger.debug(msg);
 				
 		// hack: if msg contains end of stream StAX signals document not well formed 
@@ -74,7 +75,11 @@ public class Parser implements Constants {
 		
 		logger.debug("after cleanupStreamPrefix: " + msg);
 		
-		msg = wrapRootTag(msg);
+		// hack: wrap the message in a root tag, if it is not a start stream message
+		if (!msg.startsWith("<?xml"))
+			msg = wrapRootTag(msg);
+		
+		
 		// hack: don't parse empty messages	(end of stream becomes empty after cleanup)	
 		if ( msg.trim().length() > 0)
 		{
@@ -87,11 +92,11 @@ public class Parser implements Constants {
 		return result;		
 	}
 	
-	private static Object genericParse(String msg) throws Exception
+	private static Vector<StreamElement> genericParse(String msg) throws Exception
 	{
 		Vector<StreamElement> resultElements = new Vector<StreamElement>();
 		
-		Object result = null;
+		StreamElement result = null;
 		
 		XMLEventReader reader = Utils.createReader(msg);
 		
@@ -113,6 +118,8 @@ public class Parser implements Constants {
 			
 		    if (event.isStartElement()) 
 		    {		  
+		    	result = null;
+		    	
 		    	StartElement startElement = ((StartElement) event);
 		    	logger.debug("start element: " + startElement.toString());
 		    	
@@ -121,19 +128,21 @@ public class Parser implements Constants {
 		    	String local = startElement.getName().getLocalPart().toString();
 		    	
 		    	if ("message".equals(local))
-		    		parseMessage(startElement, reader);
+		    	{
+		    		result = parseMessage(startElement, reader);
+		    		resultElements.add(result);
+		    	}
 		    	
 		    	if ("iq".equals(local))
 		    	{		    		
 	    			result = parseIq(startElement, reader);
-	    			
-	    			resultElements.add((StreamElement)result);
+	    			resultElements.add(result);
 		    	}
 		    	
 		    	if ("presence".equals(local))
 		    	{
 	    			result = parsePresence(startElement, reader);
-	    			resultElements.add((StreamElement)result);
+	    			resultElements.add(result);
 		    	}
 		    	
 		    	if ("error".equals(local))
@@ -142,11 +151,13 @@ public class Parser implements Constants {
 		    	if ("features".equals(local))
 		    	{
 		    		result = parseFeatures(startElement, reader);
+		    		resultElements.add(result);
 		    	}
 		    	
 		    	if ("starttls".equals(local))
 		    	{
 		    		result = parseStartTLS(startElement, reader);
+		    		resultElements.add(result);
 		    	}
 		    	
 		    	if ("proceed".equals(local))
@@ -158,16 +169,18 @@ public class Parser implements Constants {
 		    	if ("auth".equals(local))
 		    	{
 		    		result = parseAuth(startElement, reader);
+		    		resultElements.add(result);
 		    	}
 		    	
 		    	if ("stream".equals(local))
 		    	{
 		    		result = parseStreamStart(startElement, reader);
+		    		resultElements.add(result);
 		    		
 		    		// hack : stop parsing if stream start detected to avoid StAX parsing error 
 		    		// due to lack of end of stream in parsed string
 		    		break;
-		    	}
+		    	}		    	
 		    }
 		    else
 		    {
@@ -175,7 +188,7 @@ public class Parser implements Constants {
 		    }
 		}	
 		
-		return result;
+		return resultElements;
 	}
 	
 	/**
@@ -183,9 +196,19 @@ public class Parser implements Constants {
 	 * @param start
 	 * @param reader
 	 */
-	private static void parseMessage(StartElement start, XMLEventReader reader ) throws Exception
+	@SuppressWarnings("unchecked")
+	private static MessageStanza parseMessage(StartElement start, XMLEventReader reader ) throws Exception
 	{
-		boolean end = false;
+		boolean end = false;		
+		
+		MessageStanza messageStanza = new MessageStanza();
+		
+		Iterator<Attribute> it = start.getAttributes();
+		while (it.hasNext()) {
+			Attribute attrib = it.next();
+			messageStanza.addAttribute(attrib.getName().getLocalPart(), attrib.getValue());
+		}
+		
 		
 		while (reader.hasNext(  ) && !end) 
 		{
@@ -219,7 +242,9 @@ public class Parser implements Constants {
 		    {
 		    	logger.debug(event.toString());
 		    }
-		}	
+		}
+		
+		return messageStanza;
 	}
 	
 	/**

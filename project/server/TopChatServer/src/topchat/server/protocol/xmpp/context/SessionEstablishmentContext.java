@@ -17,10 +17,13 @@
 */
 package topchat.server.protocol.xmpp.context;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 import topchat.server.protocol.xmpp.stream.element.IQStanza;
+import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
 public class SessionEstablishmentContext extends XMPPContext 
@@ -42,27 +45,45 @@ public class SessionEstablishmentContext extends XMPPContext
 		
 		if (iqStanza == null)
 		{
-			iqStanza = processIq(s);
-									
-			sendIqResult(iqStanza);
-			
-			setDone();
+			try
+			{
+				iqStanza = processIq(s);
+										
+				sendIqResult(iqStanza);
+				
+				setDone();
+			} catch (Exception e) {
+				logger.debug("Expected iq not received " + s);
+			}
 		}				
 	}
 	
-	private IQStanza processIq(String s)
+	private IQStanza processIq(String s) throws Exception
 	{
 		// process start stream
 		IQStanza iqStanza = null;
 		
+		Vector<StreamElement> streamElements = null;
+		
 		try {
-			iqStanza = (IQStanza) Parser.parse(s);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-			logger.warn("Error in receiving stream start from client");	
+			streamElements = Parser.parse(s);
+		} catch (Exception e) {		
+			logger.warn("Error in receiving stream start from client" + e);
+			throw new Exception("Expected IQ stanza not received.");
 		}
+		
+		for (StreamElement element : streamElements)
+		{
+			if (element.isIq())
+			{
+				iqStanza = (IQStanza) element;
+				logger.debug("IQStanza found " + iqStanza);
+			}
+			else
+			{
+				logger.debug("Unexpected element received " + element);
+			}
+		}			
 		
 		return iqStanza;
 			

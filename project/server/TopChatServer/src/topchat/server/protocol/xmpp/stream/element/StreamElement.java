@@ -47,4 +47,14 @@ public class StreamElement implements Constants {
 		return type == PRESENCE_STANZA_TYPE;
 	}
 
+	public boolean isAuth()
+	{
+		return type == AUTH_TYPE;
+	}
+	
+	public boolean isFeatures()
+	{
+		return type == FEATURES_TYPE;
+	}
+	
 }

@@ -17,6 +17,8 @@
 */
 package topchat.server.protocol.xmpp.context;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
@@ -40,17 +42,17 @@ public class ConnectedClientContext extends XMPPContext
 		String s = new String(rd);
 		logger.debug("received: " + s);	
 		
-		StreamElement streamElement = null;
+		Vector<StreamElement> streamElements = null;
 				
 		try {		
-			streamElement = (StreamElement) Parser.parse(s);						
+			streamElements = Parser.parse(s);						
 		} catch (Exception e) {		
 			logger.warn("Error in parsing " + e);
 			return ;
 		}
 		
-		if (streamElement != null)
-			processElement(streamElement);
+		for (StreamElement element : streamElements)		
+			processElement(element);
 		
 
 		
