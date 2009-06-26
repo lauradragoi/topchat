@@ -48,6 +48,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	/** Map of SocketChannels and connection managers */
 	private static ConcurrentHashMap<SocketChannel, XMPPConnectionManager> connectionManagers = new ConcurrentHashMap<SocketChannel, XMPPConnectionManager>();
 	
+	
 	/** Map of the rooms created on the server */
 	private static ConcurrentHashMap<String, Room> createdRooms = new ConcurrentHashMap<String, Room>();
 
@@ -164,7 +165,25 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			return null;
 		}
 		
-		room.addParticipant(new RoomParticipant(user, roomUser));
+		RoomParticipant newParticipant = new RoomParticipant(user, roomUser);
+		room.addParticipant(newParticipant);
+		
+		// announce other participants that the new participant has entered the room
+		for (RoomParticipant participant : room.getParticipants())
+		{
+			
+			String presenceMsg = "<presence " +
+				"id='a1'" +
+				"to='" + participant.getUser().toString() + "'" +
+				"from='" + roomName + "/" + roomUser + "'>" +
+				"<status>"+ participant.getUser().status +"</status>" +
+				"<x xmlns='http://jabber.org/protocol/muc#user'>" +
+				"<item affiliation='" + newParticipant.getAffiliation() + "' " +
+	    		"role='" + newParticipant.getRole() + "'><reason></reason><actor jid=''/></item>" +
+	    		"</x></presence>";					
+			
+			participant.getUser().manager.send(presenceMsg.getBytes());
+		}
 		
 		return room;
 	}

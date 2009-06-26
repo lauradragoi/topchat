@@ -30,7 +30,7 @@ public class PresenceStanza extends XMPPStanza {
 	@Override
 	public String toString()
 	{
-		return "[PRESENCE] id=" + getAttribute("id") + " to=" + getAttribute("to") + " x " + xElement; 
+		return "[PRESENCE] id=" + getAttribute("id") + " to=" + getAttribute("to") + " x " + xElement + " status " + getData("status"); 
 	}
 	
 	public void addXElement(XElement xElement)

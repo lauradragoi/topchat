@@ -129,8 +129,9 @@ public class ConnectedClientContext extends XMPPContext
 								String presenceMsg = "<presence " +
 									"id='" + presenceStanza.getAttribute("id") + "'" +
 									"to='" + getXMPPManager().getUser().toString() + "'" +
-									"from='" + roomName + "/" + participant.getRoomUser() + "'" +
-									"><x xmlns='http://jabber.org/protocol/muc#user'>" +
+									"from='" + roomName + "/" + participant.getRoomUser() + "'>" +
+									"<status>"+ participant.getUser().status +"</status>" +
+									"<x xmlns='http://jabber.org/protocol/muc#user'>" +
 									"<item affiliation='" + participant.getAffiliation() + "' jid='" 
 									+ getXMPPManager().getUser().toString() + "'" +
 						    		"role='" + participant.getRole() + "'><reason></reason><actor jid=''/></item>" +					    		
@@ -155,8 +156,9 @@ public class ConnectedClientContext extends XMPPContext
 								String presenceMsg = "<presence " +
 									"id='" + presenceStanza.getAttribute("id") + "'" +
 									"to='" + getXMPPManager().getUser().toString() + "'" +
-									"from='" + roomName + "/" + participant.getRoomUser() + "'" +
-									"><x xmlns='http://jabber.org/protocol/muc#user'>" +
+									"from='" + roomName + "/" + participant.getRoomUser() + "'>" +
+									"<status>"+ participant.getUser().status +"</status>" +
+									"<x xmlns='http://jabber.org/protocol/muc#user'>" +
 									"<item affiliation='" + participant.getAffiliation() + "' jid='" 
 									+ getXMPPManager().getUser().toString() + "'" +
 						    		"role='" + participant.getRole() + "'><reason></reason><actor jid=''/></item>" +
@@ -167,8 +169,15 @@ public class ConnectedClientContext extends XMPPContext
 							}
 						}
 					}					
-				}
+				}				
 			}
+			
+			// this could be a status presence
+			String status = presenceStanza.getData("status");
+				
+			if (status != null)
+				getXMPPManager().getUser().setStatus(status);
+									
 		}
 	}
 	
