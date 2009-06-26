@@ -57,4 +57,9 @@ public class StreamElement implements Constants {
 		return type == FEATURES_TYPE;
 	}
 	
+	public boolean isMessage()
+	{
+		return type == MESSAGE_STANZA_TYPE;
+	}
+	
 }

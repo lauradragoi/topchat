@@ -69,4 +69,9 @@ public class Room {
 		
 		return new Vector<RoomParticipant>(collection);
 	}
+	
+	public synchronized RoomParticipant getParticipant(User user)
+	{
+		return roomParticipants.get(user.toString());
+	}
 }

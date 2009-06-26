@@ -23,5 +23,11 @@ public class MessageStanza extends XMPPStanza {
 	public MessageStanza() {
 		super(MESSAGE_STANZA_TYPE);		
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "[MESSAGE] to=" + getAttribute("to") + " type " + getAttribute("type");
+	}
 
 }
