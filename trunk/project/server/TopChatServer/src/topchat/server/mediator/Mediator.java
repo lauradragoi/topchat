@@ -82,14 +82,15 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 
 
 	@Override
-	public void addUser(String user) {
+	public void addUser(final String user) 
+	{
 		gui.addUser(user);
 		gui.setStatus("User " + user + " logged in.");
 		logger.info("User " + user + " logged in.");
 	}
 
 	@Override
-	public void addRoom(String room) {
+	public void addRoom(final String room) {
 		gui.addRoom(room);
 		gui.setStatus("Room " + room + " created.");
 		logger.info("Room " + room + " created.");

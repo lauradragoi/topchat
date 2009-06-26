@@ -18,7 +18,6 @@
 package topchat.server.gui;
 
 import java.awt.BorderLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -125,27 +124,23 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	}
 
 	@Override
-	public void addUser(String user) {
-		SwingUtilities.invokeLater(new AddingRunnable(user, usersPanel.getListModel()));
+	public void addUser(final String user) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run()
+			{
+				usersPanel.getListModel().addElement(user);
+			}
+		});
 	}
 
 	@Override
-	public void addRoom(String room) {
-		SwingUtilities.invokeLater(new AddingRunnable(room, roomsPanel.getListModel()));
-	}
-
-	private class AddingRunnable implements Runnable {
-		String str;
-		DefaultListModel model = null;
-
-		public AddingRunnable(String str, DefaultListModel model) {
-			this.str = str;
-			this.model = model;
-		}
-
-		public void run() {			
-			model.addElement(str);
-		}
+	public void addRoom(final String room) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run()
+			{
+				roomsPanel.getListModel().addElement(room);
+			}
+		});
 	}
 
 }

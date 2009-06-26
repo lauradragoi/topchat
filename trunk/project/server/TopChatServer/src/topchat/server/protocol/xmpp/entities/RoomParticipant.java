@@ -14,35 +14,50 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package topchat.server.protocol.xmpp.stream.element;
+*/
+package topchat.server.protocol.xmpp.entities;
 
-public class IQStanza extends XMPPStanza {
-	
-	private Query query = null;
+public class RoomParticipant {
 
-	public IQStanza()
+	protected User user = null;
+	protected String affiliation = null;
+	protected String role = null;
+	protected String roomUser = null;
+	
+	
+	public RoomParticipant()
 	{
-		super(IQSTANZA_TYPE);
+		
 	}
 	
-	public boolean isGet()
+	public RoomParticipant(User user, String roomUser)
 	{
-		return "get".equals(getAttribute("type"));
+		this.user = user;
+		this.roomUser = roomUser;
+		affiliation = "none";
+		role = "participant";		
 	}
 	
-	public boolean isSet()
+	@Override
+	public String toString()
 	{
-		return "set".equals(getAttribute("type"));
+		return "[PARTICIPANT] " + user.toString() + " ROOM_USER " + roomUser + 
+				" affiliation " + affiliation + " role " + role;
 	}
 	
-	public void addQuery(Query query)
+	public String getRoomUser()
 	{
-		this.query = query;
+		return roomUser;
 	}
 	
-	public Query getQuery()
+	public String getRole()
 	{
-		return query;
+		return role;
 	}
+	
+	public String getAffiliation()
+	{
+		return affiliation;
+	}
+	
 }

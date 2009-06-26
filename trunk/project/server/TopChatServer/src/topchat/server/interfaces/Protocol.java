@@ -18,9 +18,7 @@
 package topchat.server.interfaces;
 
 import java.nio.channels.SocketChannel;
-
 import topchat.server.defaults.DefaultConnectionManager;
-
 /**
  * Interface describing the protocol used by the server
  * 
@@ -44,4 +42,5 @@ public interface Protocol
 	
 	/** Request execution of specific tasks by the protocol */
 	public void execute(Runnable r);
+
 }
