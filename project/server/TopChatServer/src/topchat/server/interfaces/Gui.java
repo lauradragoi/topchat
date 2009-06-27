@@ -35,6 +35,13 @@ public interface Gui {
 	/** Informs the GUI that a new room was created */
 	public void addRoom(String room);
 
+
+	/** Informs the GUI that a new user logged in. */
+	public void removeUser(String user);
+
+	/** Informs the GUI that a new room was created */
+	public void removeRoom(String room);
+	
 	/** Sets the status message of the GUI */
 	public void setStatus(String msg);
 }

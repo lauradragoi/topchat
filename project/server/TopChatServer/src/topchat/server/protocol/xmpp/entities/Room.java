@@ -74,4 +74,13 @@ public class Room {
 	{
 		return roomParticipants.get(user.toString());
 	}
+	
+	public synchronized RoomParticipant removeUser(User user)
+	{
+		RoomParticipant participant = roomParticipants.get(user.toString());
+		
+		roomParticipants.remove(user.toString());
+		
+		return participant;
+	}
 }

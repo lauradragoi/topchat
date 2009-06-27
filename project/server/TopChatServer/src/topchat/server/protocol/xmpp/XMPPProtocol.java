@@ -166,6 +166,9 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			return null;
 		}
 		
+		
+		user.join(roomName);
+		
 		RoomParticipant newParticipant = new RoomParticipant(user, roomUser);
 		room.addParticipant(newParticipant);
 		
@@ -228,6 +231,81 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 		else
 		{
 			logger.debug("Cannot send group message to non exiting group " + roomName);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.Protocol#connectionClosed(java.nio.channels.SocketChannel)
+	 */
+	@Override
+	public void connectionClosed(SocketChannel socketChannel) {
+		
+		XMPPConnectionManager manager = connectionManagers.get(socketChannel);
+		
+		// user is leaving
+		User user = manager.getUser();
+		
+		med.removeUser(user.toString());
+		
+		for (String roomName : user.joinedRooms)
+		{
+			Room room = createdRooms.get(roomName);
+			
+			if (room != null)
+			{				
+				RoomParticipant participant = room.removeUser(user);
+				logger.debug("User " + user + " removed from " + roomName);
+			
+				
+				if (room.getParticipants().size() == 0)
+				{
+					// remove the room
+					createdRooms.remove(roomName);
+					logger.debug("Room " + roomName + " was removed due to the fact that it was empty.");
+					
+					med.removeRoom(roomName);
+				}
+				else
+				{
+					userLeftRoom(room, participant);
+				}
+			}
+		}
+		
+		
+		
+		manager.announceClosed();
+		
+		logger.debug("Manager was removed for user " + user);
+		connectionManagers.remove(socketChannel);				
+	}
+	
+	public void userLeftRoom(Room room, RoomParticipant leavingParticipant)
+	{
+		if (leavingParticipant == null)
+		{
+			logger.warn("How come we are announcing the other participants in " + room.getName() + " that there is no one leaving??");
+			return;
+		}
+		
+		logger.debug("announcing participants in " + room.getName() + " that " + leavingParticipant.getRoomUser() + " is leaving");
+		
+		// TODO
+		// announce other participants that the new participant has entered the room
+		for (RoomParticipant participant : room.getParticipants())
+		{
+			
+			String presenceMsg = "<presence " +
+				"id='a1'" +
+				"to='" + participant.getUser().toString() + "'" +
+				"from='" + room.getName() + "/" + leavingParticipant.getRoomUser() + "'" +
+				"type='unavailable'>" +
+				"<x xmlns='http://jabber.org/protocol/muc#user'>" +
+				"<item affiliation='" + leavingParticipant.getAffiliation() + "' " +
+	    		"role='" + leavingParticipant.getRole() + "'><reason></reason><actor jid=''/></item>" +
+	    		"</x></presence>";					
+			
+			participant.getUser().manager.send(presenceMsg.getBytes());
 		}
 	}
 }

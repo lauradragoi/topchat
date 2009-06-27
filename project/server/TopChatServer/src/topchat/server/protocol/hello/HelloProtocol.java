@@ -119,6 +119,15 @@ public class HelloProtocol implements Protocol {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.Protocol#connectionClosed(java.nio.channels.SocketChannel)
+	 */
+	@Override
+	public void connectionClosed(SocketChannel socketChannel) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }
