@@ -65,6 +65,7 @@ public class LoginGUI extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel3.setText("Password");
 
+        username.setText("oana");
         username.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jButton1.setText("Login");
@@ -74,11 +75,13 @@ public class LoginGUI extends javax.swing.JFrame {
             }
         });
 
+        password.setText("agatha");
         password.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel4.setText("Server");
 
+        serverField.setText("jabber.org");
         serverField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);

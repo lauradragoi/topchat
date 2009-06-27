@@ -7,6 +7,7 @@ package topchat.client.chat;
 
 import java.util.ArrayList;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
 import topchat.client.gui.ChatPanel;
 
 /**
@@ -15,16 +16,16 @@ import topchat.client.gui.ChatPanel;
  */
 public class User {
 
-    String username, password;
+    String username, password, nickname, status;
     ArrayList <Room> userRooms;
-    ArrayList <ContactDetails> userContacts;
 
-    public User(String userName, String passwd) throws XMPPException{
+    public User(String userName, String passwd, String nick, String stat) throws XMPPException{
         this.username = userName;
         this.password = passwd;
-    
+        this.status = stat;
+        this.nickname = nick;
+
         userRooms = new ArrayList<Room>();
-        userContacts = new ArrayList<ContactDetails>();
     }
     public void addRoom(String addr,String nick,String status,ChatPanel roomPanel) throws XMPPException{
         Room newRoom = new Room(addr, nick,roomPanel);
@@ -36,16 +37,40 @@ public class User {
     public void joinRoom(String addr,String nick,String status,ChatPanel roomPanel) throws XMPPException{
         Room newRoom = new Room(addr, nick,roomPanel);
         newRoom.joinRoom(nick);
+        newRoom.muc.changeAvailabilityStatus(status, Presence.Mode.available);
         userRooms.add(newRoom);
         roomPanel.usersListModel.addElement(nick+" - "+status);
     }
     public void removeRoom(Room room){
         userRooms.remove(room);
     }
-    public void addContact(ContactDetails newContact,ChatPanel roomPanel){
-        userContacts.add(newContact);
+    public String  getUserStatus(String nick,String room){
+        ArrayList<User> roomUsers;
+        roomUsers = new ArrayList<User>();
+
+        for(int i=0; i<userRooms.size(); i++)
+            if(userRooms.get(i).roomName.compareTo(room) == 0)
+                roomUsers = userRooms.get(i).roomUsers;
+
+        for(int i=0; i< roomUsers.size(); i++ )
+            if (roomUsers.get(i).nickname.compareTo(nick) == 0)
+                return roomUsers.get(i).status;
+        
+        return null;
     }
-    public void removeRoom(ContactDetails contact){
-        userContacts.remove(contact);
+    //public String getStatus(){
+    //    return thi
+    //}
+    public void changeStatus(String newStatus){
+        this.status = newStatus;
+    }
+    public void changeNick(String newNick){
+        this.nickname = newNick;
+    }
+     public boolean  isRoomAlready(String roomName){
+        for(int i=0; i<userRooms.size(); i++)
+            if(userRooms.get(i).roomName.compareTo(roomName) == 0)
+                return true;
+        return false;
     }
 }
