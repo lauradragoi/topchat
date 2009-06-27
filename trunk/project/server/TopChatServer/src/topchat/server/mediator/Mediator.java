@@ -149,4 +149,80 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 			ConfigurationHandlerInterface confHandler) {
 		this.conf = confHandler;
 	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#getAuthDBName()
+	 */
+	@Override
+	public String getAuthDBName() throws Exception {
+		String name = conf.getProperty("authentication.db");
+		
+		if (name == null)
+			throw new Exception("DB name must be set");
+		
+		return name;
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#getAuthDBPass()
+	 */
+	@Override
+	public String getAuthDBPass() throws Exception {
+		String pass = conf.getProperty("authentication.pass");
+		
+		if (pass == null)
+			throw new Exception("DB pass must be set");
+		
+		return pass;
+
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#getAuthDBUser()
+	 */
+	@Override
+	public String getAuthDBUser() throws Exception {
+		String user = conf.getProperty("authentication.user");
+		
+		if (user == null)
+			throw new Exception("DB user must be set");
+		
+		return user;
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#getAuthServerIP()
+	 */
+	@Override
+	public String getAuthServerIP() throws Exception {
+		String ip = conf.getProperty("authentication.server");
+		
+		if (ip == null)
+			throw new Exception("Authentication server ip must be set");
+		
+		return ip;
+
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#getAuthTable()
+	 */
+	@Override
+	public String getAuthTable() throws Exception {
+		String table = conf.getProperty("authentication.table");
+		
+		if (table == null)
+			throw new Exception("Authentication table must be set");
+		
+		return table;
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ProtocolMediator#checkUser(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean checkUser(String username, String pass) {
+		
+		return auth.checkUser(username, pass);
+	}
 }

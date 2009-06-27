@@ -15,10 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.data.db;
+package topchat.server.db;
 
 import java.sql.*;
-import java.util.Vector;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
@@ -26,10 +26,19 @@ import org.apache.log4j.Logger;
 public class DatabaseConnector {
 
 	final String DRIVER	= "com.mysql.jdbc.Driver";
+	/*
 	final String IP		= "127.0.0.1"; // localhost doesn't work when not root?!
 	final String DB		= "pwdb9";
 	final String USER	= "root";
 	final String PASS	= "";
+	*/
+	
+	private String ip = null;
+	private String db = null;
+	private String user = null;
+	private String pass = null;
+	
+	private String port = "3306";
 	
 	final String SEP	= "\t\t";
 	
@@ -38,13 +47,39 @@ public class DatabaseConnector {
 	
 	private static Logger logger = Logger.getLogger(DatabaseConnector.class);
 	
-	private void initDatabase(String url, String user, String pass) throws SQLException {
+	public DatabaseConnector(String ip, String db, String user, String pass) throws Exception
+	{
+		this.ip = ip;
+		this.db = db;
+		this.user = user;
+		this.pass = pass;
 		
-		// obtain connection
-		conn = DriverManager.getConnection(url, user, pass);
+		try {
+			Class.forName(DRIVER);
+		} catch (ClassNotFoundException e) {
+			logger.debug("Driver not found for connecting to database");
+			throw new Exception("Driver not found.");
+		}
+				
+		conn = initDatabase(getDatabaseURL(ip, db), user, pass);
+		
+ 		logger.debug("Database connection initialized to " + ip + " " + db + " " + user + " " + pass);
 	}
 	
-	private void setCommand(String command) throws SQLException {
+	private String getDatabaseURL(String ip, String db)
+	{
+		return "jdbc:mysql://" + ip + ":" + port + "/" + db;
+	}
+	
+	private Connection initDatabase(String url, String user, String pass) throws SQLException {
+		logger.debug("init db " + url + " " + user + " " + pass);
+		// obtain connection
+		Connection conn = DriverManager.getConnection(url, user, pass);
+		return conn;
+	}
+	
+	public void setCommand(String command) throws SQLException 
+	{
 		
 		// free old connection, if any
 		if (stmt != null)
@@ -54,17 +89,17 @@ public class DatabaseConnector {
 		stmt = conn.prepareStatement(command);
 	}
 	
-	private ResultSet executeQuery() throws SQLException {
+	public ResultSet executeQuery() throws SQLException {
 		
 		return stmt.executeQuery();
 	}
 	
-	private boolean execute() throws SQLException {
+	public boolean execute() throws SQLException {
 		
 		return stmt.execute();
 	}
 	
-	private void close() throws SQLException {
+	public void close() throws SQLException {
 		
 		// close connection
 		if (conn != null)
@@ -75,6 +110,45 @@ public class DatabaseConnector {
 			stmt.close();
 	}	
 	
+	public boolean checkExistingItem(String table, HashMap<String, String> constraints)
+	{
+		String keys = "";
+		String condition = "";
+		for (String s : constraints.keySet())
+		{
+				if (keys.length() > 0)
+					keys = keys.concat(",");
+				keys = keys.concat("`" + s + "`");
+				if (condition.length() > 0)
+					condition = condition.concat(" AND ");
+				condition = condition.concat(s + "='" + constraints.get(s) + "'");
+		}
+		
+		
+		logger.debug("keys " + keys + " condition " + condition);
+	
+		
+		String cmd = "SELECT " + keys + " FROM " + table + " WHERE " + condition;
+		
+		try {
+			setCommand(cmd);
+			ResultSet rs = executeQuery();
+			
+			if (rs.next())
+			{
+				logger.debug("item exists in table " + table + " with constraints " + condition);
+				return true;
+			}
+		} catch (SQLException e) {
+			logger.debug("SQL error " + e);
+		}
+		
+				
+		
+		return false;
+	}
+	
+	/*
 	public boolean addUser(String ip, int port) {
 		boolean result = false;
 		try {
@@ -173,5 +247,5 @@ public class DatabaseConnector {
 		return result;
 
 	}	
-	
+	*/
 }

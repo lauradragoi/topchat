@@ -41,4 +41,11 @@ public interface ProtocolMediator {
 	 * @param string
 	 */
 	public void removeUser(String string);
+
+	/**
+	 * @param username
+	 * @param pass
+	 * @return
+	 */
+	public boolean checkUser(String username, String pass);
 }

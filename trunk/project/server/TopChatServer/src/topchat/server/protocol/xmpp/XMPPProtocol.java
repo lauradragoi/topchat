@@ -248,35 +248,37 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 		
 		// user is leaving
 		User user = manager.getUser();
-		
-		med.removeUser(user.toString());
-		
-		for (String roomName : user.joinedRooms)
+		if (user != null)
 		{
-			Room room = createdRooms.get(roomName);
 			
-			if (room != null)
-			{				
-				RoomParticipant participant = room.removeUser(user);
-				logger.debug("User " + user + " removed from " + roomName);
+			med.removeUser(user.toString());
 			
+			for (String roomName : user.joinedRooms)
+			{
+				Room room = createdRooms.get(roomName);
 				
-				if (room.getParticipants().size() == 0)
-				{
-					// remove the room
-					createdRooms.remove(roomName);
-					logger.debug("Room " + roomName + " was removed due to the fact that it was empty.");
+				if (room != null)
+				{				
+					RoomParticipant participant = room.removeUser(user);
+					logger.debug("User " + user + " removed from " + roomName);
+				
 					
-					med.removeRoom(roomName);
-				}
-				else
-				{
-					userLeftRoom(room, participant);
+					if (room.getParticipants().size() == 0)
+					{
+						// remove the room
+						createdRooms.remove(roomName);
+						logger.debug("Room " + roomName + " was removed due to the fact that it was empty.");
+						
+						med.removeRoom(roomName);
+					}
+					else
+					{
+						userLeftRoom(room, participant);
+					}
 				}
 			}
+		
 		}
-		
-		
 		
 		manager.announceClosed();
 		
@@ -311,5 +313,15 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			
 			participant.getUser().manager.send(presenceMsg.getBytes());
 		}
+	}
+
+	/**
+	 * @param username
+	 * @param pass
+	 * @return
+	 */
+	public boolean checkUser(String username, String pass) {
+		
+		return med.checkUser(username, pass);
 	}
 }

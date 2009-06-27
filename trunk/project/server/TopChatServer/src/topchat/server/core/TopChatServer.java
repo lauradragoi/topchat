@@ -17,6 +17,8 @@
  */
 package topchat.server.core;
 
+import java.sql.SQLException;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.authentication.AuthenticationHandler;
@@ -48,6 +50,9 @@ public class TopChatServer {
 	public static void main(String[] args) {
 
 		Mediator med = new Mediator();
+		
+		@SuppressWarnings("unused")
+		ConfigurationHandlerInterface confHandler = new ConfigurationHandler(med);
 
 		@SuppressWarnings("unused")
 		Gui gui = new ServerGui(med);
@@ -57,17 +62,17 @@ public class TopChatServer {
 
 		@SuppressWarnings("unused")
 		Protocol prot = new XMPPProtocol(med);		
-		
+
+		try {
+			@SuppressWarnings("unused")
+			AuthenticationHandlerInterface  authHandler = new AuthenticationHandler(med);
+		} catch (Exception e) {
+			logger.fatal("Unable to initialize authentication module " + e);
+		}
+				
 		@SuppressWarnings("unused")
 		DataHandlerInterface dataHandler = new DataHandler(med);
 		
-		@SuppressWarnings("unused")
-		AuthenticationHandlerInterface  authHandler = new AuthenticationHandler(med);
-
-		@SuppressWarnings("unused")
-		ConfigurationHandlerInterface confHandler = new ConfigurationHandler(med);
-
-
 		logger.info("TopChatServer started.");
 
 		med.socialize();

@@ -19,4 +19,5 @@ package topchat.server.interfaces;
 
 public interface ConfigurationHandlerInterface {
 
+	public String getProperty(String property);
 }

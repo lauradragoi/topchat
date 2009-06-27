@@ -70,6 +70,11 @@ public class SASLContext extends XMPPContext
 						
 						setDone();
 					}
+					else
+					{
+						sendFailure();
+						setDone();
+					}	
 				}
 				else
 				{
@@ -93,8 +98,7 @@ public class SASLContext extends XMPPContext
 	{					
 		// TODO : check this
 		logger.debug("Authentication info is : " + user.username + " " + user.something + " " + user.pass);
-		
-		return true;
+		return getXMPPManager().checkUser(user.username, user.pass);
 	}
 	
 	private User decodeUser(String initialChallenge)
@@ -129,6 +133,16 @@ public class SASLContext extends XMPPContext
 		String msg = "<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>";
 		
 		getXMPPManager().send(msg.getBytes());	
+	}
+	
+	private void sendFailure()
+	{
+		// prepare the message to be written
+		String msg = "<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" + 
+					 "<not-authorized/>" + 
+					 "</failure>";
+		
+		getXMPPManager().send(msg.getBytes());			
 	}
 	
 	private void processAuth(String s) throws Exception

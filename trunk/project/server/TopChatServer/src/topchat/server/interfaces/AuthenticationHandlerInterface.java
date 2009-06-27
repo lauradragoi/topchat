@@ -19,4 +19,5 @@ package topchat.server.interfaces;
 
 public interface AuthenticationHandlerInterface {
 
+	public boolean checkUser(String username, String password);
 }

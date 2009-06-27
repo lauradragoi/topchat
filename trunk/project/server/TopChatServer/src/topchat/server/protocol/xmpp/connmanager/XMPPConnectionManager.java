@@ -128,7 +128,16 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 			nextContext = new ResourceBindingContext(this);
 		} else if (old instanceof SASLContext)
 		{
-			nextContext = new SASLSecuredStreamStartContext(this);	
+			if (user == null)
+			{
+				logger.fatal("SASL connection failed");
+				
+				closeConnection();
+			}
+			else
+			{
+				nextContext = new SASLSecuredStreamStartContext(this);
+			}			
 		} else if (old instanceof TLSSecuredStreamStartContext)
 		{
 			nextContext = new SASLContext(this);			
@@ -148,6 +157,12 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		
 		logger.info("Context is now " + context.getClass().getSimpleName());
 	}	
+	
+	private void closeConnection()
+	{
+		String closeMsg = "</stream>";
+		send(closeMsg.getBytes());		
+	}
 	
 	/**
 	 * Set the stream initiated by the client
@@ -292,6 +307,16 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	public void announceClosed()
 	{
 		logger.debug("Connection manager is closed from now on.");
+	}
+
+	/**
+	 * @param username
+	 * @param pass
+	 * @return
+	 */
+	public boolean checkUser(String username, String pass) {
+		
+		return protocol.checkUser(username, pass);
 	}
 	
 }
