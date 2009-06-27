@@ -391,7 +391,7 @@ public class ServerNet implements Net, NetConstants, Runnable
 		    if ( tlsHandler != null )
 		    {
 		    		logger.debug("Read on secured socket " + socketChannel);
-		    		System.out.println("Handshake status " + tlsHandler.sslEngine.getHandshakeStatus());
+		    		logger.debug("Handshake status " + tlsHandler.sslEngine.getHandshakeStatus());
 		    		
 		    	    int netBBSize = tlsHandler.sslEngine.getSession().getPacketBufferSize();
 		    	    

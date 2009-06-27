@@ -218,11 +218,15 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			
 			for (RoomParticipant participant : room.getParticipants())
 			{
+				String body = message.getData("body");
+				if (body == null)
+					body = "";
+				
 				String msg = "<message id='" + message.getAttribute("id") +
 						"' to='" + participant.getUser().toString() + "'" +
 						" from='" + roomName + "/" + sender.getRoomUser() + "'" + 
 						" type='groupchat'" +
-						"><body>" + message.getData("body") + "</body></message>"; 
+						"><body>" + body + "</body></message>"; 
 				
 				participant.getUser().manager.send(msg.getBytes());
 

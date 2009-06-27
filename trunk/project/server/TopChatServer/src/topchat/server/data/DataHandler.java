@@ -15,9 +15,29 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.interfaces;
+package topchat.server.data;
 
-public interface DataMediator {
+import org.apache.log4j.Logger;
 
-	public void setDataHandler(DataHandlerInterface dataHandler);
+import topchat.server.data.db.DatabaseConnector;
+import topchat.server.interfaces.DataHandlerInterface;
+import topchat.server.interfaces.DataMediator;
+
+public class DataHandler implements DataHandlerInterface {
+
+	/** Connection to mediator */
+	@SuppressWarnings("unused")
+	private DataMediator med = null;
+	
+	private DatabaseConnector databaseConnector = new DatabaseConnector();
+	
+	private static Logger logger = Logger.getLogger(DataHandler.class);
+	
+	public DataHandler(DataMediator med)
+	{
+		this.med = med;
+		med.setDataHandler(this);		
+		
+		logger.info("Data handling module initiated.");
+	}
 }

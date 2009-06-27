@@ -17,7 +17,7 @@
 */
 package topchat.server.interfaces;
 
-public interface DataMediator {
-
-	public void setDataHandler(DataHandlerInterface dataHandler);
+public interface ConfigurationMediator 
+{	
+	public void setConfigurationHandler(ConfigurationHandlerInterface confHandler);
 }

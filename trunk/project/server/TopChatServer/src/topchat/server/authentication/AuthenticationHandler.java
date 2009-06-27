@@ -15,9 +15,29 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.interfaces;
+package topchat.server.authentication;
 
-public interface DataMediator {
+import org.apache.log4j.Logger;
 
-	public void setDataHandler(DataHandlerInterface dataHandler);
+import topchat.server.gui.ServerGui;
+import topchat.server.interfaces.AuthenticationHandlerInterface;
+import topchat.server.interfaces.AuthenticationMediator;
+import topchat.server.mediator.Mediator;
+
+public class AuthenticationHandler implements AuthenticationHandlerInterface {
+
+	private AuthenticationMediator med = null;
+	
+	private static Logger logger = Logger.getLogger(AuthenticationHandler.class);
+	
+	/**
+	 * @param med
+	 */
+	public AuthenticationHandler(Mediator med) {
+		this.med = med;
+		med.setAuthenticationHandler(this);
+		
+		logger.info("Authentication module initiated");
+	}
+
 }

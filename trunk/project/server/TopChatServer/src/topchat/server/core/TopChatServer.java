@@ -19,9 +19,13 @@ package topchat.server.core;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.data.DataManager;
+import topchat.server.authentication.AuthenticationHandler;
+import topchat.server.configuration.ConfigurationHandler;
+import topchat.server.data.DataHandler;
 import topchat.server.gui.ServerGui;
-import topchat.server.interfaces.DataManagerInterface;
+import topchat.server.interfaces.AuthenticationHandlerInterface;
+import topchat.server.interfaces.ConfigurationHandlerInterface;
+import topchat.server.interfaces.DataHandlerInterface;
 import topchat.server.interfaces.Gui;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
@@ -55,7 +59,14 @@ public class TopChatServer {
 		Protocol prot = new XMPPProtocol(med);		
 		
 		@SuppressWarnings("unused")
-		DataManagerInterface dataManager = new DataManager(med);
+		DataHandlerInterface dataHandler = new DataHandler(med);
+		
+		@SuppressWarnings("unused")
+		AuthenticationHandlerInterface  authHandler = new AuthenticationHandler(med);
+
+		@SuppressWarnings("unused")
+		ConfigurationHandlerInterface confHandler = new ConfigurationHandler(med);
+
 
 		logger.info("TopChatServer started.");
 

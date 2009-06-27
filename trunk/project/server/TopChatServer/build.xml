@@ -3,19 +3,26 @@
         Build file ${ant.project.name}
     </description>
 
+	<!-- Directories -->
 	<property name="src.dir" 			location="src"/>
 	<property name="bin.dir" 			location="bin"/>
 	<property name="lib.dir" 			location="lib"/>
+	<property name="dist.dir" 			location="dist"/>
 	<property name="config.dir" 		location="config"/>
 	<property name="doc.dir"			location="doc"/>
 	<property name="tests.dir"			location="tests"/>
-		
+	
+	<!-- Libraries -->
 	<property name="log4j.lib" 			value="log4j-1.2.15.jar"/>
-	<property name="junit.lib" 			value="junit-4.6.jar"/>	
-
-	<!-- smack is only used for dumb client -->	
+	<property name="junit.lib" 			value="junit-4.6.jar"/>		
+	<property name="connectorj.lib"		value="mysql-connector-java-5.1.7-bin.jar" />
 	<property name="smack.lib" 			value="smack.jar"/>
 	<property name="smackx.lib" 		value="smackx.jar"/>	
+	
+	<property name="jar.name"			value="TopChatServer.jar" />
+	<property name="main.class"			value="topchat.server.core.TopChatServer" />
+	<property name="dumb.client.name" 	value="topchat.server.dummyclient.DumbClient"/>
+
 	
 	<target name="init" depends="clean">
 		<mkdir dir="${bin.dir}"/>
@@ -29,7 +36,8 @@
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
 				<pathelement location="${lib.dir}/${junit.lib}"/>
 				<pathelement location="${lib.dir}/${smack.lib}"/>
-				<pathelement location="${lib.dir}/${smackx.lib}"/>				
+				<pathelement location="${lib.dir}/${smackx.lib}"/>			
+				<pathelement location="${lib.dir}/${connectorj.lib}"/>						
 				<pathelement path="${java.class.path}"/>
 			</classpath>
 		</javac>
@@ -37,31 +45,33 @@
 	</target>
 
 	<target name="jar" depends="compile" description="package the program">
-		<mkdir dir="dist/jar"/>
-		<jar destfile="dist/jar/TopChatServer.jar" basedir="${bin.dir}">
+		<mkdir dir="dist"/>
+		<jar destfile="${dist.dir}/${jar.name}" basedir="${bin.dir}">
 			<manifest>
-				<attribute name="Main-Class" value="topchat.server.core.TopChatServer"/>
+				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>			
 			<zipfileset src="${lib.dir}/${log4j.lib}" />
 			<zipfileset src="${lib.dir}/${junit.lib}" />
 			<zipfileset src="${lib.dir}/${smack.lib}" />
 			<zipfileset src="${lib.dir}/${smackx.lib}" />
+			<zipfileset src="${lib.dir}/${connectorj.lib}"/>	
 			<zipfileset dir="${config.dir}" />
 	    </jar>
 	</target>
 
     <target name="run_jar" description="run the packaged program">
-        <java jar="dist/jar/TopChatServer.jar" fork="true"/>
+        <java jar="dist/TopChatServer.jar" fork="true"/>
     </target>
 	
 	<target name="run" depends="compile" description="run the program" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning ${ant.project.name}..." />
-		<java classname="topchat.server.core.TopChatServer"  fork="true">
+		<java classname="${main.class}"  fork="true">
 			<classpath>
 				<pathelement location="${bin.dir}"/>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
 				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${connectorj.lib}"/>	
 				<pathelement location="${config.dir}"/>
 				<pathelement path="${java.class.path}"/>
 			</classpath>
@@ -72,7 +82,7 @@
 	<target name="run_client" depends="" description="run the dumb client" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning client..." />
-		<java classname="topchat.server.dummyclient.DumbClient"  fork="true">
+		<java classname="${dumb.client.class}"  fork="true">
 			<classpath>
 				<pathelement location="${bin.dir}"/>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
@@ -134,4 +144,5 @@
 		<delete dir="${bin.dir}"/>
 		<echo message="Clean up finished." />
 	</target>
+		
 </project>

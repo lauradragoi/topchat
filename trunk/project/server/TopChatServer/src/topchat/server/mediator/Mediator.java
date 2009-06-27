@@ -21,7 +21,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import topchat.server.interfaces.DataManagerInterface;
+import topchat.server.interfaces.AuthenticationHandlerInterface;
+import topchat.server.interfaces.AuthenticationMediator;
+import topchat.server.interfaces.ConfigurationHandlerInterface;
+import topchat.server.interfaces.ConfigurationMediator;
+import topchat.server.interfaces.DataHandlerInterface;
 import topchat.server.interfaces.DataMediator;
 import topchat.server.interfaces.Gui;
 import topchat.server.interfaces.GuiMediator;
@@ -34,12 +38,17 @@ import topchat.server.interfaces.ProtocolMediator;
  * Mediates the interaction between the server components
  * 
  */
-public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, DataMediator {
+public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, DataMediator,
+			AuthenticationMediator, ConfigurationMediator
+{
 
 	private Gui gui = null;
 	private Net net = null;
 	private Protocol prot = null;
-	private DataManagerInterface data = null;
+	
+	private DataHandlerInterface data = null;
+	private ConfigurationHandlerInterface conf = null;
+	private AuthenticationHandlerInterface auth = null;
 
 	private static Logger logger = Logger.getLogger(Mediator.class);
 
@@ -119,7 +128,25 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 	 * @see topchat.server.interfaces.DataMediator#setDataManager(topchat.server.interfaces.DataManagerInterface)
 	 */
 	@Override
-	public void setDataManager(DataManagerInterface dataManager) {
+	public void setDataHandler(DataHandlerInterface dataManager) {
 		data = dataManager;		
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.AuthenticationMediator#setAuthenticationHandler(topchat.server.interfaces.AuthenticationHandlerInterface)
+	 */
+	@Override
+	public void setAuthenticationHandler(
+			AuthenticationHandlerInterface authHandler) {
+		this.auth = authHandler;		
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ConfigurationMediator#setConfigurationHandler(topchat.server.interfaces.ConfigurationHandlerInterface)
+	 */
+	@Override
+	public void setConfigurationHandler(
+			ConfigurationHandlerInterface confHandler) {
+		this.conf = confHandler;
 	}
 }

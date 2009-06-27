@@ -15,9 +15,28 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.interfaces;
+package topchat.server.configuration;
 
-public interface DataMediator {
+import org.apache.log4j.Logger;
 
-	public void setDataHandler(DataHandlerInterface dataHandler);
+import topchat.server.interfaces.ConfigurationHandlerInterface;
+import topchat.server.interfaces.ConfigurationMediator;
+import topchat.server.mediator.Mediator;
+
+public class ConfigurationHandler implements ConfigurationHandlerInterface {
+
+	private ConfigurationMediator med = null;
+	
+	private static Logger logger = Logger.getLogger(ConfigurationHandler.class);
+	
+	/**
+	 * @param med
+	 */
+	public ConfigurationHandler(Mediator med) {
+		this.med = med;
+		med.setConfigurationHandler(this);
+		
+		logger.info("Configuration module initiated");
+	}
+
 }
