@@ -10,17 +10,19 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketInterceptor;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import topchat.client.connection.ClientConnection;
 import topchat.client.gui.ChatPanel;
+import topchat.client.gui.JoinNewRoom;
 
 /**
  *
@@ -29,38 +31,55 @@ import topchat.client.gui.ChatPanel;
 public class Room {
 
     MultiUserChat muc = null;
-    ArrayList <ContactDetails> roomUsers;
+    ArrayList <User> roomUsers;
     ChatPanel RoomPanel;
+    String roomName;
+    public JoinNewRoom joinedRoom;
+    //ChatGUI roomChatGUI;
+
 
     public Room(String roomName,String roomNick){
        muc = new MultiUserChat(ClientConnection.connection, roomName);
+       this.roomName = roomName;
     }
     public Room(String roomName,String roomNick,ChatPanel roomPanel) throws XMPPException{
 
        muc = new MultiUserChat(ClientConnection.connection, roomName);
        this.RoomPanel = roomPanel;
+       this.roomName = roomName;
+       roomUsers = new ArrayList<User>();
+       
+       muc.addPresenceInterceptor(new PacketInterceptor() {
 
+            public void interceptPacket(Packet arg0) {
+                System.out.println("status_incerceptor " + arg0);
+            }
+        });
+       
        muc.addParticipantStatusListener(new ParticipantStatusListener() {
 
-            public void joined(String newName) {
+           public synchronized void joined(String newName) {
              
                     //newName = "myroom@conference.jabber.org/roomnick"
                     char[] newRoom = new char[newName.length()];
-                    String newRoomNick;
+                    String newUserNick;
                     String newRoomAddress;
                     int endIndex = 0;
                     int startIndex = 0;
                     newRoom = newName.toCharArray();
                     for (int i = 0; i < newRoom.length; i++) {
-                        if (newRoom[i] == '/') {
+                        if (newRoom[i] == '/')
                             startIndex = i + 1;
+                        if (newRoom[i] == '@')
                             endIndex = i;
-                        }
                     }
                     newRoomAddress = newName.substring(0, endIndex);
-                    newRoomNick = newName.substring(startIndex, newRoom.length);
-                    System.out.println("address: " + newRoomAddress + " nick: " + newRoomNick);
-                    RoomPanel.usersListModel.addElement(newRoomNick);
+                    newUserNick = newName.substring(startIndex, newRoom.length);
+                    //System.out.println("address: " + newRoomAddress + " nick: " + newRoomNick);
+                    if (!isUserInRoom(newUserNick))
+                    {
+                        RoomPanel.usersListModel.addElement(newUserNick);//+" - "+joinedRoom.jTextField3.getText());
+                    }
             }
 
             public void left(String arg0) {
@@ -151,7 +170,7 @@ public class Room {
             }
 
         });
-       roomUsers = new ArrayList<ContactDetails>();
+      
     }
     
     public void createRoom(String Nick) throws XMPPException{
@@ -161,24 +180,29 @@ public class Room {
     }
     public void joinRoom(String Nick) throws XMPPException{
         //join this room
-        muc.join(Nick);
+        muc.join(Nick);   
     }
 
     public void sendMessage() throws XMPPException{
 
         muc.sendMessage(RoomPanel.chatMessage.getText());
     }
-    public void addUserInRoom(ContactDetails newContact){
-        roomUsers.add(newContact);
+    public void sendStatus(String status) throws XMPPException{
+
+        muc.sendMessage(status);
+    }
+    public boolean  isUserInRoom(String nick){
+        for(int i=0; i<roomUsers.size(); i++)
+            if(roomUsers.get(i).nickname.compareTo(nick) == 0)
+                return true;
+        return false;
+    }
+    
+    public void addUserInRoom(User newUser){
+        roomUsers.add(newUser);
     }
 
-     public void removeUserFromRoom(ContactDetails contact){
-        roomUsers.remove(contact);
+     public void removeUserFromRoom(User user){
+        roomUsers.remove(user);
     }
-
-     public String getNick(){
-         return this.getNick();
-     }
-
-
 }

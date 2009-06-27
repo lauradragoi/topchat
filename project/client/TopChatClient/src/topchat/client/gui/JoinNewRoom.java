@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import org.jivesoftware.smack.XMPPException;
+import topchat.client.chat.Room;
 import topchat.client.connection.ClientConnection;
 
 /**
@@ -25,8 +26,11 @@ public class JoinNewRoom extends javax.swing.JFrame {
 
     /** Creates new form JoinNewRoom */
     public ChatGUI mainGUI;
+    public Room joinRoom;
+
     public JoinNewRoom() {
         initComponents();
+
     }
 
     /** This method is called from within the constructor to
@@ -68,7 +72,7 @@ public class JoinNewRoom extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 16)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 16));
         jLabel3.setText("Status");
 
         jTextField3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -138,8 +142,16 @@ public class JoinNewRoom extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void JoinRoomButton(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JoinRoomButton
+
         ChatPanel newRoom = new ChatPanel();
-        mainGUI.TabbedRooms.add(jTextField1.getText(),newRoom);
+        try {
+            joinRoom = new Room(jTextField1.getText(), jTextField2.getText(), newRoom);
+        } catch (XMPPException ex) {
+            Logger.getLogger(JoinNewRoom.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        joinRoom.joinedRoom = this;
+        if(!ClientConnection.user.isRoomAlready(jTextField1.getText()))
+            mainGUI.TabbedRooms.add(jTextField1.getText(),newRoom);
         try {
             ClientConnection.user.joinRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),jTextField3.getText(),newRoom);
        } catch (XMPPException ex) {
@@ -167,7 +179,7 @@ public class JoinNewRoom extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    public javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 
 }

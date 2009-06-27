@@ -24,7 +24,7 @@ public class ClientConnection implements ConnectConstants{
 
     public static void makeConnection(JTextField name,JTextField pass,JTextField server) throws XMPPException
     {
-        user = new User(name.getText(), pass.getText());
+        user = new User(name.getText(), pass.getText(),"","");
         // Create a connection to the jabber.org server on a specific port.
         ConnectionConfiguration config = new ConnectionConfiguration(server.getText(), PORT);
         connection = new XMPPConnection(config);
