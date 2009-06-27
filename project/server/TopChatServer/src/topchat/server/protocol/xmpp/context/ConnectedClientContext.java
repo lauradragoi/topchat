@@ -101,6 +101,12 @@ public class ConnectedClientContext extends XMPPContext
 			PresenceStanza presenceStanza = (PresenceStanza) streamElement;
 			logger.debug("FOUND PRESENCE " + presenceStanza);
 			
+			// this could be a status presence
+			String status = presenceStanza.getData("status");
+				
+			if (status != null)
+				getXMPPManager().getUser().setStatus(status);
+			
 			XElement xElement = presenceStanza.getXElement();
 			
 			if (xElement != null)
@@ -173,11 +179,7 @@ public class ConnectedClientContext extends XMPPContext
 				}				
 			}
 			
-			// this could be a status presence
-			String status = presenceStanza.getData("status");
-				
-			if (status != null)
-				getXMPPManager().getUser().setStatus(status);
+
 									
 		}
 		else if (streamElement.isMessage())
