@@ -417,6 +417,9 @@ public class ServerNet implements Net, NetConstants, Runnable
 		      // the selection key and close the channel.
 		      key.cancel();
 		      socketChannel.close();
+		      
+		      // announce protocol that this connection has been closed
+		      prot.connectionClosed(socketChannel);
 		      return;
 		    }
 
@@ -426,6 +429,11 @@ public class ServerNet implements Net, NetConstants, Runnable
 		      // same from our end and cancel the channel.
 		      key.channel().close();
 		      key.cancel();
+		      
+		      socketChannel.close();
+		      
+		      // announce protocol that this connection has been closed
+		      prot.connectionClosed(socketChannel);
 		      return;
 		    }
 		    

@@ -31,4 +31,14 @@ public interface ProtocolMediator {
 
 	/** Called when a room is added */
 	public void addRoom(String room);
+
+	/**
+	 * @param roomName
+	 */
+	public void removeRoom(String roomName);
+
+	/**
+	 * @param string
+	 */
+	public void removeUser(String string);
 }

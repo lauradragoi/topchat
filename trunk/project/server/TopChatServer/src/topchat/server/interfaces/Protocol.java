@@ -43,4 +43,6 @@ public interface Protocol
 	/** Request execution of specific tasks by the protocol */
 	public void execute(Runnable r);
 
+	public void connectionClosed(SocketChannel socketChannel);
+	
 }

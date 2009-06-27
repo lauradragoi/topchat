@@ -142,5 +142,26 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 			}
 		});
 	}
+	
+
+	@Override
+	public void removeUser(final String user) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run()
+			{
+				usersPanel.getListModel().removeElement(user);
+			}
+		});
+	}
+
+	@Override
+	public void removeRoom(final String room) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run()
+			{
+				roomsPanel.getListModel().removeElement(room);
+			}
+		});
+	}	
 
 }

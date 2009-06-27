@@ -267,6 +267,7 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	public Room addRoom(String roomName, String roomUser)
 	{
 		logger.debug("Create room " + roomName + " user " + user);
+		user.join(roomName);
 		Room room = new Room(roomName, user, roomUser);
 		protocol.roomAdded(room);
 		return room;
@@ -286,6 +287,11 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	public void sendGroupchat(MessageStanza message)
 	{
 		protocol.sendGroupChat(user, message);
+	}
+	
+	public void announceClosed()
+	{
+		logger.debug("Connection manager is closed from now on.");
 	}
 	
 }

@@ -17,11 +17,11 @@
 */
 package topchat.server.protocol.xmpp.entities;
 
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
-
-
 
 public class User {
 	public String username = null;
@@ -32,6 +32,8 @@ public class User {
 	public String status = null;
 	
 	public XMPPConnectionManager manager;
+	
+	public Vector<String> joinedRooms = new Vector<String>(); 
 	
 	private static Logger logger = Logger.getLogger(User.class);
 	
@@ -64,5 +66,10 @@ public class User {
 	{
 		logger.debug("user " + toString() + " has status " + status);
 		this.status = status;
+	}
+	
+	public void join(String roomName)
+	{
+		joinedRooms.add(roomName);	
 	}
 }

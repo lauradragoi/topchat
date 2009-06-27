@@ -95,4 +95,20 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 		gui.setStatus("Room " + room + " created.");
 		logger.info("Room " + room + " created.");
 	}
+	
+	@Override
+	public void removeUser(final String user) 
+	{
+		gui.removeUser(user);
+		gui.setStatus("User " + user + " logged out.");
+		logger.info("User " + user + " logged out.");
+	}
+
+	
+	@Override
+	public void removeRoom(final String room) {
+		gui.removeRoom(room);
+		gui.setStatus("Room " + room + " destroyed.");
+		logger.info("Room " + room + " destroyed.");
+	}
 }
