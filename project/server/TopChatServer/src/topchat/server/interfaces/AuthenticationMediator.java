@@ -20,4 +20,29 @@ package topchat.server.interfaces;
 public interface AuthenticationMediator {
 	
 	public void setAuthenticationHandler(AuthenticationHandlerInterface authHandler);
+
+	/**
+	 * @return
+	 */
+	public String getAuthServerIP() throws Exception;
+
+	/**
+	 * @return
+	 */
+	public String getAuthDBName() throws Exception;
+
+	/**
+	 * @return
+	 */
+	public String getAuthDBUser() throws Exception;
+
+	/**
+	 * @return
+	 */
+	public String getAuthDBPass() throws Exception;
+
+	/**
+	 * @return
+	 */
+	public String getAuthTable() throws Exception;
 }

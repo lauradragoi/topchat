@@ -89,4 +89,17 @@ public class ConfigurationHandler implements ConfigurationHandlerInterface {
 	{
 		return (props != null);
 	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ConfigurationHandlerInterface#getProperty(java.lang.String)
+	 */
+	@Override
+	public String getProperty(String property) 
+	{
+		if (isPropsSet())
+		{
+			return props.get(property).toString();
+		}
+		return null;
+	}
 }
