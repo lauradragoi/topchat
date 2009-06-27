@@ -17,6 +17,11 @@
 */
 package topchat.server.configuration;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import topchat.server.interfaces.ConfigurationHandlerInterface;
@@ -25,7 +30,11 @@ import topchat.server.mediator.Mediator;
 
 public class ConfigurationHandler implements ConfigurationHandlerInterface {
 
+	public static final String CONFIG_FILE =  "topchatserver.properties";
+	
 	private ConfigurationMediator med = null;
+	
+	private Properties props = null;
 	
 	private static Logger logger = Logger.getLogger(ConfigurationHandler.class);
 	
@@ -37,6 +46,47 @@ public class ConfigurationHandler implements ConfigurationHandlerInterface {
 		med.setConfigurationHandler(this);
 		
 		logger.info("Configuration module initiated");
+		
+		try
+		{
+			Properties props = load(CONFIG_FILE);
+			setProperties(props);
+			
+			logger.debug("Configuration loaded");
+			
+		} catch (Exception e) {
+			logger.warn("Unable to load configuration from " + CONFIG_FILE + " ( " + e + " )");
+		}
+	}
+	
+	private Properties load(String fileName) throws Exception
+	{
+		Properties myProps = new Properties();
+		
+		Reader in = null;
+		
+		try {
+			in = new FileReader(fileName);
+			myProps.load(in);											
+		} finally {
+			if (in != null)
+				try {
+					in.close();
+				} catch (IOException e) {}
+		}
+		
+		return myProps;
+	}
+	
+	private void setProperties(Properties props)
+	{
+		this.props = props;
+		
+		logger.debug("Properties are " + props.toString());
 	}
 
+	private boolean isPropsSet()
+	{
+		return (props != null);
+	}
 }
