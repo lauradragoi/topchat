@@ -21,6 +21,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.interfaces.DataManagerInterface;
+import topchat.server.interfaces.DataMediator;
 import topchat.server.interfaces.Gui;
 import topchat.server.interfaces.GuiMediator;
 import topchat.server.interfaces.Net;
@@ -32,11 +34,12 @@ import topchat.server.interfaces.ProtocolMediator;
  * Mediates the interaction between the server components
  * 
  */
-public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
+public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, DataMediator {
 
 	private Gui gui = null;
 	private Net net = null;
 	private Protocol prot = null;
+	private DataManagerInterface data = null;
 
 	private static Logger logger = Logger.getLogger(Mediator.class);
 
@@ -110,5 +113,13 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator {
 		gui.removeRoom(room);
 		gui.setStatus("Room " + room + " destroyed.");
 		logger.info("Room " + room + " destroyed.");
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.DataMediator#setDataManager(topchat.server.interfaces.DataManagerInterface)
+	 */
+	@Override
+	public void setDataManager(DataManagerInterface dataManager) {
+		data = dataManager;		
 	}
 }

@@ -19,7 +19,9 @@ package topchat.server.core;
 
 import org.apache.log4j.Logger;
 
+import topchat.server.data.DataManager;
 import topchat.server.gui.ServerGui;
+import topchat.server.interfaces.DataManagerInterface;
 import topchat.server.interfaces.Gui;
 import topchat.server.interfaces.Net;
 import topchat.server.interfaces.Protocol;
@@ -51,6 +53,9 @@ public class TopChatServer {
 
 		@SuppressWarnings("unused")
 		Protocol prot = new XMPPProtocol(med);		
+		
+		@SuppressWarnings("unused")
+		DataManagerInterface dataManager = new DataManager(med);
 
 		logger.info("TopChatServer started.");
 

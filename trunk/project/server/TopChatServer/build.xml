@@ -36,6 +36,24 @@
 		<echo message="Compile finished." />
 	</target>
 
+	<target name="jar" depends="compile" description="package the program">
+		<mkdir dir="dist/jar"/>
+		<jar destfile="dist/jar/TopChatServer.jar" basedir="${bin.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="topchat.server.core.TopChatServer"/>
+			</manifest>			
+			<zipfileset src="${lib.dir}/${log4j.lib}" />
+			<zipfileset src="${lib.dir}/${junit.lib}" />
+			<zipfileset src="${lib.dir}/${smack.lib}" />
+			<zipfileset src="${lib.dir}/${smackx.lib}" />
+			<zipfileset dir="${config.dir}" />
+	    </jar>
+	</target>
+
+    <target name="run_jar" description="run the packaged program">
+        <java jar="dist/jar/TopChatServer.jar" fork="true"/>
+    </target>
+	
 	<target name="run" depends="compile" description="run the program" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning ${ant.project.name}..." />
