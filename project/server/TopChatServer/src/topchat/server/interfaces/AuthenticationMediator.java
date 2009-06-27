@@ -15,20 +15,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package topchat.server.data;
+package topchat.server.interfaces;
 
-import topchat.server.interfaces.DataManagerInterface;
-import topchat.server.interfaces.DataMediator;
-
-public class DataManager implements DataManagerInterface {
-
-	/** Connection to mediator */
-	@SuppressWarnings("unused")
-	private DataMediator med = null;
+public interface AuthenticationMediator {
 	
-	public DataManager(DataMediator med)
-	{
-		this.med = med;
-		med.setDataManager(this);
-	}
+	public void setAuthenticationHandler(AuthenticationHandlerInterface authHandler);
 }

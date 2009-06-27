@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="config"/>
 	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/smack.jar"/>
 	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/smackx.jar"/>
+	<classpathentry kind="lib" path="D:/fac/topchat/googlecode/project/server/TopChatServer/lib/mysql-connector-java-5.1.7-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

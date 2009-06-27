@@ -17,6 +17,6 @@
 */
 package topchat.server.interfaces;
 
-public interface DataManagerInterface {
+public interface DataHandlerInterface {
 
 }
