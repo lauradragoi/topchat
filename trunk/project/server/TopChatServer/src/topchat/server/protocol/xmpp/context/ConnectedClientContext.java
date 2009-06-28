@@ -42,7 +42,7 @@ public class ConnectedClientContext extends XMPPContext
 	}
 
 	@Override
-	public void processRead(byte[] rd) 
+	public synchronized void processRead(byte[] rd) 
 	{
 		String s = new String(rd);
 		logger.debug("received: " + s);	
@@ -63,8 +63,9 @@ public class ConnectedClientContext extends XMPPContext
 	}
 		
 	
-	private void processElement(StreamElement streamElement)
-	{
+	private synchronized void processElement(StreamElement streamElement)
+	{		
+		
 		if (streamElement.isIq())
 		{
 			IQStanza iqStanza = (IQStanza) streamElement;

@@ -54,32 +54,32 @@ public class AuthenticationHandler implements AuthenticationHandlerInterface {
 	{				
 		String ip = null;
 		try {
-			ip = med.getAuthServerIP();
+			ip = med.getProperty("authentication.server");
 		} catch (Exception e) {
 			logger.debug("Authentication server IP cannot be retrieved " + e);
 		}
 		String db = null;
 		try {
-			db = med.getAuthDBName();
+			db = med.getProperty("authentication.db");
 		} catch (Exception e) {
 			logger.debug("Authentication DB name cannot be retrieved " + e);
 		}
 		String user = null;
 		try {
-			user = med.getAuthDBUser();
+			user = med.getProperty("authentication.user");
 		} catch (Exception e) {
 			logger.debug("Authentication DB user cannot be retrieved " + e);
 		}
 		String pass = null;
 		try {
-			pass = med.getAuthDBPass();
+			pass = med.getProperty("authentication.pass");
 		} catch (Exception e) {
 			logger.debug("Authentication DB password cannot be retrieved " + e);
 		}
 		
 		String table = null;
 		try {
-			table = med.getAuthTable();
+			table = med.getProperty("authentication.table");
 		} catch (Exception e) {
 			logger.debug("Authentication table cannot be retrieved " + e);
 		}

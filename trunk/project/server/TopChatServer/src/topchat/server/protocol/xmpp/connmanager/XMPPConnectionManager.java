@@ -20,7 +20,6 @@ package topchat.server.protocol.xmpp.connmanager;
 import java.nio.channels.SocketChannel;
 
 import javax.net.ssl.SSLEngine;
-
 import org.apache.log4j.Logger;
 
 import topchat.server.defaults.DefaultConnectionManager;
@@ -87,6 +86,8 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 		String s = new String(rd);
 		
 		logger.debug("received: " + s);
+		
+		protocol.announceRead(s);
 		
 		context.processRead(rd);			
 	}	
