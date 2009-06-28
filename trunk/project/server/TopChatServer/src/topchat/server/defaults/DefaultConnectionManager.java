@@ -17,34 +17,22 @@
  */
 package topchat.server.defaults;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * Manages a connection between the server and a client
- *
  */
-public class DefaultConnectionManager 
+public abstract class DefaultConnectionManager
 {
 	/** The current context of the connection */
 	protected DefaultContext context;
-	
 
-	private static Logger logger = Logger.getLogger(DefaultConnectionManager.class);
-		
 	/**
-	 * Method called by the protocol to inform the connection manager 
-	 * 	when data is received from the network.
+	 * Method called by the protocol to inform the connection manager when data
+	 * is received from the network.
+	 * 
 	 * @param rd
+	 *            the received data
 	 * @param count
+	 *            the number of bytes received
 	 */
-	public void processRead(byte[] rd, int count) 
-	{
-		String s = new String(rd);		
-		logger.debug("Received: " + s);
-		
-		// inform the context
-		context.processRead(rd);
-	}
-	
+	public abstract void processRead(byte[] rd, int count);
 }
