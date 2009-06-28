@@ -20,4 +20,10 @@ package topchat.server.interfaces;
 public interface DataMediator {
 
 	public void setDataHandler(DataHandlerInterface dataHandler);
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public String getProperty(String string) throws Exception;
 }

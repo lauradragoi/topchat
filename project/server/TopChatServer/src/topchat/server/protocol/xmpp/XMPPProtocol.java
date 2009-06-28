@@ -127,6 +127,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	 */
 	public void sendData(SocketChannel socketChannel, byte[] data)
 	{
+		med.announceSend(new String(data));
 		net.send(socketChannel, data);
 	}
 	
@@ -199,25 +200,34 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	}
 	
 	public void sendGroupChat(User user, MessageStanza message)
-	{
+	{		
 		String roomName = message.getAttribute("to");
+		logger.debug("Roomname " + roomName);
 		
 		Room room = createdRooms.get(roomName);
 		
-		RoomParticipant sender = room.getParticipant(user);
+		logger.debug("room is " + room);
 		
-		if (sender == null)
-		{
-			logger.debug("Sender invalid.");
-			return;
-		}
-			
 		if (room != null)
 		{
+					
+			RoomParticipant sender = room.getParticipant(user);
+		
+			logger.debug("sender is " + sender);
+			
+			if (sender == null)
+			{
+				logger.debug("Sender invalid.");
+				return;
+			}
+			
 			logger.debug("Sending group message to " + roomName);
 			
 			for (RoomParticipant participant : room.getParticipants())
 			{
+				if (participant == null)
+					continue;
+				
 				String body = message.getData("body");
 				if (body == null)
 					body = "";
@@ -323,5 +333,10 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public boolean checkUser(String username, String pass) {
 		
 		return med.checkUser(username, pass);
+	}
+	
+	public void announceRead(String s)
+	{
+		med.announceRead(s);
 	}
 }

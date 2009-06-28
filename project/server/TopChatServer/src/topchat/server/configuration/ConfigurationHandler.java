@@ -32,6 +32,7 @@ public class ConfigurationHandler implements ConfigurationHandlerInterface {
 
 	public static final String CONFIG_FILE =  "topchatserver.properties";
 	
+	@SuppressWarnings("unused")
 	private ConfigurationMediator med = null;
 	
 	private Properties props = null;

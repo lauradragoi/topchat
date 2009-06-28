@@ -48,4 +48,14 @@ public interface ProtocolMediator {
 	 * @return
 	 */
 	public boolean checkUser(String username, String pass);
+
+	/**
+	 * @param s
+	 */
+	public void announceRead(String s);
+
+	/**
+	 * @param string
+	 */
+	public void announceSend(String string);
 }

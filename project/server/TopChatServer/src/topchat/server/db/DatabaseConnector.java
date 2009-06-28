@@ -33,11 +33,6 @@ public class DatabaseConnector {
 	final String PASS	= "";
 	*/
 	
-	private String ip = null;
-	private String db = null;
-	private String user = null;
-	private String pass = null;
-	
 	private String port = "3306";
 	
 	final String SEP	= "\t\t";
@@ -48,12 +43,7 @@ public class DatabaseConnector {
 	private static Logger logger = Logger.getLogger(DatabaseConnector.class);
 	
 	public DatabaseConnector(String ip, String db, String user, String pass) throws Exception
-	{
-		this.ip = ip;
-		this.db = db;
-		this.user = user;
-		this.pass = pass;
-		
+	{	
 		try {
 			Class.forName(DRIVER);
 		} catch (ClassNotFoundException e) {
@@ -146,6 +136,49 @@ public class DatabaseConnector {
 				
 		
 		return false;
+	}
+
+	/**
+	 * @param table
+	 * @param values
+	 * @return
+	 */
+	public boolean insertValues(String table, HashMap<String, String> values) {
+		// TODO Auto-generated method stub
+		boolean result = false;
+		
+		String keys = "";
+		String val = "";
+		for (String s : values.keySet())
+		{
+				if (keys.length() > 0)
+					keys = keys.concat(",");
+				keys = keys.concat("`" + s + "`");
+				if (val.length() > 0)
+					val = val.concat(",");
+				val = val.concat("'" + values.get(s) + "'");
+		}
+		
+		
+		logger.debug("keys " + keys + " values " + val);
+	
+		keys = keys.concat(", `timestamp`");
+		val  = val.concat(", null");
+		
+		String cmd = "INSERT INTO `" + table + "` (" + keys + ") VALUES (" + val + ")";
+		
+		logger.debug("command " + cmd);
+		
+		
+		try {
+			setCommand(cmd);
+			result = execute();
+		} catch (SQLException e) {
+			logger.debug("Insert error in " + table + " :" + e);
+		}
+		
+			
+		return result;
 	}
 	
 	/*

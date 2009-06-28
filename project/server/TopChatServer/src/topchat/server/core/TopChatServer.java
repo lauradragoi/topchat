@@ -17,8 +17,6 @@
  */
 package topchat.server.core;
 
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
 
 import topchat.server.authentication.AuthenticationHandler;
@@ -70,8 +68,13 @@ public class TopChatServer {
 			logger.fatal("Unable to initialize authentication module " + e);
 		}
 				
-		@SuppressWarnings("unused")
-		DataHandlerInterface dataHandler = new DataHandler(med);
+		try
+		{
+			@SuppressWarnings("unused")
+			DataHandlerInterface dataHandler = new DataHandler(med);
+		} catch (Exception e) {
+			logger.fatal("Unable to initialize data handling module " + e);
+		}
 		
 		logger.info("TopChatServer started.");
 

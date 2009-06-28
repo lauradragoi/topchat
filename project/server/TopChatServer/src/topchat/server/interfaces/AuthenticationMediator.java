@@ -21,28 +21,11 @@ public interface AuthenticationMediator {
 	
 	public void setAuthenticationHandler(AuthenticationHandlerInterface authHandler);
 
-	/**
-	 * @return
-	 */
-	public String getAuthServerIP() throws Exception;
 
 	/**
+	 * @param property
 	 * @return
+	 * @throws Exception
 	 */
-	public String getAuthDBName() throws Exception;
-
-	/**
-	 * @return
-	 */
-	public String getAuthDBUser() throws Exception;
-
-	/**
-	 * @return
-	 */
-	public String getAuthDBPass() throws Exception;
-
-	/**
-	 * @return
-	 */
-	public String getAuthTable() throws Exception;
+	String getProperty(String property) throws Exception;
 }

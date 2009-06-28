@@ -19,4 +19,14 @@ package topchat.server.interfaces;
 
 public interface DataHandlerInterface {
 
+	/**
+	 * @param s
+	 */
+	void saveRead(String s);
+
+	/**
+	 * @param s
+	 */
+	void saveSent(String s);
+
 }
