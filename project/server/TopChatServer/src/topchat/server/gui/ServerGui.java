@@ -70,7 +70,7 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	 * Creates the GUI frame
 	 */
 	private void build() {
-		JFrame frame = new JFrame(APP_NAME);
+		JFrame frame = new JFrame(GuiConstants.APP_NAME);
 		frame.setContentPane(this);
 		frame.setSize(APP_WIDTH, APP_HEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

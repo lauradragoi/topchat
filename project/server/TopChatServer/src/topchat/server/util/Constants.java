@@ -22,6 +22,4 @@ package topchat.server.util;
  */
 public interface Constants {
 
-	public static final String APP_NAME = "TopChatServer";
-
 }

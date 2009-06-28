@@ -22,7 +22,7 @@ public interface DataHandlerInterface {
 	/**
 	 * @param s
 	 */
-	void saveRead(String s);
+	void saveReceived(String s);
 
 	/**
 	 * @param s

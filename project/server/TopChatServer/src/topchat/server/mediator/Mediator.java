@@ -175,7 +175,7 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 	{
 		logger.debug("Announce read " + s);
 		
-		data.saveRead(s);
+		data.saveReceived(s);
 	}
 
 	/* (non-Javadoc)

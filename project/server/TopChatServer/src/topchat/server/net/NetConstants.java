@@ -17,12 +17,10 @@
  */
 package topchat.server.net;
 
-import topchat.server.util.Constants;
-
 /**
  * Constants used by the network module
  */
-public interface NetConstants extends Constants 
+public interface NetConstants 
 {
 	public static final int BUFFER_SIZE = 8192;
 }
