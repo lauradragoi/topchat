@@ -14,95 +14,121 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.authentication;
 
-import java.sql.SQLException;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
 import topchat.server.db.DatabaseConnector;
 import topchat.server.interfaces.AuthenticationHandlerInterface;
 import topchat.server.interfaces.AuthenticationMediator;
-import topchat.server.mediator.Mediator;
 
-public class AuthenticationHandler implements AuthenticationHandlerInterface {
-
+/**
+ * The AuthenticationHandler is the module in charge of authenticating clients.
+ * 
+ * It checks if the credentials of the user exist in the authentication
+ * database.
+ */
+public class AuthenticationHandler implements AuthenticationHandlerInterface
+{
+	/** The mediator to which the AuthenticationHandler connects */
 	private AuthenticationMediator med = null;
-	
-	private static Logger logger = Logger.getLogger(AuthenticationHandler.class);
-	
+
+	private static Logger logger = Logger
+			.getLogger(AuthenticationHandler.class);
+
+	/** The connection to the database used for authentication */
 	private DatabaseConnector dbConnector = null;
-	
-	private String table = null;
-	
+
 	/**
-	 * @param med
-	 * @throws SQLException 
+	 * The name of the table in the database that contains the authentication
+	 * info
 	 */
-	public AuthenticationHandler(Mediator med) throws Exception {
+	private String table = null;
+
+	/**
+	 * Constructs an AuthenticationHandler connected to an
+	 * AuthenticationMediator. The connection to the database used for
+	 * authentication will also be established.
+	 * 
+	 * @param med
+	 *            the AuthenticationMediator to which the module connects
+	 * @throws Exception
+	 *             if the connection to the database fails
+	 */
+	public AuthenticationHandler(AuthenticationMediator med) throws Exception
+	{
+		// connect to mediator
 		this.med = med;
+
+		// connect mediator to this module
 		med.setAuthenticationHandler(this);
-		
-		logger.info("Authentication module initiated");
-		
-		dbConnector = init();			
-	}
-	
-	private DatabaseConnector init() throws Exception
-	{				
-		String ip = null;
-		try {
-			ip = med.getProperty("authentication.server");
-		} catch (Exception e) {
-			logger.debug("Authentication server IP cannot be retrieved " + e);
-		}
-		String db = null;
-		try {
-			db = med.getProperty("authentication.db");
-		} catch (Exception e) {
-			logger.debug("Authentication DB name cannot be retrieved " + e);
-		}
-		String user = null;
-		try {
-			user = med.getProperty("authentication.user");
-		} catch (Exception e) {
-			logger.debug("Authentication DB user cannot be retrieved " + e);
-		}
-		String pass = null;
-		try {
-			pass = med.getProperty("authentication.pass");
-		} catch (Exception e) {
-			logger.debug("Authentication DB password cannot be retrieved " + e);
-		}
-		
-		String table = null;
-		try {
-			table = med.getProperty("authentication.table");
-		} catch (Exception e) {
-			logger.debug("Authentication table cannot be retrieved " + e);
-		}
-		this.table = table;
-				
+
 		// init connection to database
-		DatabaseConnector dbConnector = new DatabaseConnector(ip, db, user, pass);
-		
+		dbConnector = initDB();
+
+		logger.info("Authentication module initiated");
+	}
+
+	/**
+	 * Initialize the connection to the database used for authentication.
+	 * 
+	 * @return the DatabaseConnector corresponding to the initiated connection.
+	 * @throws Exception
+	 *             if the properties necessary for establishing the connection
+	 *             are improperly set or the database connection cannot be
+	 *             initialized.
+	 * 
+	 */
+	private DatabaseConnector initDB() throws Exception
+	{
+		// obtain the properties
+		String ip = med.getProperty("authentication.server");
+		String db = med.getProperty("authentication.db");
+		String user = med.getProperty("authentication.user");
+		String pass = med.getProperty("authentication.pass");
+		String table = med.getProperty("authentication.table");
+
+		// set the table for future uses
+		setTable(table);
+
+		// init connection to database
+		DatabaseConnector dbConnector = new DatabaseConnector(ip, db, user,
+				pass);
+
 		return dbConnector;
 	}
-	
+
+	private void setTable(String table)
+	{
+		this.table = table;
+	}
+
+	/**
+	 * This method checks whether a user with a certain username and password is
+	 * authorized to connect to the server.
+	 * 
+	 * @param username
+	 *            the name of the user
+	 * @param password
+	 *            the password of the user
+	 * 
+	 * @return true if the user is allowed to connect, false otherwise
+	 * 
+	 */
 	public boolean checkUser(String username, String password)
 	{
+		// create constraints
 		HashMap<String, String> constraints = new HashMap<String, String>();
 		constraints.put("username", username);
 		constraints.put("password", password);
-		
-		boolean result = dbConnector.checkExistingItem(table, constraints);
-		
-		logger.debug("check User " + username + " " + password + " = " + result);
-		
-		return result;
 
+		// query database
+		boolean result = dbConnector.checkExistingItem(table, constraints);
+
+		logger.info("Check user " + username + "returned " + result);
+
+		return result;
 	}
 
 }

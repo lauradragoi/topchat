@@ -14,104 +14,118 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.data;
 
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
 import topchat.server.db.DatabaseConnector;
 import topchat.server.interfaces.DataHandlerInterface;
 import topchat.server.interfaces.DataMediator;
 
-public class DataHandler implements DataHandlerInterface {
+/**
+ * This module is responsible for processing the data received/sent by the
+ * server. It currently saves all this data in a database.
+ */
+public class DataHandler implements DataHandlerInterface
+{
 
 	/** Connection to mediator */
 	private DataMediator med = null;
-	
+
+	/** Name of the table where the data will be saved */
 	private String table = null;
-	
+
+	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
-	
+
 	private static Logger logger = Logger.getLogger(DataHandler.class);
-	
+
+	/**
+	 * Constructs a DataHandler connected to a DataMediator and initiates the
+	 * connection to the database used for saving the data.
+	 * 
+	 * @param med
+	 *            the DataMediator to which the DataHandler connects
+	 * @throws Exception
+	 *             if the database connection cannot be initiated
+	 */
 	public DataHandler(DataMediator med) throws Exception
 	{
 		this.med = med;
-		med.setDataHandler(this);		
-		
+		med.setDataHandler(this);
+
+		dbConnector = init();
+
 		logger.info("Data handling module initiated.");
-		
-		dbConnector = init();				
 	}
-	
+
+	/**
+	 * Initiate a connection to the database used for saving data.
+	 * 
+	 * @return the DatabaseConnector corresponding to the initiated connection
+	 * @throws Exception
+	 *             if the properties needed for connecting are improperly set or
+	 *             the connection to the database does not succeed.
+	 */
 	private DatabaseConnector init() throws Exception
-	{				
-		String ip = null;
-		try {
-			ip = med.getProperty("data.server");
-		} catch (Exception e) {
-			logger.debug("Data server IP cannot be retrieved " + e);
-		}
-		String db = null;
-		try {
-			db = med.getProperty("data.db");
-		} catch (Exception e) {
-			logger.debug("Data DB name cannot be retrieved " + e);
-		}
-		String user = null;
-		try {
-			user = med.getProperty("data.user");
-		} catch (Exception e) {
-			logger.debug("Data DB user cannot be retrieved " + e);
-		}
-		String pass = null;
-		try {
-			pass = med.getProperty("data.pass");
-		} catch (Exception e) {
-			logger.debug("Data DB password cannot be retrieved " + e);
-		}
-		
-		String table = null;
-		try {
-			table = med.getProperty("data.table");
-		} catch (Exception e) {
-			logger.debug("Data table cannot be retrieved " + e);
-		}
-		this.table = table;
-				
+	{
+		// init properties
+		String ip = med.getProperty("data.server");
+		String db = med.getProperty("data.db");
+		String user = med.getProperty("data.user");
+		String pass = med.getProperty("data.pass");
+		String table = med.getProperty("data.table");
+
+		setTable(table);
+
 		// init connection to database
-		DatabaseConnector dbConnector = new DatabaseConnector(ip, db, user, pass);
-		
+		DatabaseConnector dbConnector = new DatabaseConnector(ip, db, user,
+				pass);
+
 		return dbConnector;
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.DataHandlerInterface#saveRead(java.lang.String)
+	private void setTable(String table)
+	{
+		this.table = table;
+	}
+
+	/**
+	 * Save a received message in the database.
+	 * 
+	 * @param s
+	 *            the received message
 	 */
 	@Override
-	public void saveRead(String s) {
+	public void saveReceived(String s)
+	{
+
 		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("type", "receive");
 		values.put("message", s);
-		
+
 		boolean result = dbConnector.insertValues(table, values);
-		
-		logger.debug("insert in " + table + " of received " + s + " was " + result);					
+
+		logger.debug("Insert in " + table + " of received msg " + s + " was "
+				+ result);
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.DataHandlerInterface#saveSent(java.lang.String)
+	/**
+	 * Save a sent message in the database.
+	 * 
+	 * @param s
+	 *            the sent message
 	 */
 	@Override
-	public void saveSent(String s) {
+	public void saveSent(String s)
+	{
 		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("type", "sent");
 		values.put("message", s);
-		
+
 		boolean result = dbConnector.insertValues(table, values);
-		
-		logger.debug("insert in " + table + " of sent " + s + " was " + result);			
+
+		logger.debug("insert in " + table + " of sent " + s + " was " + result);
 	}
 }

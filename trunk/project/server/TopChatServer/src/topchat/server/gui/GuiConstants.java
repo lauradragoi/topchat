@@ -17,13 +17,11 @@
  */
 package topchat.server.gui;
 
-import topchat.server.util.Constants;
-
 /**
  * Interface containing constants used in the GUI
  */
-public interface GuiConstants extends Constants {
-
+public interface GuiConstants 
+{
 	public static final int APP_WIDTH = 700;
 	public static final int APP_HEIGHT = 500;
 
@@ -34,4 +32,5 @@ public interface GuiConstants extends Constants {
 	public static final int ROOMS_LIST_MIN_H = USERS_LIST_MIN_H;
 
 	public static final String DEFAULT_STATUS = "";
+	public static final String APP_NAME = "TopChatServer";
 }

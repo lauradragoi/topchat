@@ -36,21 +36,30 @@ import topchat.server.protocol.xmpp.XMPPProtocol;
 /**
  * Main class of the server implementation.
  */
-public class TopChatServer {
+public class TopChatServer
+{
 
 	private static Logger logger = Logger.getLogger(TopChatServer.class);
 
 	/**
 	 * The entry point for the server.
 	 * 
+	 * Initiates the Mediator, the ConfigurationHandler module, the GUI module,
+	 * the Network module, the Protocol, the Authentication module and the
+	 * DataHandling module and requests that the Mediator makes these components
+	 * work together.
+	 * 
 	 * @param args
+	 *            the arguments received by the program (not used)
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 
 		Mediator med = new Mediator();
-		
+
 		@SuppressWarnings("unused")
-		ConfigurationHandlerInterface confHandler = new ConfigurationHandler(med);
+		ConfigurationHandlerInterface confHandler = new ConfigurationHandler(
+				med);
 
 		@SuppressWarnings("unused")
 		Gui gui = new ServerGui(med);
@@ -59,23 +68,27 @@ public class TopChatServer {
 		Net net = new ServerNet(med);
 
 		@SuppressWarnings("unused")
-		Protocol prot = new XMPPProtocol(med);		
+		Protocol prot = new XMPPProtocol(med);
 
-		try {
+		try
+		{
 			@SuppressWarnings("unused")
-			AuthenticationHandlerInterface  authHandler = new AuthenticationHandler(med);
-		} catch (Exception e) {
+			AuthenticationHandlerInterface authHandler = new AuthenticationHandler(
+					med);
+		} catch (Exception e)
+		{
 			logger.fatal("Unable to initialize authentication module " + e);
 		}
-				
+
 		try
 		{
 			@SuppressWarnings("unused")
 			DataHandlerInterface dataHandler = new DataHandler(med);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			logger.fatal("Unable to initialize data handling module " + e);
 		}
-		
+
 		logger.info("TopChatServer started.");
 
 		med.socialize();
