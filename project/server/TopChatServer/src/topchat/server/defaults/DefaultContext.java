@@ -19,26 +19,30 @@ package topchat.server.defaults;
 
 /**
  * Describes the state of a connection between the server and a client
- *
+ * 
  */
-public abstract class DefaultContext 
-{	
+public abstract class DefaultContext
+{
 	/** Connection manager handling this context */
 	protected DefaultConnectionManager mgr = null;
-		
+
 	/**
 	 * Constructs context controlled by a connection manager
-	 * @param mgr the connection manager controlling the context being created
+	 * 
+	 * @param mgr
+	 *            the connection manager controlling the context being created
 	 */
 	public DefaultContext(DefaultConnectionManager mgr)
 	{
 		this.mgr = mgr;
 	}
 
-	/** 
+	/**
 	 * Method to be executed after a reading operation has completed.
-	 * @param b the data that was read
+	 * 
+	 * @param b
+	 *            the data that was read
 	 */
 	public abstract void processRead(byte[] b);
-	
-} 
+
+}
