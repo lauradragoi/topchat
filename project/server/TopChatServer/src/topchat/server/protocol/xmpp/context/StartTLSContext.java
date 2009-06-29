@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.context;
 
 import java.util.Vector;
@@ -27,26 +27,35 @@ import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
- * In this context the server waits for the client
- * to contact it and send in the start of the stream. 
+ * In this context the server waits for the client to contact it and send in the
+ * start of the stream.
  */
-public class StartTLSContext extends XMPPContext {
+public class StartTLSContext extends XMPPContext
+{
 
-	private static Logger logger = Logger.getLogger(StartTLSContext.class);	
-	
-	public StartTLSContext(XMPPConnectionManager mgr) {
-		super(mgr);		
+	private static Logger logger = Logger.getLogger(StartTLSContext.class);
+
+	/**
+	 * Constructs a StartTLSContext
+	 * 
+	 * @param mgr
+	 *            the manager handling this context
+	 */
+	public StartTLSContext(XMPPConnectionManager mgr)
+	{
+		super(mgr);
 	}
 
-
 	@Override
-	public void processRead(byte[] rd) {		
+	public void processRead(byte[] rd)
+	{
 		String s = new String(rd);
 		logger.debug("Received: " + s);
-		
-		try {
+
+		try
+		{
 			Vector<StreamElement> streamElements = Parser.parse(s);
-			
+
 			for (StreamElement element : streamElements)
 			{
 				// receive starttls
@@ -56,24 +65,28 @@ public class StartTLSContext extends XMPPContext {
 					// secure the connection
 					getXMPPManager().secure();
 					logger.debug("sec now done");
-					
+
 					// send proceed
-					sendProceedTLS();				
-		
+					sendProceedTLS();
+
 					setDone();
 				}
 			}
-			
-		} catch (Exception e) {
+
+		} catch (Exception e)
+		{
 			logger.fatal("StartTLS exception " + e);
 		}
-	}	
-	
+	}
+
+	/**
+	 * Sends the proceed message
+	 */
 	private void sendProceedTLS()
 	{
 		// prepare the message to be written
 		String msg = Preparer.prepareProceed();
 
-		getXMPPManager().send(msg.getBytes());		
+		getXMPPManager().send(msg.getBytes());
 	}
 }

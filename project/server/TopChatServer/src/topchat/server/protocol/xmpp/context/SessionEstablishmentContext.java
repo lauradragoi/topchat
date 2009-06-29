@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.context;
 
 import java.util.Vector;
@@ -26,75 +26,103 @@ import topchat.server.protocol.xmpp.stream.element.IQStanza;
 import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
-public class SessionEstablishmentContext extends XMPPContext 
-{	
-	
-	private static Logger logger = Logger.getLogger(ResourceBindingContext.class);
-	
+/**
+ * In this context the session is established.
+ */
+public class SessionEstablishmentContext extends XMPPContext
+{
+
+	private static Logger logger = Logger
+			.getLogger(ResourceBindingContext.class);
+
 	IQStanza iqStanza = null;
 
-	public SessionEstablishmentContext(XMPPConnectionManager mgr) {
-		super(mgr);		
+	/**
+	 * Constructs a SessionEstablishmentContext
+	 * 
+	 * @param mgr
+	 *            the manager handling this context
+	 */
+	public SessionEstablishmentContext(XMPPConnectionManager mgr)
+	{
+		super(mgr);
 	}
 
 	@Override
-	public void processRead(byte[] rd) 
+	public void processRead(byte[] rd)
 	{
 		String s = new String(rd);
-		logger.debug("received: " + s);	
-		
+		logger.debug("received: " + s);
+
 		if (iqStanza == null)
 		{
 			try
 			{
-				iqStanza = processIq(s);
-										
+				iqStanza = getIq(s);
+
 				sendIqResult(iqStanza);
-				
+
 				setDone();
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 				logger.debug("Expected iq not received " + s);
 			}
-		}				
+		}
 	}
-	
-	private IQStanza processIq(String s) throws Exception
+
+	/**
+	 * Obtain the I/Q stanza from the received data
+	 * 
+	 * @param s
+	 *            the received data
+	 * @return the IQStanza
+	 * @throws Exception
+	 *             if IQStanza cannot be retrieved
+	 */
+	private IQStanza getIq(String s) throws Exception
 	{
 		// process start stream
 		IQStanza iqStanza = null;
-		
+
 		Vector<StreamElement> streamElements = null;
-		
-		try {
+
+		try
+		{
 			streamElements = Parser.parse(s);
-		} catch (Exception e) {		
+		} catch (Exception e)
+		{
 			logger.warn("Error in receiving stream start from client" + e);
 			throw new Exception("Expected IQ stanza not received.");
 		}
-		
+
 		for (StreamElement element : streamElements)
 		{
 			if (element.isIq())
 			{
 				iqStanza = (IQStanza) element;
 				logger.debug("IQStanza found " + iqStanza);
-			}
-			else
+			} else
 			{
 				logger.debug("Unexpected element received " + element);
 			}
-		}			
-		
+		}
+
 		return iqStanza;
-			
+
 	}
-	
+
+	/**
+	 * Send the IQ response
+	 * 
+	 * @param iqStanza
+	 *            the received IQStanza
+	 */
 	private void sendIqResult(IQStanza iqStanza)
 	{
-		String msg = "<iq type='result' id='" + iqStanza.getAttribute("id") + "'>" +
-					 "</iq>";
-		
-		getXMPPManager().send(msg.getBytes());	
+		String msg = "<iq type='result' id='" + iqStanza.getAttribute("id")
+				+ "'>" + "</iq>";
+
+		getXMPPManager().send(msg.getBytes());
 	}
-	
+
 }

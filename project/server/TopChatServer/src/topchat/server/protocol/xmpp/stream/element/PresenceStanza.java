@@ -17,27 +17,43 @@
  */
 package topchat.server.protocol.xmpp.stream.element;
 
+/** Describes a presence stanza */
+public class PresenceStanza extends XMPPStanza
+{
 
-public class PresenceStanza extends XMPPStanza {
-
+	/** The X element contained by the presence stanza (if any) */
 	private XElement xElement = null;
-	
-	public PresenceStanza() 
+
+	/** Constructs a PresenceStanza */
+	public PresenceStanza()
 	{
 		super(PRESENCE_STANZA_TYPE);
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "[PRESENCE] id=" + getAttribute("id") + " to=" + getAttribute("to") + " x " + xElement + " status " + getData("status"); 
+		return "[PRESENCE] id=" + getAttribute("id") + " to="
+				+ getAttribute("to") + " x " + xElement + " status "
+				+ getData("status");
 	}
-	
+
+	/**
+	 * Add an x element to a presence stanza
+	 * 
+	 * @param xElement
+	 *            the x element to be added
+	 */
 	public void addXElement(XElement xElement)
 	{
 		this.xElement = xElement;
 	}
-	
+
+	/**
+	 * Obtain the x element inside the presence stanza
+	 * 
+	 * @return the x element
+	 */
 	public XElement getXElement()
 	{
 		return xElement;

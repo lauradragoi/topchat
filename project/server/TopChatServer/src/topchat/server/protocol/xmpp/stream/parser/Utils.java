@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.stream.parser;
 
 import java.io.ByteArrayInputStream;
@@ -33,83 +33,97 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * Contains useful methods for parsing
  */
-public class Utils {
+public class Utils
+{
 
 	/**
 	 * Method used to add a start element to an event writer
+	 * 
 	 * @param eventFactory
 	 * @param writer
 	 * @param prefix
 	 * @param namespaceUri
 	 * @param localName
 	 */
-	static void addStartElement(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String prefix, String namespaceUri, String localName)
+	static void addStartElement(XMLEventFactory eventFactory,
+			XMLEventWriter writer, String prefix, String namespaceUri,
+			String localName)
 	{
-	    XMLEvent event = eventFactory.createStartElement(prefix, 
-	            namespaceUri, localName);
-	    try {
+		XMLEvent event = eventFactory.createStartElement(prefix, namespaceUri,
+				localName);
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 	}
-	
+
 	/**
 	 * Method used to add an end element to an event writer
+	 * 
 	 * @param eventFactory
 	 * @param writer
 	 * @param prefix
 	 * @param namespaceUri
 	 * @param localName
 	 */
-	static void addEndElement(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String prefix, String namespaceUri, String localName)
+	static void addEndElement(XMLEventFactory eventFactory,
+			XMLEventWriter writer, String prefix, String namespaceUri,
+			String localName)
 	{
-	    XMLEvent event = eventFactory.createEndElement(prefix, 
-	            namespaceUri, localName);
-	    try {
+		XMLEvent event = eventFactory.createEndElement(prefix, namespaceUri,
+				localName);
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	/**
 	 * Method used to add a namespace to an event writer
+	 * 
 	 * @param eventFactory
 	 * @param writer
-	 * @param prefix
 	 * @param namespaceUri
 	 */
-	static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String namespaceUri)
+	static void addNamespace(XMLEventFactory eventFactory,
+			XMLEventWriter writer, String namespaceUri)
 	{
 		XMLEvent event = eventFactory.createNamespace(namespaceUri);
-	    try {
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}	
-	
+	}
+
 	/**
 	 * Method used to add a namespace to an event writer
+	 * 
 	 * @param eventFactory
 	 * @param writer
 	 * @param prefix
 	 * @param namespaceUri
 	 */
-	static void addNamespace(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String prefix, String namespaceUri)
+	static void addNamespace(XMLEventFactory eventFactory,
+			XMLEventWriter writer, String prefix, String namespaceUri)
 	{
 		XMLEvent event = eventFactory.createNamespace(prefix, namespaceUri);
-	    try {
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -117,29 +131,35 @@ public class Utils {
 
 	/**
 	 * Method used to add an attribute to an event writer
+	 * 
 	 * @param eventFactory
 	 * @param writer
 	 * @param name
 	 * @param value
 	 */
-	static void addAttribute(XMLEventFactory eventFactory, XMLEventWriter writer,
-			String name, String value)
+	static void addAttribute(XMLEventFactory eventFactory,
+			XMLEventWriter writer, String name, String value)
 	{
 		XMLEvent event = eventFactory.createAttribute(name, value);
-	    try {
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	static void addContent(XMLEventFactory eventFactory, XMLEventWriter writer, String content)
+
+	static void addContent(XMLEventFactory eventFactory, XMLEventWriter writer,
+			String content)
 	{
 		XMLEvent event = eventFactory.createCharacters(content);
-	    try {
+		try
+		{
 			writer.add(event);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -147,71 +167,83 @@ public class Utils {
 
 	/**
 	 * Method used to finish writing to an event writer
+	 * 
 	 * @param writer
 	 */
 	static void endWrite(XMLEventWriter writer)
 	{
-		try {
+		try
+		{
 			writer.flush();
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		try {
+
+		try
+		{
 			writer.close();
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Method used for creating an event reader for a message that will be parsed
+	 * Method used for creating an event reader for a message that will be
+	 * parsed
+	 * 
 	 * @param msg
-	 * @return
+	 * @return the XMLEventReader used for reading
 	 */
 	public static XMLEventReader createReader(String msg)
 	{
-		XMLInputFactory factory = XMLInputFactory.newInstance();	
-		
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+
 		// obtain input stream
 		InputStream is = null;
-		try 
+		try
 		{
 			is = new ByteArrayInputStream(msg.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		// create event reader from input stream
 		XMLEventReader reader = null;
-		try 
+		try
 		{
 			reader = factory.createXMLEventReader(is);
-		} catch (XMLStreamException e) {			
+		} catch (XMLStreamException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		return reader;
 	}
 
 	/**
 	 * Method used for creating an event writer using the provided output stream
+	 * 
 	 * @param baos
-	 * @return
+	 * @return the XMLEventWriter to be used for writing
 	 */
 	public static XMLEventWriter createWriter(ByteArrayOutputStream baos)
 	{
-		XMLOutputFactory factory      = XMLOutputFactory.newInstance();
-		
-	    XMLEventWriter writer = null;
-		try {
+		XMLOutputFactory factory = XMLOutputFactory.newInstance();
+
+		XMLEventWriter writer = null;
+		try
+		{
 			writer = factory.createXMLEventWriter(baos);
-		} catch (XMLStreamException e) {
+		} catch (XMLStreamException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		return writer;
 	}
 

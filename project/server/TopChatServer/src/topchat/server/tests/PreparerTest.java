@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.tests;
 
 import java.util.Vector;
@@ -26,77 +26,90 @@ import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 import junit.framework.TestCase;
 
-public class PreparerTest  extends TestCase {
-		
+/**
+ * Contains methods used for testing the Preparer implementation
+ */
+public class PreparerTest extends TestCase
+{
+
 	@Override
-	protected void setUp() { 		
+	protected void setUp()
+	{
 	}
-	
+
 	/**
 	 * Test writing correct xml as start of features message
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareFeatures() throws Exception {
-		
+	public void testPrepareFeatures() throws Exception
+	{
+
 		setName("Testing if features is correctly created");
-		
+
 		Features ft = new Features(true);
-		
-		String result = Preparer.prepareFeatures(ft);		
-		
+
+		String result = Preparer.prepareFeatures(ft);
+
 		Vector<StreamElement> streamElements = Parser.parse(result);
-		
+
 		for (StreamElement element : streamElements)
 		{
 			if (element.isFeatures())
 			{
 				Features newFt = (Features) element;
-		
-				assertEquals("use of tls not detected", true,  newFt.usesTLS() );
+
+				assertEquals("use of tls not detected", true, newFt.usesTLS());
 			}
 		}
-	}		
-	
+	}
+
 	/**
 	 * Test writing correct xml as start of features message
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareFeaturesSASL() throws Exception {
-		
+	public void testPrepareFeaturesSASL() throws Exception
+	{
+
 		setName("Testing if features is correctly created");
-		
+
 		Features ft = new Features(false, true);
-		
-		String result = Preparer.prepareFeatures(ft);		
-		
+
+		String result = Preparer.prepareFeatures(ft);
+
 		Vector<StreamElement> streamElements = Parser.parse(result);
-		
+
 		for (StreamElement element : streamElements)
 		{
 			if (element.isFeatures())
 			{
 				Features newFt = (Features) element;
-		
-				assertEquals("use of sals not detected", true,  newFt.usesSASL() );
+
+				assertEquals("use of sals not detected", true, newFt.usesSASL());
 			}
 		}
-	}	
-	
-	
+	}
+
 	/**
 	 * Test writing correct xml as start of features message
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareFeaturesBind() throws Exception {
-		
+	public void testPrepareFeaturesBind() throws Exception
+	{
+
 		setName("Testing if features is correctly created");
-		
+
 		Features ft = new Features(false, false, true);
-		
-		String result = Preparer.prepareFeatures(ft);		
-		
+
+		String result = Preparer.prepareFeatures(ft);
+
 		Vector<StreamElement> streamElements = Parser.parse(result);
-		
+
 		for (StreamElement element : streamElements)
 		{
 			if (element.isFeatures())
@@ -105,62 +118,74 @@ public class PreparerTest  extends TestCase {
 				Features newFt = (Features) element;
 			}
 		}
-	}	
-		
-	
+	}
+
 	/**
 	 * Test writing correct xml as start of 'proceed' message
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareProceed() throws Exception {
-		
+	public void testPrepareProceed() throws Exception
+	{
+
 		setName("Testing if 'proceed' is correctly created");
-						
+
 		String result = Preparer.prepareProceed();
-		
-		assertEquals("<proceed xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\">" +
-				"</proceed>", result);
+
+		assertEquals("<proceed xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\">"
+				+ "</proceed>", result);
 	}
-	
+
 	/**
 	 * Test writing correct xml as tls failure
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareTLSFailure() throws Exception {
-		
+	public void testPrepareTLSFailure() throws Exception
+	{
+
 		setName("Testing if tls failure is correctly created");
-						
+
 		String result = Preparer.prepareTLSFailure();
-		
-		assertEquals("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\">" +
-				"</failure></stream:stream>", result);
-	}	
-	
+
+		assertEquals("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\">"
+				+ "</failure></stream:stream>", result);
+	}
+
 	/**
 	 * Test writing correct xml as start of stream message
+	 * 
 	 * @throws Exception
+	 *             if improper parsing
 	 */
-	public void testPrepareStreamStart() throws Exception {
-		
+	public void testPrepareStreamStart() throws Exception
+	{
+
 		setName("Testing if stream start is correctly created");
-		
-		XMPPStream stream = new XMPPStream(null, "example.com", "someid", null, "1.0");
-		
-		String result = Preparer.prepareStreamStart(stream);		
-		
+
+		XMPPStream stream = new XMPPStream(null, "example.com", "someid", null,
+				"1.0");
+
+		String result = Preparer.prepareStreamStart(stream);
+
 		Vector<StreamElement> streamElements = Parser.parse(result);
-		
+
 		for (StreamElement element : streamElements)
 		{
 			if (element.isXMPPStream())
 			{
 				XMPPStream newStream = (XMPPStream) element;
-		
-				assertEquals("'version' incorrectly set", "1.0",  newStream.getVersion() );
+
+				assertEquals("'version' incorrectly set", "1.0", newStream
+						.getVersion());
 				assertEquals("'to' incorrectly set ", null, newStream.getTo());
-				assertEquals("'from' incorrectly set ", "example.com", newStream.getFrom());
-				assertEquals("'id' incorrectly set ", "someid", newStream.getId());
+				assertEquals("'from' incorrectly set ", "example.com",
+						newStream.getFrom());
+				assertEquals("'id' incorrectly set ", "someid", newStream
+						.getId());
 			}
-		}		
-	}	
+		}
+	}
 }

@@ -17,62 +17,75 @@
  */
 package topchat.server.protocol.xmpp.stream.element;
 
-
 /**
  * Describes the XML stream used for communication.
  * 
  * Stream attributes:
  * 
- *           |  initiating to receiving  |  receiving to initiating
- *  ---------+---------------------------+-----------------------
- *	to       |  hostname of receiver     |  silently ignored
- *	from     |  silently ignored         |  hostname of receiver
- *	id       |  silently ignored         |  session key
- *	xml:lang |  default language         |  default language
- *	version  |  signals XMPP 1.0 support |  signals XMPP 1.0 support
+ * | initiating to receiving | receiving to initiating
+ * ---------+---------------------------+----------------------- to | hostname
+ * of receiver | silently ignored from | silently ignored | hostname of receiver
+ * id | silently ignored | session key xml:lang | default language | default
+ * language version | signals XMPP 1.0 support | signals XMPP 1.0 support
  * 
  */
-public class XMPPStream extends StreamElement implements Constants {
+public class XMPPStream extends StreamElement implements Constants
+{
 
 	private String to = null;
 	private String from = null;
 	private String id = null;
 	private String lang = null;
 	private String version = null;
-	
-	public XMPPStream(String to, String from, String id, String lang, String version)
+
+	/**
+	 * Constructs an XMPPStream
+	 * 
+	 * @param to
+	 *            the to field
+	 * @param from
+	 *            the from field
+	 * @param id
+	 *            the id of the stream
+	 * @param lang
+	 *            the language
+	 * @param version
+	 *            the version
+	 */
+	public XMPPStream(String to, String from, String id, String lang,
+			String version)
 	{
 		super(XMPPSTREAM_TYPE);
-		
+
 		this.to = to;
 		this.from = from;
 		this.id = id;
 		this.lang = lang;
 		this.version = version;
 	}
-	
+
 	public String getTo()
 	{
 		return to;
 	}
-	
+
 	public String getFrom()
 	{
 		return from;
 	}
-	
+
 	public String getVersion()
 	{
 		return version;
 	}
-	
+
 	public String getId()
 	{
 		return id;
 	}
-	
+
 	public String getLang()
 	{
 		return lang;
-	}	
+	}
 }
