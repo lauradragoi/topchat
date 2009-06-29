@@ -14,55 +14,71 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.entities;
 
-public class RoomParticipant {
+/**
+ * Describes a user that has joined a room
+ */
+public class RoomParticipant
+{
 
+	/** The User information */
 	protected User user = null;
+	/** The affiliation of the user in the room */
 	protected String affiliation = null;
+	/** The role of the user in the room */
 	protected String role = null;
+	/** The nickname of the user in the room */
 	protected String roomUser = null;
-	
-	
+
+	/** Constructs a RoomParticipant */
 	public RoomParticipant()
 	{
-		
+
 	}
-	
+
+	/**
+	 * Constructs a RoomParticipant
+	 * 
+	 * @param user
+	 *            the User information
+	 * @param roomUser
+	 *            the nickname of the user in the room
+	 */
 	public RoomParticipant(User user, String roomUser)
 	{
 		this.user = user;
 		this.roomUser = roomUser;
 		affiliation = "none";
-		role = "participant";		
+		role = "participant";
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "[PARTICIPANT] " + user.toString() + " ROOM_USER " + roomUser + 
-				" affiliation " + affiliation + " role " + role;
+		return "[PARTICIPANT] " + user.toString() + " ROOM_USER " + roomUser
+				+ " affiliation " + affiliation + " role " + role;
 	}
-	
+
 	public String getRoomUser()
 	{
 		return roomUser;
 	}
-	
+
 	public String getRole()
 	{
 		return role;
 	}
-	
+
 	public String getAffiliation()
 	{
 		return affiliation;
 	}
-	
+
 	public User getUser()
 	{
 		return user;
 	}
-	
+
 }

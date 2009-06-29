@@ -17,30 +17,57 @@
  */
 package topchat.server.protocol.xmpp.stream.element;
 
-public class IQStanza extends XMPPStanza {
-	
+/**
+ * Describes an I/Q stanza
+ */
+public class IQStanza extends XMPPStanza
+{
+
+	/** The query stanza contained by the IQStanza (if any) */
 	private Query query = null;
 
+	/**
+	 * Constructs an IQStanza
+	 */
 	public IQStanza()
 	{
 		super(IQSTANZA_TYPE);
 	}
-	
+
+	/**
+	 * 
+	 * @return true if the type of the IQStanza is get
+	 */
 	public boolean isGet()
 	{
 		return "get".equals(getAttribute("type"));
 	}
-	
+
+	/**
+	 * 
+	 * @return true if the type of the IQStanza is set
+	 */
 	public boolean isSet()
 	{
 		return "set".equals(getAttribute("type"));
 	}
-	
+
+	/**
+	 * Adds a query to an IQStanza
+	 * 
+	 * @param query
+	 *            the query to be added
+	 */
 	public void addQuery(Query query)
 	{
 		this.query = query;
 	}
-	
+
+	/**
+	 * Obtain the query inside the IQStanza
+	 * 
+	 * @return the query
+	 */
 	public Query getQuery()
 	{
 		return query;

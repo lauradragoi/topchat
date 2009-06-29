@@ -14,38 +14,33 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.stream.element;
 
-public class XElement extends XMPPStanza {
+/**
+ * Describes an x element
+ */
+public class XElement extends XMPPStanza
+{
+	/** Constructs a XElement */
+	public XElement()
+	{
+		super(X_TYPE);
+	}
 
-		private String namespace = null;
-		
-		public XElement() 
-		{
-			super(X_TYPE);
-		}
-		
-		public void addNamespace(String namespace)
-		{
-			this.namespace = namespace;
-		}
-		
-		public String getNamespace()
-		{
-			return namespace;
-		}
-		
-		
-		@Override
-		public String toString()
-		{
-			return "[X] namespace " + getNamespace(); 
-		}
-		
-		public boolean isMUC()
-		{
-			return "http://jabber.org/protocol/muc".equals(namespace);
-		}
-			
+	@Override
+	public String toString()
+	{
+		return "[X] namespace " + getNamespace();
+	}
+
+	/**
+	 * 
+	 * @return true if the x element is a MUC element
+	 */
+	public boolean isMUC()
+	{
+		return "http://jabber.org/protocol/muc".equals(namespace);
+	}
+
 }

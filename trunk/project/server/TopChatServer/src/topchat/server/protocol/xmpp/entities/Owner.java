@@ -14,11 +14,23 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.entities;
 
-public class Owner extends RoomParticipant {
-	
+/**
+ * An owner is the RoomParticipant who created the room.
+ */
+public class Owner extends RoomParticipant
+{
+
+	/**
+	 * Constructs an Owner
+	 * 
+	 * @param user
+	 *            the User creating the room
+	 * @param roomUser
+	 *            the nick of the user in the created room
+	 */
 	public Owner(User user, String roomUser)
 	{
 		this.user = user;

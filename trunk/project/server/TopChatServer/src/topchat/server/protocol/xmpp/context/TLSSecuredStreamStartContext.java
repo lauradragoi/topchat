@@ -14,22 +14,26 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.context;
 
 import topchat.server.protocol.xmpp.connmanager.XMPPConnectionManager;
 
 /**
- * Context in which the communication has been secured with TLS
- * and new stream starts are now exchanged and new features are advertised.
+ * Context in which the communication has been secured with TLS and new stream
+ * starts are now exchanged and new features are advertised.
  */
-public class TLSSecuredStreamStartContext extends StreamStartContext {
+public class TLSSecuredStreamStartContext extends StreamStartContext
+{
 
 	/**
 	 * Construct the secure stream start context
+	 * 
 	 * @param mgr
+	 *            the manager handling this context
 	 */
-	public TLSSecuredStreamStartContext(XMPPConnectionManager mgr) {
-		super(mgr);		
-	}	
+	public TLSSecuredStreamStartContext(XMPPConnectionManager mgr)
+	{
+		super(mgr);
+	}
 }

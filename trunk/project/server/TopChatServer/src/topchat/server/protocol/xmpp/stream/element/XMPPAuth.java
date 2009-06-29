@@ -14,15 +14,28 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.stream.element;
 
+/**
+ * Describes an auth element
+ */
+public class XMPPAuth extends StreamElement implements Constants
+{
 
-public class XMPPAuth extends StreamElement implements Constants {
-
+	/** the mechanism used for authentication */
 	public String mechanism;
+	/** the initial challenge sent */
 	public String initialChallenge;
-	
+
+	/**
+	 * Constructs an XMPPAuth element
+	 * 
+	 * @param mechanism
+	 *            the authentication mechanism
+	 * @param initialChallenge
+	 *            the initial challenge
+	 */
 	public XMPPAuth(String mechanism, String initialChallenge)
 	{
 		super(AUTH_TYPE);

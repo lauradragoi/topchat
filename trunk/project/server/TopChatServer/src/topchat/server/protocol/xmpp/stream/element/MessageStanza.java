@@ -17,17 +17,25 @@
  */
 package topchat.server.protocol.xmpp.stream.element;
 
+/**
+ * Describes a message stanza
+ */
+public class MessageStanza extends XMPPStanza
+{
 
-public class MessageStanza extends XMPPStanza {
-
-	public MessageStanza() {
-		super(MESSAGE_STANZA_TYPE);		
+	/**
+	 * Constructs a MessageStanza
+	 */
+	public MessageStanza()
+	{
+		super(MESSAGE_STANZA_TYPE);
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "[MESSAGE] to=" + getAttribute("to") + " type " + getAttribute("type");
+		return "[MESSAGE] to=" + getAttribute("to") + " type "
+				+ getAttribute("type");
 	}
 
 }

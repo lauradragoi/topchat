@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.context;
 
 import java.util.Vector;
@@ -29,41 +29,57 @@ import topchat.server.protocol.xmpp.stream.parser.Parser;
 import topchat.server.protocol.xmpp.stream.parser.Preparer;
 
 /**
- * In this context the server waits for the client
- * to contact it and send in the start of the stream. 
+ * In this context the server waits for the client to contact it and send in the
+ * start of the stream.
  */
-public class StreamStartContext extends XMPPContext {
+public class StreamStartContext extends XMPPContext
+{
 
-	private static Logger logger = Logger.getLogger(StreamStartContext.class);	
-	
-	public StreamStartContext(XMPPConnectionManager mgr) {
-		super(mgr);			
+	private static Logger logger = Logger.getLogger(StreamStartContext.class);
+
+	/**
+	 * Constructs a StreamStartContext
+	 * 
+	 * @param mgr
+	 *            the manager handling this context
+	 */
+	public StreamStartContext(XMPPConnectionManager mgr)
+	{
+		super(mgr);
 	}
 
 	@Override
-	public void processRead(byte[] rd) {		
+	public void processRead(byte[] rd)
+	{
 		String s = new String(rd);
 		logger.debug("Received: " + s);
-		
+
 		try
 		{
 			processStartStream(s);
-					
+
 			sendStreamStart();
-			
+
 			sendFeatures();
-			
+
 			setDone();
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			logger.warn("Error in processing stream start." + e);
 		}
-	}	
-	
+	}
+
+	/**
+	 * Process the received start of stream
+	 * 
+	 * @param s
+	 *            the received data
+	 */
 	private void processStartStream(String s) throws Exception
 	{
-		// process start stream	
-		
-		Vector<StreamElement> streamElements = Parser.parse(s);		
+		// process start stream
+
+		Vector<StreamElement> streamElements = Parser.parse(s);
 
 		for (StreamElement element : streamElements)
 		{
@@ -71,12 +87,11 @@ public class StreamStartContext extends XMPPContext {
 			{
 				XMPPStream stream = (XMPPStream) element;
 				getXMPPManager().setReceivingStream(stream);
-			}
-			else
+			} else
 				throw new Exception("Element is not an XMPPStream. " + s);
 		}
 	}
-	
+
 	/**
 	 * Send the stream start response
 	 */
@@ -84,33 +99,37 @@ public class StreamStartContext extends XMPPContext {
 	{
 		// obtain the start of the stream from the manager
 		XMPPStream stream = null;
-		try {
+		try
+		{
 			stream = getXMPPManager().getStartStream();
-		} catch (Exception e) {			
-			logger.warn("Could not obtain sending stream start " + e);				
+		} catch (Exception e)
+		{
+			logger.warn("Could not obtain sending stream start " + e);
 		}
-		
+
 		// prepare the message to be written
 		String msg = Preparer.prepareStreamStart(stream);
-		
+
 		getXMPPManager().send(msg.getBytes());
 	}
-	
+
 	/**
 	 * Advertise the features currently offered by the server
 	 */
 	private void sendFeatures()
 	{
 		Features ft = null;
-		try {
+		try
+		{
 			ft = getXMPPManager().getFeatures();
-		} catch (Exception e) {			
+		} catch (Exception e)
+		{
 			logger.warn("Could not obtain features info " + e);
 		}
-		
+
 		// prepare the message to be written
 		String msg = Preparer.prepareFeatures(ft);
-		
-		getXMPPManager().send(msg.getBytes());		
-	}	
+
+		getXMPPManager().send(msg.getBytes());
+	}
 }

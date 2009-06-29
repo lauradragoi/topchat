@@ -14,44 +14,44 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.stream.element;
 
-public class Query extends XMPPStanza {
-
-	private String namespace = null;
-	
-	public Query() 
+/**
+ * Describes a query element
+ */
+public class Query extends XMPPStanza
+{
+	/** Constructs a query element */
+	public Query()
 	{
 		super(QUERY_TYPE);
 	}
-	
-	public void addNamespace(String namespace)
-	{
-		this.namespace = namespace;
-	}
-	
-	public String getNamespace()
-	{
-		return namespace;
-	}
-	
-	
+
 	@Override
 	public String toString()
 	{
-		return "[QUERY] namespace " + getNamespace(); 
+		return "[QUERY] namespace " + getNamespace();
 	}
 
+	/**
+	 * Checks whether a query is a Roster query
+	 * 
+	 * @return true if it is a Roster query, false otherwise
+	 */
 	public boolean isRosterQuery()
 	{
 		return "jabber:iq:roster".equals(namespace);
 	}
-	
+
+	/**
+	 * Checks whether a query is a MUC owner query
+	 * 
+	 * @return true if it is a MUC owner query, false otherwise
+	 */
 	public boolean isMUCOwnerQuery()
 	{
 		return "http://jabber.org/protocol/muc#owner".equals(namespace);
 	}
-			
-	
+
 }

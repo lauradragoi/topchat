@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.protocol.xmpp.context;
 
 import java.util.Vector;
@@ -35,167 +35,255 @@ import topchat.server.protocol.xmpp.stream.parser.Parser;
 /**
  * The context in which the client is connected and authenticated
  */
-public class ConnectedClientContext extends XMPPContext 
-{		
-	private static Logger logger = Logger.getLogger(ConnectedClientContext.class);
-	
+public class ConnectedClientContext extends XMPPContext
+{
+	private static Logger logger = Logger
+			.getLogger(ConnectedClientContext.class);
 
-	public ConnectedClientContext(XMPPConnectionManager mgr) {
-		super(mgr);		
+	/**
+	 * Constructs a ConnectedClientContext
+	 * 
+	 * @param mgr
+	 *            the manager of this context
+	 */
+	public ConnectedClientContext(XMPPConnectionManager mgr)
+	{
+		super(mgr);
 	}
 
 	@Override
-	public synchronized void processRead(byte[] rd) 
+	public synchronized void processRead(byte[] rd)
 	{
 		String s = new String(rd);
-		logger.debug("received: " + s);	
-		
+		logger.debug("received: " + s);
+
 		Vector<StreamElement> streamElements = null;
-				
-		try {		
-			streamElements = Parser.parse(s);						
-		} catch (Exception e) {		
+
+		try
+		{
+			streamElements = Parser.parse(s);
+		} catch (Exception e)
+		{
 			logger.warn("Error in parsing " + e);
-			return ;
+			return;
 		}
-		
-		for (StreamElement element : streamElements)		
-			processElement(element);		
-		
-		//	setDone();
+
+		for (StreamElement element : streamElements)
+			processElement(element);
 	}
-		
-	
+
+	/**
+	 * Called to process an XMPP StreamElement
+	 * 
+	 * @param streamElement
+	 *            the element to process
+	 */
 	private synchronized void processElement(StreamElement streamElement)
-	{		
-		
+	{
+
 		if (streamElement.isIq())
 		{
 			IQStanza iqStanza = (IQStanza) streamElement;
 			logger.debug("FOUND IQ " + iqStanza);
-			
-			if (iqStanza.isGet())
-			{
-				logger.debug("iq is get, query" + iqStanza.getQuery());								
-			}
-			else if (iqStanza.isSet())
-			{
-				logger.debug("iq is set " + iqStanza.getQuery());
-				
-				Query query = iqStanza.getQuery();
-				
-				if (query != null)
-				{
-					
-					if (query.isMUCOwnerQuery())
-					{
-						String iqMsg = "<iq type='result' " +
-						"id='" + iqStanza.getAttribute("id") + "'" +
-						"to='" + getXMPPManager().getUser().toString() + "'" +
-						"from='" + iqStanza.getAttribute("to") + "'" +
-						"><query xmlns='http://jabber.org/protocol/muc#owner'></query></iq>";
-			
-						getXMPPManager().send(iqMsg.getBytes());
-					}
-				}
-			}							
-		}
-		else if (streamElement.isPresence())
+
+			proccessIq(iqStanza);
+		} else if (streamElement.isPresence())
 		{
 			PresenceStanza presenceStanza = (PresenceStanza) streamElement;
 			logger.debug("FOUND PRESENCE " + presenceStanza);
-			
-			// this could be a status presence
-			String status = presenceStanza.getData("status");
-				
-			if (status != null)
-				getXMPPManager().getUser().setStatus(status);
-			
-			XElement xElement = presenceStanza.getXElement();
-			
-			if (xElement != null)
-			{
-				// Jabber User Seeks to Enter a Room (Multi-User Chat)
-				if (xElement.isMUC())
-				{
-					// join/add room
-					String to = presenceStanza.getAttribute("to");			
-					
-					if (to != null)
-					{
-						String[] toElements = to.split("/");
-						String roomName = toElements[0];
-						String roomUser = toElements[1];
-						
-						
-						if (getXMPPManager().isRoomCreated(roomName))
-						{
-							Room room = getXMPPManager().joinRoom(roomName, roomUser);
-							
-							for (RoomParticipant participant : room.getParticipants())
-							{
-								
-								// Service Sends Presence from Existing Occupants to New Occupant
-								
-								String presenceMsg = "<presence " +
-									"id='" + presenceStanza.getAttribute("id") + "'" +
-									"to='" + getXMPPManager().getUser().toString() + "'" +
-									"from='" + roomName + "/" + participant.getRoomUser() + "'>" +
-									"<status>"+ participant.getUser().status +"</status>" +
-									"<x xmlns='http://jabber.org/protocol/muc#user'>" +
-									"<item affiliation='" + participant.getAffiliation() + "' jid='" 
-									+ getXMPPManager().getUser().toString() + "'" +
-						    		"role='" + participant.getRole() + "'><reason></reason><actor jid=''/></item>" +					    		
-						    		"</x></presence>";		
-							
-								getXMPPManager().send(presenceMsg.getBytes());
-							}
-							
-						}
-						else
-						{
-							Room room = getXMPPManager().addRoom(roomName, roomUser);
-							
-							// Service Sends Presence from Existing Occupants to New Occupant
-							
-							// Status code 201 means the room was just created
-							for (RoomParticipant participant : room.getParticipants())
-							{
-								
-								// Service Sends Presence from Existing Occupants to New Occupant
-								
-								String presenceMsg = "<presence " +
-									"id='" + presenceStanza.getAttribute("id") + "'" +
-									"to='" + getXMPPManager().getUser().toString() + "'" +
-									"from='" + roomName + "/" + participant.getRoomUser() + "'>" +
-									"<status>"+ participant.getUser().status +"</status>" +
-									"<x xmlns='http://jabber.org/protocol/muc#user'>" +
-									"<item affiliation='" + participant.getAffiliation() + "' jid='" 
-									+ getXMPPManager().getUser().toString() + "'" +
-						    		"role='" + participant.getRole() + "'><reason></reason><actor jid=''/></item>" +
-						    		"<status code='201' />" +
-						    		"</x></presence>";		
-							
-								getXMPPManager().send(presenceMsg.getBytes());
-							}
-						}
-					}					
-				}				
-			}
-			
 
-									
-		}
-		else if (streamElement.isMessage())
+			processPresence(presenceStanza);
+		} else if (streamElement.isMessage())
 		{
 			MessageStanza messageStanza = (MessageStanza) streamElement;
 			logger.debug("FOUND MESSAGE " + messageStanza);
-			
+
 			if ("groupchat".equals(messageStanza.getAttribute("type")))
 			{
 				getXMPPManager().sendGroupchat(messageStanza);
 			}
 		}
 	}
-	
+
+	/**
+	 * Called to process a PresenceStanza
+	 * 
+	 * @param presenceStanza
+	 *            the stanza to be processed
+	 */
+	private void processPresence(PresenceStanza presenceStanza)
+	{
+		processStatus(presenceStanza);
+
+		processXElement(presenceStanza);
+	}
+
+	/**
+	 * Called to process an XElement
+	 * 
+	 * @param presenceStanza
+	 *            the PresenceStanza containing the XElement
+	 */
+	private void processXElement(PresenceStanza presenceStanza)
+	{
+		XElement xElement = presenceStanza.getXElement();
+
+		if (xElement != null)
+		{
+			// Jabber User Seeks to Enter a Room (Multi-User Chat)
+			if (xElement.isMUC())
+			{
+				// join/add room
+				String to = presenceStanza.getAttribute("to");
+
+				if (to != null)
+				{
+					String[] toElements = to.split("/");
+					String roomName = toElements[0];
+					String roomUser = toElements[1];
+
+					if (getXMPPManager().isRoomCreated(roomName))
+					{
+						processJoinRoom(roomName, roomUser, presenceStanza);
+					} else
+					{
+						processAddRoom(roomName, roomUser, presenceStanza);
+					}
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Called to process the add of a new room
+	 * 
+	 * @param roomName
+	 *            the name of the room
+	 * @param roomUser
+	 *            the nickname of the user that adds this room
+	 * @param presenceStanza
+	 *            the PresenceStanza sent to request the creation of this room
+	 */
+	private void processAddRoom(String roomName, String roomUser,
+			PresenceStanza presenceStanza)
+	{
+		Room room = getXMPPManager().addRoom(roomName, roomUser);
+
+		// Service Sends Presence from Existing Occupants to New Occupant
+
+		// Status code 201 means the room was just created
+		for (RoomParticipant participant : room.getParticipants())
+		{
+
+			// Service Sends Presence from Existing Occupants to New Occupant
+
+			String presenceMsg = "<presence " + "id='"
+					+ presenceStanza.getAttribute("id") + "'" + "to='"
+					+ getXMPPManager().getUser().toString() + "'" + "from='"
+					+ roomName + "/" + participant.getRoomUser() + "'>"
+					+ "<status>" + participant.getUser().status + "</status>"
+					+ "<x xmlns='http://jabber.org/protocol/muc#user'>"
+					+ "<item affiliation='" + participant.getAffiliation()
+					+ "' jid='" + getXMPPManager().getUser().toString() + "'"
+					+ "role='" + participant.getRole()
+					+ "'><reason></reason><actor jid=''/></item>"
+					+ "<status code='201' />" + "</x></presence>";
+
+			getXMPPManager().send(presenceMsg.getBytes());
+		}
+	}
+
+	/**
+	 * Called to process that the user in this context joined a room
+	 * 
+	 * @param roomName
+	 *            the name of the room
+	 * @param roomUser
+	 *            the nickname of the user in this room
+	 * @param presenceStanza
+	 *            the PresenceStanza sent for joining the room
+	 */
+	private void processJoinRoom(String roomName, String roomUser,
+			PresenceStanza presenceStanza)
+	{
+		Room room = getXMPPManager().joinRoom(roomName, roomUser);
+
+		for (RoomParticipant participant : room.getParticipants())
+		{
+
+			// Service Sends Presence from Existing Occupants to New Occupant
+
+			String presenceMsg = "<presence " + "id='"
+					+ presenceStanza.getAttribute("id") + "'" + "to='"
+					+ getXMPPManager().getUser().toString() + "'" + "from='"
+					+ roomName + "/" + participant.getRoomUser() + "'>"
+					+ "<status>" + participant.getUser().status + "</status>"
+					+ "<x xmlns='http://jabber.org/protocol/muc#user'>"
+					+ "<item affiliation='" + participant.getAffiliation()
+					+ "' jid='" + getXMPPManager().getUser().toString() + "'"
+					+ "role='" + participant.getRole()
+					+ "'><reason></reason><actor jid=''/></item>"
+					+ "</x></presence>";
+
+			getXMPPManager().send(presenceMsg.getBytes());
+		}
+
+	}
+
+	/**
+	 * Called to process any status information sent with a presence
+	 * 
+	 * @param presenceStanza
+	 *            the PresenceStanza checked for status information
+	 */
+	private void processStatus(PresenceStanza presenceStanza)
+	{
+		// this could be a status presence
+		String status = presenceStanza.getData("status");
+
+		if (status != null)
+			getXMPPManager().getUser().setStatus(status);
+	}
+
+	/**
+	 * Called to process an I/Q stanza
+	 * 
+	 * @param iqStanza
+	 *            the IQStanza to be processed
+	 */
+	private void proccessIq(IQStanza iqStanza)
+	{
+		if (iqStanza.isGet())
+		{
+			logger.debug("iq is get, query" + iqStanza.getQuery());
+		} else if (iqStanza.isSet())
+		{
+			logger.debug("iq is set " + iqStanza.getQuery());
+
+			Query query = iqStanza.getQuery();
+
+			if (query != null)
+			{
+
+				if (query.isMUCOwnerQuery())
+				{
+					String iqMsg = "<iq type='result' "
+							+ "id='"
+							+ iqStanza.getAttribute("id")
+							+ "'"
+							+ "to='"
+							+ getXMPPManager().getUser().toString()
+							+ "'"
+							+ "from='"
+							+ iqStanza.getAttribute("to")
+							+ "'"
+							+ "><query xmlns='http://jabber.org/protocol/muc#owner'></query></iq>";
+
+					getXMPPManager().send(iqMsg.getBytes());
+				}
+			}
+		}
+	}
+
 }

@@ -8,6 +8,11 @@ import java.util.Vector;
  */
 public class Utils {
 	
+	/**
+	 * Convert a ByteBuffer to a byte array
+	 * @param byteBuffer the ByteBuffer to be converted
+	 * @return the byte array
+	 */
 	public static byte[] ByteBufferToByteArray(ByteBuffer byteBuffer)
 	{
 		byteBuffer.flip();
@@ -20,6 +25,11 @@ public class Utils {
 		return byteArray;
 	}
 	
+	/**
+	 * Convert a vector of byte arrays to a byte array
+	 * @param vector the vector of byte arrays
+	 * @return a byte array containing the concatenated arrays in the vector
+	 */
 	public static byte[] ByteArrayVectorToByteArray(Vector<byte[]> vector)
 	{
 		int count = 0;
