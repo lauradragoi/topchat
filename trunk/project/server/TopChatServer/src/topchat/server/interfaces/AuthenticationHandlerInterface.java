@@ -14,10 +14,24 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface AuthenticationHandlerInterface {
+/**
+ * Interface implemented by the module handling the authentication.
+ */
+public interface AuthenticationHandlerInterface
+{
 
+	/**
+	 * This method is called to check if the credentials of a user are valid
+	 * 
+	 * @param username
+	 *            the name of the user
+	 * @param password
+	 *            the password of the user
+	 * 
+	 * @return true if the user credentials are valid, false otherwise
+	 */
 	public boolean checkUser(String username, String password);
 }

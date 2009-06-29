@@ -14,19 +14,31 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface DataHandlerInterface {
+/**
+ * Interface implemented by the module in charge of handling the received and
+ * sent data information
+ * 
+ */
+public interface DataHandlerInterface
+{
 
 	/**
+	 * Method called in order to determine the handling of the received data
+	 * 
 	 * @param s
+	 *            the received data
 	 */
-	void saveReceived(String s);
+	void handleReceived(String s);
 
 	/**
+	 * Method called in order to determine the handling of the sent data
+	 * 
 	 * @param s
+	 *            the sent data
 	 */
-	void saveSent(String s);
+	void handleSent(String s);
 
 }

@@ -98,7 +98,7 @@ public class DataHandler implements DataHandlerInterface
 	 *            the received message
 	 */
 	@Override
-	public void saveReceived(String s)
+	public void handleReceived(String s)
 	{
 
 		HashMap<String, String> values = new HashMap<String, String>();
@@ -118,7 +118,7 @@ public class DataHandler implements DataHandlerInterface
 	 *            the sent message
 	 */
 	@Override
-	public void saveSent(String s)
+	public void handleSent(String s)
 	{
 		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("type", "sent");

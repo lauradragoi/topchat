@@ -35,15 +35,15 @@ import topchat.server.interfaces.GuiMediator;
  * Server GUI implementation
  */
 @SuppressWarnings("serial")
-public class ServerGui extends JPanel implements Gui, GuiConstants {
+public class ServerGui extends JPanel implements Gui, GuiConstants
+{
 
 	/** Connection to mediator */
-	@SuppressWarnings("unused")
 	private GuiMediator med = null;
 
 	/** List showing connected users */
 	private ListPanel usersPanel;
-	/** List showing existing rooms */	
+	/** List showing existing rooms */
 	private ListPanel roomsPanel;
 
 	/** Label used for showing application status */
@@ -52,16 +52,17 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	private static Logger logger = Logger.getLogger(ServerGui.class);
 
 	/**
-	 * Initiates the GUI and connects it to the mediator
+	 * Initiates the GUI and connects it to the GuiMediator
 	 * 
 	 * @param med
+	 *            the GuiMediator connected to the Gui
 	 */
-	public ServerGui(GuiMediator med) 
+	public ServerGui(GuiMediator med)
 	{
 		init();
 
 		setMediator(med);
-		med.setGui(this);
+		this.med.setGui(this);
 
 		logger.info("GUI initiated");
 	}
@@ -69,7 +70,8 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	/**
 	 * Creates the GUI frame
 	 */
-	private void build() {
+	private void build()
+	{
 		JFrame frame = new JFrame(GuiConstants.APP_NAME);
 		frame.setContentPane(this);
 		frame.setSize(APP_WIDTH, APP_HEIGHT);
@@ -77,38 +79,40 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 		frame.setVisible(true);
 	}
 
+	/**
+	 * Show the interface
+	 */
 	@Override
-	public void show() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+	public void show()
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
 				build();
 			}
 		});
 	}
 
 	@Override
-	public void setMediator(GuiMediator med) {
+	public void setMediator(GuiMediator med)
+	{
 		this.med = med;
 	}
 
 	/**
 	 * Initializes the GUI
 	 */
-	private void init() {
-		usersPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION, 
-									"users", 
-									USERS_LIST_MIN_W,
-									USERS_LIST_MIN_H);
+	private void init()
+	{
+		usersPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION,
+				"users", USERS_LIST_MIN_W, USERS_LIST_MIN_H);
 
-		
-		
-		roomsPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION, 
-									"rooms", 
-									ROOMS_LIST_MIN_W,
-									ROOMS_LIST_MIN_H);
+		roomsPanel = new ListPanel(ListSelectionModel.SINGLE_SELECTION,
+				"rooms", ROOMS_LIST_MIN_W, ROOMS_LIST_MIN_H);
 
 		JSplitPane horizSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-											roomsPanel, usersPanel);
+				roomsPanel, usersPanel);
 		horizSplitPane.setResizeWeight(1);
 
 		statusLabel = new JLabel(DEFAULT_STATUS);
@@ -119,13 +123,22 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 	}
 
 	@Override
-	public void setStatus(String msg) {
+	public void setStatus(String msg)
+	{
 		statusLabel.setText(msg);
 	}
 
+	/**
+	 * Add a user
+	 * 
+	 * @param user
+	 *            the user that is added
+	 */
 	@Override
-	public void addUser(final String user) {
-		SwingUtilities.invokeLater(new Runnable() {
+	public void addUser(final String user)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
 			public void run()
 			{
 				usersPanel.getListModel().addElement(user);
@@ -133,20 +146,35 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 		});
 	}
 
+	/**
+	 * Add a room
+	 * 
+	 * @param room
+	 *            the room that is added
+	 */
 	@Override
-	public void addRoom(final String room) {
-		SwingUtilities.invokeLater(new Runnable() {
+	public void addRoom(final String room)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
 			public void run()
 			{
 				roomsPanel.getListModel().addElement(room);
 			}
 		});
 	}
-	
 
+	/**
+	 * Remove a user
+	 * 
+	 * @param user
+	 *            the user to be removed
+	 */
 	@Override
-	public void removeUser(final String user) {
-		SwingUtilities.invokeLater(new Runnable() {
+	public void removeUser(final String user)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
 			public void run()
 			{
 				usersPanel.getListModel().removeElement(user);
@@ -154,14 +182,22 @@ public class ServerGui extends JPanel implements Gui, GuiConstants {
 		});
 	}
 
+	/**
+	 * Remove a room
+	 * 
+	 * @param room
+	 *            the room to be removed
+	 */
 	@Override
-	public void removeRoom(final String room) {
-		SwingUtilities.invokeLater(new Runnable() {
+	public void removeRoom(final String room)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
 			public void run()
 			{
 				roomsPanel.getListModel().removeElement(room);
 			}
 		});
-	}	
+	}
 
 }

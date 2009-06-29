@@ -20,7 +20,7 @@ package topchat.server.gui;
 /**
  * Interface containing constants used in the GUI
  */
-public interface GuiConstants 
+public interface GuiConstants
 {
 	public static final int APP_WIDTH = 700;
 	public static final int APP_HEIGHT = 500;

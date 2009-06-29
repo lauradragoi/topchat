@@ -20,7 +20,8 @@ package topchat.server.net;
 /**
  * Constants used by the network module
  */
-public interface NetConstants 
+public interface NetConstants
 {
+	/** The size of the buffers */
 	public static final int BUFFER_SIZE = 8192;
 }

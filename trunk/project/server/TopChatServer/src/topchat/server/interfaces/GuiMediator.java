@@ -18,11 +18,17 @@
 package topchat.server.interfaces;
 
 /**
- * Interface describing the entity that acts as a
- * mediator for the GUI components
+ * Interface describing the entity that acts as a mediator for the GUI
+ * components
  */
-public interface GuiMediator {
+public interface GuiMediator
+{
 
-	/** Connects to the GUI */
+	/**
+	 * Connects to the GUI
+	 * 
+	 * @param gui
+	 *            the Gui module
+	 */
 	public void setGui(Gui gui);
 }

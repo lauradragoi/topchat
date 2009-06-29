@@ -25,26 +25,60 @@ import javax.net.ssl.SSLEngine;
  * Interface describing the network module of the server
  * 
  */
-public interface Net {
+public interface Net
+{
 
-	/** Connects to the mediator */
+	/**
+	 * Connects to the mediator
+	 * 
+	 * @param med
+	 *            the mediator to which the network module connects
+	 */
 	public void setMediator(NetMediator med);
-	
-	/** Connects to the protocol */
+
+	/**
+	 * Connects to the protocol
+	 * 
+	 * @param prot
+	 *            the protocol to which the network module connects
+	 */
 	public void setProtocol(Protocol prot);
-	
-	/** Starts the network module and sets the port for listening */
-	public void start(int port);	
-	
-	/** Send some data on a specific socket */
+
+	/**
+	 * Starts the network module and sets the port for listening
+	 * 
+	 * @param port
+	 *            the port used for listening
+	 */
+	public void start(int port);
+
+	/**
+	 * Send some data on a specific socket
+	 * 
+	 * @param socket
+	 *            the socket on which data will be sent
+	 * @param data
+	 *            the data to be sent
+	 */
 	public void send(SocketChannel socket, byte[] data);
-	
-	/** 
-	 * Send data on a specific socket without modifying it 
-	 * ( TLS encoding, etc )
+
+	/**
+	 * Send data on a specific socket without modifying it ( TLS encoding, etc )
+	 * 
+	 * @param socket
+	 *            the socket on which data will be sent
+	 * @param data
+	 *            the raw data to be sent
 	 */
 	public void sendRaw(SocketChannel socket, byte[] data);
 
-	/** Initiate a request to secure the stream using TLS on one socket */
-	public void secure(SocketChannel socketChannel, SSLEngine sslEngine);	
+	/**
+	 * Initiate a request to secure the stream using TLS on one socket
+	 * 
+	 * @param socketChannel
+	 *            the socket on which TLS should be used
+	 * @param sslEngine
+	 *            the SSLEngine used for securing the channel with TLS
+	 */
+	public void secure(SocketChannel socketChannel, SSLEngine sslEngine);
 }
