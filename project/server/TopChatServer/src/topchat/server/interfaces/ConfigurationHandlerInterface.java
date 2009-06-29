@@ -14,10 +14,24 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface ConfigurationHandlerInterface {
+/**
+ * Interface implemented by the module handling the configuration options of the
+ * server
+ * 
+ * 
+ */
+public interface ConfigurationHandlerInterface
+{
 
+	/**
+	 * Method called in order to obtain the value of a property
+	 * 
+	 * @param property
+	 *            the name of the requested property
+	 * @return the value of the property
+	 */
 	public String getProperty(String property);
 }

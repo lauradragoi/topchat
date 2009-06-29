@@ -14,10 +14,21 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface ConfigurationMediator 
-{	
-	public void setConfigurationHandler(ConfigurationHandlerInterface confHandler);
+/**
+ * Interface implemented by the mediator that connects the configuration module
+ * with the other components of the server.
+ */
+public interface ConfigurationMediator
+{
+	/**
+	 * Method called to set the configuration module connected to the mediator.
+	 * 
+	 * @param confHandler
+	 *            the configuration module
+	 */
+	public void setConfigurationHandler(
+			ConfigurationHandlerInterface confHandler);
 }

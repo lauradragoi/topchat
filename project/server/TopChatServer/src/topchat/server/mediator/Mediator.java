@@ -38,16 +38,21 @@ import topchat.server.interfaces.ProtocolMediator;
  * Mediates the interaction between the server components
  * 
  */
-public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, DataMediator,
-			AuthenticationMediator, ConfigurationMediator
+public class Mediator implements GuiMediator, NetMediator, ProtocolMediator,
+		DataMediator, AuthenticationMediator, ConfigurationMediator
 {
-
+	/** The Gui module */
 	private Gui gui = null;
+	/** The network module */
 	private Net net = null;
+	/** The protocol module */
 	private Protocol prot = null;
-	
+
+	/** The data handling module */
 	private DataHandlerInterface data = null;
+	/** The configuration module */
 	private ConfigurationHandlerInterface conf = null;
+	/** The authentication module */
 	private AuthenticationHandlerInterface auth = null;
 
 	private static Logger logger = Logger.getLogger(Mediator.class);
@@ -56,14 +61,16 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 	 * Starts the interaction with the other components of the server
 	 * application
 	 */
-	public void socialize() 
-	{		
+	public void socialize()
+	{
 		/** Start protocol */
 		prot.start(net);
 
 		/** Start the GUI */
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
 				gui.show();
 			}
 		});
@@ -71,15 +78,23 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 
 	/**
 	 * Relates to the GUI component
+	 * 
+	 * @param gui
+	 *            the gui module
 	 */
-	public void setGui(Gui gui) {
+	public void setGui(Gui gui)
+	{
 		this.gui = gui;
 	}
 
 	/**
 	 * Relates to the network component
+	 * 
+	 * @param net
+	 *            the network module
 	 */
-	public void setNet(Net net) {
+	public void setNet(Net net)
+	{
 		this.net = net;
 	}
 
@@ -87,14 +102,15 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 	 * Relates to the protocol component
 	 * 
 	 * @param prot
+	 *            the protocol module
 	 */
-	public void setProtocol(Protocol prot) {
+	public void setProtocol(Protocol prot)
+	{
 		this.prot = prot;
 	}
 
-
 	@Override
-	public void addUser(final String user) 
+	public void addUser(final String user)
 	{
 		gui.addUser(user);
 		gui.setStatus("User " + user + " logged in.");
@@ -102,89 +118,80 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator, Dat
 	}
 
 	@Override
-	public void addRoom(final String room) {
+	public void addRoom(final String room)
+	{
 		gui.addRoom(room);
 		gui.setStatus("Room " + room + " created.");
 		logger.info("Room " + room + " created.");
 	}
-	
+
 	@Override
-	public void removeUser(final String user) 
+	public void removeUser(final String user)
 	{
 		gui.removeUser(user);
 		gui.setStatus("User " + user + " logged out.");
 		logger.info("User " + user + " logged out.");
 	}
 
-	
 	@Override
-	public void removeRoom(final String room) {
+	public void removeRoom(final String room)
+	{
 		gui.removeRoom(room);
 		gui.setStatus("Room " + room + " destroyed.");
 		logger.info("Room " + room + " destroyed.");
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.DataMediator#setDataManager(topchat.server.interfaces.DataManagerInterface)
-	 */
 	@Override
-	public void setDataHandler(DataHandlerInterface dataManager) {
-		data = dataManager;		
+	public void setDataHandler(DataHandlerInterface dataManager)
+	{
+		data = dataManager;
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.AuthenticationMediator#setAuthenticationHandler(topchat.server.interfaces.AuthenticationHandlerInterface)
-	 */
 	@Override
 	public void setAuthenticationHandler(
-			AuthenticationHandlerInterface authHandler) {
-		this.auth = authHandler;		
+			AuthenticationHandlerInterface authHandler)
+	{
+		this.auth = authHandler;
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.ConfigurationMediator#setConfigurationHandler(topchat.server.interfaces.ConfigurationHandlerInterface)
-	 */
 	@Override
 	public void setConfigurationHandler(
-			ConfigurationHandlerInterface confHandler) {
+			ConfigurationHandlerInterface confHandler)
+	{
 		this.conf = confHandler;
 	}
 
-	
 	@Override
-	public String getProperty(String property) throws Exception {
+	public String getProperty(String property) throws Exception
+	{
 		String value = conf.getProperty(property);
-		
+
 		if (value == null)
 			throw new Exception("Value must be set for " + property);
-		
+
 		return value;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.ProtocolMediator#checkUser(java.lang.String, java.lang.String)
-	 */
 	@Override
-	public boolean checkUser(String username, String pass) {
-		
+	public boolean checkUser(String username, String pass)
+	{
+
 		return auth.checkUser(username, pass);
 	}
-	
+
+	@Override
 	public void announceRead(String s)
 	{
 		logger.debug("Announce read " + s);
-		
-		data.saveReceived(s);
+
+		data.handleReceived(s);
 	}
 
-	/* (non-Javadoc)
-	 * @see topchat.server.interfaces.ProtocolMediator#announceSend(java.lang.String)
-	 */
 	@Override
-	public void announceSend(String s) {
+	public void announceSend(String s)
+	{
 		logger.debug("Announce send " + s);
-		
-		data.saveSent(s);
+
+		data.handleSent(s);
 	}
 }

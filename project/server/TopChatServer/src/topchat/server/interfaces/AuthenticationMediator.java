@@ -14,18 +14,36 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface AuthenticationMediator {
-	
-	public void setAuthenticationHandler(AuthenticationHandlerInterface authHandler);
-
+/**
+ * Interface implemented by the mediator module that connects the authentication
+ * module to the rest of the modules of the application.
+ * 
+ */
+public interface AuthenticationMediator
+{
 
 	/**
+	 * Method called to set the authentication module connected to the mediator
+	 * 
+	 * @param authHandler
+	 *            the authentication module
+	 */
+	public void setAuthenticationHandler(
+			AuthenticationHandlerInterface authHandler);
+
+	/**
+	 * Method called by the authentication module in order to obtain the value
+	 * of a server property.
+	 * 
 	 * @param property
-	 * @return
+	 *            the name of the property requested
+	 * 
+	 * @return the value of the property
 	 * @throws Exception
+	 *             if the property is not properly set
 	 */
 	String getProperty(String property) throws Exception;
 }

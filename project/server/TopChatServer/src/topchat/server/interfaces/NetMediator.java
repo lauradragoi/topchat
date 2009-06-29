@@ -18,11 +18,17 @@
 package topchat.server.interfaces;
 
 /**
- * Interface describing the entity that acts as a
- * mediator for the network components
+ * Interface describing the entity that acts as a mediator for the network
+ * components
  */
-public interface NetMediator {
+public interface NetMediator
+{
 
-	/** Connects to the net module */ 
+	/**
+	 * Connects to the net module
+	 * 
+	 * @param net
+	 *            the network module that is connected to a module
+	 */
 	public void setNet(Net net);
 }

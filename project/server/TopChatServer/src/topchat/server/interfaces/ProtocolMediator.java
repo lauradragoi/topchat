@@ -18,44 +18,77 @@
 package topchat.server.interfaces;
 
 /**
- * Interface describing the entity that acts as a
- * mediator for the protocol components
+ * Interface describing the entity that acts as a mediator for the protocol
+ * components
  */
-public interface ProtocolMediator {
-	
-	/** Connect to the protocol */
+public interface ProtocolMediator
+{
+
+	/**
+	 * Connect to the protocol
+	 * 
+	 * @param prot
+	 *            the protocol connected to the mediator
+	 */
 	public void setProtocol(Protocol prot);
 
-	/** Called when a user is added */
+	/**
+	 * Called when a user is added
+	 * 
+	 * @param user
+	 *            the name of the added user
+	 */
 	public void addUser(String user);
 
-	/** Called when a room is added */
+	/**
+	 * Called when a room is added
+	 * 
+	 * @param room
+	 *            the name of the added room
+	 */
 	public void addRoom(String room);
 
 	/**
+	 * Called when a room is removed
+	 * 
 	 * @param roomName
+	 *            the name of the removed room
 	 */
 	public void removeRoom(String roomName);
 
 	/**
+	 * Called when a user is removed
+	 * 
 	 * @param string
+	 *            the name of the removed user
 	 */
 	public void removeUser(String string);
 
 	/**
+	 * 
+	 * Checks the credential of a certain user
+	 * 
 	 * @param username
+	 *            the name of the user
 	 * @param pass
-	 * @return
+	 *            the password of the user
+	 * @return true if the credentials of the user are valid, false otherwise
 	 */
 	public boolean checkUser(String username, String pass);
 
 	/**
+	 * Called to announce that data was read
+	 * 
 	 * @param s
+	 *            the read data
 	 */
 	public void announceRead(String s);
 
 	/**
+	 * Called to announce that data was sent
+	 * 
 	 * @param string
+	 *            the sent data
 	 */
 	public void announceSend(String string);
 }

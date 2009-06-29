@@ -14,16 +14,31 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.interfaces;
 
-public interface DataMediator {
+/**
+ * Interface implemented by the mediator which connects the data handling module
+ * to the rest of the server.
+ * 
+ */
+public interface DataMediator
+{
 
+	/**
+	 * Method called to set the data module that is connected to the mediator.
+	 * 
+	 * @param dataHandler
+	 *            the data handling module
+	 */
 	public void setDataHandler(DataHandlerInterface dataHandler);
 
 	/**
+	 * Method called to obtain a property configured by the server.
+	 * 
 	 * @param string
-	 * @return
+	 *            the name of the property
+	 * @return the value of the property
 	 */
 	public String getProperty(String string) throws Exception;
 }

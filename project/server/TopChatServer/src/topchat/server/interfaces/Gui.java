@@ -21,27 +21,57 @@ package topchat.server.interfaces;
  * Interface describing the GUI of the server
  * 
  */
-public interface Gui {
+public interface Gui
+{
 
 	/** Displays the GUI */
 	public void show();
 
-	/** Connects the GUI to the Mediator */
+	/**
+	 * Connects the GUI to the Mediator
+	 * 
+	 * @param med
+	 *            the mediator to which the Gui connects
+	 */
 	public void setMediator(GuiMediator med);
 
-	/** Informs the GUI that a new user logged in. */
+	/**
+	 * Informs the GUI that a new user logged in.
+	 * 
+	 * @param user
+	 *            the name of the user that logged in
+	 */
 	public void addUser(String user);
 
-	/** Informs the GUI that a new room was created */
+	/**
+	 * Informs the GUI that a new room was created
+	 * 
+	 * @param room
+	 *            the name of the room
+	 */
 	public void addRoom(String room);
 
-
-	/** Informs the GUI that a new user logged in. */
+	/**
+	 * Informs the GUI that a user logged out.
+	 * 
+	 * @param user
+	 *            the name of the user
+	 */
 	public void removeUser(String user);
 
-	/** Informs the GUI that a new room was created */
+	/**
+	 * Informs the GUI that a room was destroyed
+	 * 
+	 * @param room
+	 *            the name of the room
+	 */
 	public void removeRoom(String room);
-	
-	/** Sets the status message of the GUI */
+
+	/**
+	 * Sets the status message of the GUI
+	 * 
+	 * @param msg
+	 *            the status message
+	 */
 	public void setStatus(String msg);
 }

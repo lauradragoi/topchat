@@ -20,11 +20,11 @@ package topchat.server.protocol.xmpp;
 /**
  * Constants used by the XMPP protocol
  */
-public interface XMPPConstants 
+public interface XMPPConstants
 {
 	/** Listening port used by the server */
 	public static final int XMPP_DEFAULT_SERVER_PORT = 5222;
-	
+
 	/** The default number of threads in the executor pool */
 	public static final int DEFAULT_EXECUTOR_THREADS = 5;
 }

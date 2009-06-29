@@ -26,27 +26,33 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-
 /**
- * A panel containing a scrollable list with a title  
+ * A panel containing a scrollable list with a title
  * 
  */
 @SuppressWarnings("serial")
-public class ListPanel extends JPanel {
+public class ListPanel extends JPanel
+{
 
 	private JList list;
 	private DefaultListModel listModel;
-	
+
 	/**
 	 * Constructs a ListPanel
+	 * 
 	 * @param accessMode
+	 *            the ListSelectionModel used by the contained JList
 	 * @param label
+	 *            the caption of the JLabel used as a title for the panel
 	 * @param width
+	 *            the width of the panel
 	 * @param height
+	 *            the height of the panel
 	 */
-	public ListPanel(int accessMode, String label, int width, int height) {
+	public ListPanel(int accessMode, String label, int width, int height)
+	{
 		listModel = new DefaultListModel();
-		
+
 		list = new JList(listModel);
 		list.setSelectionMode(accessMode);
 
@@ -57,12 +63,12 @@ public class ListPanel extends JPanel {
 		add(new JLabel(label));
 		add(scrollPane);
 	}
-	
+
 	public JList getList()
 	{
 		return list;
 	}
-	
+
 	public DefaultListModel getListModel()
 	{
 		return listModel;
