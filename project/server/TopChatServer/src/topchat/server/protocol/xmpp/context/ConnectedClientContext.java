@@ -32,6 +32,9 @@ import topchat.server.protocol.xmpp.stream.element.StreamElement;
 import topchat.server.protocol.xmpp.stream.element.XElement;
 import topchat.server.protocol.xmpp.stream.parser.Parser;
 
+/**
+ * The context in which the client is connected and authenticated
+ */
 public class ConnectedClientContext extends XMPPContext 
 {		
 	private static Logger logger = Logger.getLogger(ConnectedClientContext.class);

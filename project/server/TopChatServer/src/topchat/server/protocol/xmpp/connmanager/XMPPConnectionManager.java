@@ -45,8 +45,9 @@ import topchat.server.protocol.xmpp.tls.TLSEngineFactory;
 /**
  * Manages a connection between the XMPP server and a client
  */
-public class XMPPConnectionManager extends DefaultConnectionManager implements
-		XMPPConstants
+public class XMPPConnectionManager extends DefaultConnectionManager
+		implements
+			XMPPConstants
 {
 	private static Logger logger = Logger
 			.getLogger(XMPPConnectionManager.class);
