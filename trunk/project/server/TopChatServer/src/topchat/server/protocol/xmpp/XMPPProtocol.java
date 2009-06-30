@@ -295,7 +295,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 				{
 					logger.debug("body" + body);
 					body = body.substring(1);
-					ref = Integer.parseInt(body);
+					ref = Integer.parseInt(body.substring(0, body.indexOf("#")));
 					body = body.substring(body.indexOf("#") + 1);
 					
 					logger.debug("body now " + body + " ref " +  ref);
