@@ -22,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -59,6 +60,12 @@ public class ServerGui extends JPanel implements Gui, GuiConstants
 	 */
 	public ServerGui(GuiMediator med)
 	{
+		try {
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        }
+        
 		init();
 
 		setMediator(med);

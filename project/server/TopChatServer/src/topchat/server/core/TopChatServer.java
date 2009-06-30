@@ -54,7 +54,6 @@ public class TopChatServer
 	 */
 	public static void main(String[] args)
 	{
-
 		Mediator med = new Mediator();
 
 		@SuppressWarnings("unused")
