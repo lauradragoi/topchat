@@ -139,7 +139,7 @@ public class SASLContext extends XMPPContext
 		String something = authInfo[1];
 		String pass = authInfo[2];
 
-		return new User(username, something, pass);
+		return new User(something, username, pass);
 	}
 
 	/**

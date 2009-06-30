@@ -256,10 +256,11 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	 * @param message
 	 *            the MessageStanza sent by the user
 	 */
-	public void sendGroupChat(User user, MessageStanza message)
+	public synchronized void sendGroupChat(User user, MessageStanza message)
 	{
 		// find the room
 		String roomName = message.getAttribute("to");
+			
 		logger.debug("Roomname " + roomName);
 
 		Room room = createdRooms.get(roomName);
@@ -279,6 +280,8 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			}
 
 			logger.debug("Sending group message to " + roomName);
+			
+			room.incNumMessages();
 
 			for (RoomParticipant participant : room.getParticipants())
 			{
@@ -286,13 +289,27 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 					continue;
 
 				String body = message.getData("body");
+				int ref = -1;
+				// obtain the reference from the body
+				if (body != null && body.startsWith("#"))
+				{
+					logger.debug("body" + body);
+					body = body.substring(1);
+					ref = Integer.parseInt(body);
+					body = body.substring(body.indexOf("#") + 1);
+					
+					logger.debug("body now " + body + " ref " +  ref);
+				}
+				
 				if (body == null)
 					body = "";
 
 				String msg = "<message id='" + message.getAttribute("id")
 						+ "' to='" + participant.getUser().toString() + "'"
 						+ " from='" + roomName + "/" + sender.getRoomUser()
-						+ "'" + " type='groupchat'" + "><body>" + body
+						+ "'" + " type='groupchat'" + "><body>"
+						+ "#" + room.getNumMessages() + "#" + ref + "#"
+						+ body
 						+ "</body></message>";
 
 				participant.getUser().manager.send(msg.getBytes());
