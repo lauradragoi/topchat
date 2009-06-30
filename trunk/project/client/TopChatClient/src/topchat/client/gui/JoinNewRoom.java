@@ -150,8 +150,10 @@ public class JoinNewRoom extends javax.swing.JFrame {
             Logger.getLogger(JoinNewRoom.class.getName()).log(Level.SEVERE, null, ex);
         }
         joinRoom.joinedRoom = this;
-        if(!ClientConnection.user.isRoomAlready(jTextField1.getText()))
-            mainGUI.TabbedRooms.add(jTextField1.getText(),newRoom);
+        if(!ClientConnection.user.isRoomAlready(jTextField1.getText())){
+            mainGUI.TabbedRooms.add(jTextField1.getText(),newRoom);//.add(newRoom.popup);
+            mainGUI.count ++;
+        }
         try {
             ClientConnection.user.joinRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),jTextField3.getText(),newRoom);
        } catch (XMPPException ex) {

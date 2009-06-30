@@ -146,7 +146,8 @@ public class NewRoom extends javax.swing.JFrame {
 
     private void SaveRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SaveRoomButton
         ChatPanel newRoom = new ChatPanel();
-        mainGUI.TabbedRooms.add(jTextField1.getText(), newRoom);
+        mainGUI.TabbedRooms.add(jTextField1.getText(), newRoom);//.add(newRoom.popup);
+        mainGUI.count++;
         try {
             ClientConnection.user.addRoom(jTextField1.getText()+"@conference.jabber.org", jTextField2.getText(),jTextField3.getText(),newRoom);
         } catch (XMPPException ex) {

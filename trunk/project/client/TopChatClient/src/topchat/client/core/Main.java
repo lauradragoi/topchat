@@ -5,6 +5,7 @@
 
 package topchat.client.core;
 
+import javax.swing.UIManager;
 import topchat.client.gui.LoginGUI;
 
 /**
@@ -19,6 +20,11 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        }
         // TODO code application logic here
         login_gui = new LoginGUI();
         login_gui.show();

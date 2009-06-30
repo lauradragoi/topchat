@@ -15,8 +15,6 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
@@ -30,10 +28,10 @@ import topchat.client.gui.JoinNewRoom;
  */
 public class Room {
 
-    MultiUserChat muc = null;
-    ArrayList <User> roomUsers;
-    ChatPanel RoomPanel;
-    String roomName;
+    public MultiUserChat muc = null;
+    public ArrayList <User> roomUsers;
+    public ChatPanel RoomPanel;
+    public String roomName;
     public JoinNewRoom joinedRoom;
     //ChatGUI roomChatGUI;
 
@@ -82,8 +80,27 @@ public class Room {
                     }
             }
 
-            public void left(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
+            public void left(String newName) {
+                    char[] newRoom = new char[newName.length()];
+                    String newUserNick;
+                    String newRoomAddress;
+                    int endIndex = 0;
+                    int startIndex = 0;
+                    newRoom = newName.toCharArray();
+                    for (int i = 0; i < newRoom.length; i++) {
+                        if (newRoom[i] == '/')
+                            startIndex = i + 1;
+                        if (newRoom[i] == '@')
+                            endIndex = i;
+                    }
+                    newRoomAddress = newName.substring(0, endIndex);
+                    newUserNick = newName.substring(startIndex, newRoom.length);
+                    System.out.println("address: " + newRoomAddress + " nick: " + newUserNick);
+                    if (isUserInRoom(newUserNick)==true)
+                    {
+                        RoomPanel.usersListModel.removeElement(newUserNick);//+" - "+joinedRoom.jTextField3.getText());
+                        //ClientConnection.user.userRooms.remove(newRoomAddress);
+                    }
             }
 
             public void kicked(String arg0, String arg1, String arg2) {
@@ -154,7 +171,7 @@ public class Room {
        muc.addMessageListener(new PacketListener() {
 
             public void processPacket(Packet arg0) {
-                //System.out.println(((Message)arg0).getBody());
+                System.out.println(((Message)arg0).getBody());
                 char[] sender = new char[((Message)arg0).getFrom().length()];
                 String From;
                 int startIndex = 0;
@@ -165,14 +182,26 @@ public class Room {
                     }
                 }
                 From = ((Message)arg0).getFrom().substring(startIndex, sender.length);
-                RoomPanel.textArea.append(From+":"+((Message)arg0).getBody());
-                RoomPanel.textArea.append("\n");
+                
+                String s = ((Message)arg0).getBody();
+                s = s.substring(1);
+                int id = Integer.parseInt(s);
+                s = s.substring(s.indexOf('#') + 1);
+                RoomPanel.addMessage(From+" : "+s,id);
+
+                if(RoomPanel.ref == true && RoomPanel.reference != -1){
+                    RoomPanel.addReference(RoomPanel.source, RoomPanel.reference);
+                    RoomPanel.ref = false;
+                    RoomPanel.reference = -1;
+                    RoomPanel.source = -1;
+                }
             }
 
         });
       
     }
-    
+
+   
     public void createRoom(String Nick) throws XMPPException{
         // Create the room
        muc.create(Nick);
@@ -184,7 +213,7 @@ public class Room {
     }
 
     public void sendMessage() throws XMPPException{
-
+        String s = "#"+RoomPanel.reference+"#"+RoomPanel.chatMessage.getText()+ "#";
         muc.sendMessage(RoomPanel.chatMessage.getText());
     }
     public void sendStatus(String status) throws XMPPException{
