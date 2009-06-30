@@ -27,7 +27,7 @@ import topchat.server.interfaces.DataMediator;
  * This module is responsible for processing the data received/sent by the
  * server. It currently saves all this data in a database.
  */
-public class DataHandler implements DataHandlerInterface
+public class SaveSimpleXMLHandler implements DataHandlerInterface
 {
 
 	/** Connection to mediator */
@@ -39,10 +39,10 @@ public class DataHandler implements DataHandlerInterface
 	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
 
-	private static Logger logger = Logger.getLogger(DataHandler.class);
+	private static Logger logger = Logger.getLogger(SaveAllHandler.class);
 
 	/**
-	 * Constructs a DataHandler connected to a DataMediator and initiates the
+	 * Constructs a SaveAllHandler connected to a DataMediator and initiates the
 	 * connection to the database used for saving the data.
 	 * 
 	 * @param med
@@ -50,7 +50,7 @@ public class DataHandler implements DataHandlerInterface
 	 * @throws Exception
 	 *             if the database connection cannot be initiated
 	 */
-	public DataHandler(DataMediator med) throws Exception
+	public SaveSimpleXMLHandler(DataMediator med) throws Exception
 	{
 		this.med = med;
 		med.setDataHandler(this);

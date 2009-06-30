@@ -33,6 +33,9 @@ public class Room
 	private String name = null;
 	/** The user that created the room */
 	private User owner = null;
+	
+	/** The number of messages sent in this room */
+	private int numMessages = 0;
 
 	private static Logger logger = Logger.getLogger(Room.class);
 
@@ -55,6 +58,8 @@ public class Room
 		this.name = name;
 
 		roomParticipants.put(owner.toString(), new Owner(owner, roomUser));
+		
+		numMessages = 0;
 	}
 
 	@Override
@@ -68,6 +73,16 @@ public class Room
 		return name;
 	}
 
+	public int getNumMessages()
+	{
+		return numMessages;
+	}
+	
+	public void incNumMessages()
+	{
+		numMessages++;
+	}
+	
 	/**
 	 * Adds a participant to a room
 	 * 
