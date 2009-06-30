@@ -10,22 +10,130 @@
  */
 
 package topchat.client.gui;
-
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Arrays;
+import java.util.Vector;
 import javax.swing.DefaultListModel;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import topchat.client.chat.Room;
 import topchat.client.connection.ClientConnection;
+import topchat.client.reference.ConversationMessage;
+import topchat.client.reference.MyTableModel;
+import topchat.client.reference.ConversationMessageRenderer;
+import topchat.client.reference.ConversationReferenceCell;
+import topchat.client.reference.ConversationReferenceRenderer;
 
 /**
  *
- * @author Serbi
+ * @author Oana Iancu
  */
-public class ChatPanel extends javax.swing.JPanel {
+public class ChatPanel extends javax.swing.JPanel implements ActionListener{
 
     public DefaultListModel usersListModel;
+    public PopupMenu popup;
+    public MenuItem item;
+
+    String[] columnNames = {"Referinte" , "Replici"};
+    Vector columnNamesV = new Vector(Arrays.asList(columnNames));
+
+    /** Tabelul */
+    public JTable table = null;
+    public TableModel model = new MyTableModel();
+    /** avem referinta */
+    public boolean ref = false;
+    public int reference = -1;
+    public int source = -1;
+
+
     /** Creates new form ChatPanel */
     public ChatPanel() {
         usersListModel = new DefaultListModel();
         initComponents();
+
+        popup = new PopupMenu();
+        item = new MenuItem("Leave room!");
+        popup.add(item);
+        item.addActionListener(this);
+        this.add(popup);
+        //Mask Mouse Events
+        enableEvents(MouseEvent.MOUSE_EVENT_MASK);
+
+
+        table = new JTable(model) {
+            @Override
+            public boolean isCellEditable(int rowIndex, int vColIndex) {
+                return false;
+            }
+        };
+
+        table.setGridColor(Color.WHITE);
+        table.setIntercellSpacing(new Dimension(1, 1));
+    	table.getColumnModel().getColumn(0).setCellRenderer(new ConversationReferenceRenderer());
+    	table.getColumnModel().getColumn(1).setCellRenderer(new ConversationMessageRenderer());
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.jScrollPane1.setViewportView(table);
+
+
+        table.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {
+                ref = true;
+                //id-ul mesajului la care fac referinta e dat de linia selectata
+                reference = table.getSelectedRow();
+                source = table.getRowCount();
+            }
+
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
         
+    }
+
+     //processing the mouse events
+    @Override
+    public void processMouseEvent(MouseEvent mouseevent)
+    {
+        super.processMouseEvent(mouseevent);
+
+        //check if popup triggered
+        if(mouseevent.isPopupTrigger())
+        {
+            //if yes show the PopupMenu
+            popup.show(mouseevent.getComponent(), mouseevent.getX(), mouseevent.getY());
+        }
+    }
+
+    //handle action on the MenuItems
+    public void actionPerformed(ActionEvent actionevent)
+    {
+        if(actionevent.getSource().equals(item))
+        {
+           Room room = ClientConnection.user.getRoom(this);
+           ClientConnection.user.removeRoom(room);
+        }
     }
 
     /** This method is called from within the constructor to
@@ -39,11 +147,11 @@ public class ChatPanel extends javax.swing.JPanel {
 
         chatMessage = new javax.swing.JTextField();
         send = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textArea = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         usersList = new javax.swing.JList();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
 
         setBackground(new java.awt.Color(204, 204, 255));
         setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
@@ -56,10 +164,6 @@ public class ChatPanel extends javax.swing.JPanel {
             }
         });
 
-        textArea.setColumns(20);
-        textArea.setRows(5);
-        jScrollPane1.setViewportView(textArea);
-
         jLabel1.setBackground(new java.awt.Color(204, 204, 255));
         jLabel1.setFont(new java.awt.Font("Arial", 1, 12));
         jLabel1.setText("Users");
@@ -67,39 +171,56 @@ public class ChatPanel extends javax.swing.JPanel {
         usersList.setModel(usersListModel);
         jScrollPane2.setViewportView(usersList);
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 505, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 227, Short.MAX_VALUE)
+        );
+
+        jScrollPane1.setViewportView(jPanel1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(chatMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(send))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE))
-                .addGap(51, 51, 51)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(612, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(53, 53, 53))
+                    .addComponent(jScrollPane1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(51, 51, 51)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(70, 70, 70)
+                        .addComponent(jLabel1)))
+                .addGap(20, 20, 20))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(chatMessage, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                        .addComponent(chatMessage, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(send, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -115,11 +236,52 @@ public class ChatPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JTextField chatMessage;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     public javax.swing.JButton send;
-    public javax.swing.JTextArea textArea;
     public javax.swing.JList usersList;
     // End of variables declaration//GEN-END:variables
+
+
+     /**
+     * Adauga o referinta
+     * @param source
+     * @param destination
+     */
+    public synchronized void addReference(int source, int destination)
+    {
+    	if (source < destination)
+    	{
+    		addReference(destination, source);
+    		return;
+    	}
+
+    	// anunta toate mesajele dintre sursa si destinatie despre referinta
+    	// (fiindca o sa afisez sageata pe celulele referinta din dreptul acestor mesaje)
+    	for (int i = destination; i <= source; i++)
+    	{
+    		ConversationReferenceCell myCell = ((ConversationReferenceCell)model.getValueAt(i, 0));
+    		myCell.addReference(source, destination);
+
+    		model.setValueAt(myCell, i, 0);
+    	}
+
+    	System.out.println("reference added " + source + "  " + destination);
+    }
+
+    /**
+     * Adauga un mesaj
+     */
+    public synchronized void addMessage(String msg,int id)
+    {
+
+		DefaultTableModel defmodel =  (DefaultTableModel)table.getModel();
+
+		ConversationMessage message = new ConversationMessage(msg, defmodel.getRowCount(),id);
+		defmodel.addRow(message);
+
+		System.out.println("message added " + msg);
+    }
 
 }

@@ -41,8 +41,17 @@ public class User {
         userRooms.add(newRoom);
         roomPanel.usersListModel.addElement(nick+" - "+status);
     }
+
+    public Room getRoom(ChatPanel panel){
+        for(int i=0; i<userRooms.size(); i++)
+            if(userRooms.get(i).RoomPanel.equals(panel))
+                return userRooms.get(i);
+        return null;
+    }
+
     public void removeRoom(Room room){
         userRooms.remove(room);
+        room.muc.leave();
     }
     public String  getUserStatus(String nick,String room){
         ArrayList<User> roomUsers;

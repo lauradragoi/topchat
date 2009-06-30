@@ -11,21 +11,31 @@
 
 package topchat.client.gui;
 
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+
 /**
  *
  * @author Oana Iancu
  */
-public class ChatGUI extends javax.swing.JFrame {
+public class ChatGUI extends javax.swing.JFrame{
     public static NewRoom addRoom;
     public static JoinNewRoom joinRoom;
     
-
+    public int count = 0;
+    
     /** Creates new form ChatGUI */
     public ChatGUI() {
         initComponents();
         addRoom = new NewRoom();
         joinRoom = new JoinNewRoom();
+         
     }
+
+   
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -127,5 +137,6 @@ public class ChatGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton joinButton;
     // End of variables declaration//GEN-END:variables
+
 
 }
