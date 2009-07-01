@@ -16,8 +16,13 @@ import topchat.client.gui.ChatPanel;
  */
 public class User {
 
-    String username, password, nickname, status;
+    public String username, password, nickname, status;
     ArrayList <Room> userRooms;
+    /*ca sa desenez referintele bine trebuie ca userul sa retina id-ul 
+     * primului mesaj care apare in camera dupa ce a dat join
+     * ca apoi cand deseneaza referintele sa faca diferenta
+     */
+    public int first_id = -1;
 
     public User(String userName, String passwd, String nick, String stat) throws XMPPException{
         this.username = userName;
