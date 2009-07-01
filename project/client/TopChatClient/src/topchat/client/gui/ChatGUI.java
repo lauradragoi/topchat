@@ -11,12 +11,6 @@
 
 package topchat.client.gui;
 
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-
 /**
  *
  * @author Oana Iancu

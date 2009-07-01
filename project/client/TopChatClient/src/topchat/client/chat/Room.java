@@ -7,6 +7,8 @@ package topchat.client.chat;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,57 +104,31 @@ public class Room {
                         //ClientConnection.user.userRooms.remove(newRoomAddress);
                     }
             }
-
             public void kicked(String arg0, String arg1, String arg2) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void voiceGranted(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void voiceRevoked(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void banned(String arg0, String arg1, String arg2) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void membershipGranted(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void membershipRevoked(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void moderatorGranted(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void moderatorRevoked(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void ownershipGranted(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void ownershipRevoked(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void adminGranted(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void adminRevoked(String arg0) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
-
             public void nicknameChanged(String arg0, String arg1) {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
         }
        );
@@ -168,6 +144,25 @@ public class Room {
                 RoomPanel.chatMessage.setText("");
             }
         });
+       RoomPanel.chatMessage.addKeyListener(new KeyListener() {
+
+            public void keyTyped(KeyEvent e) {
+            }
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                 try {
+                    sendMessage();
+
+                    } catch (XMPPException ex) {
+                        Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    RoomPanel.chatMessage.setText("");
+                }
+            }
+            public void keyReleased(KeyEvent e) {                
+            }
+        });
+
        muc.addMessageListener(new PacketListener() {
 
             public void processPacket(Packet arg0) {
@@ -184,17 +179,33 @@ public class Room {
                 From = ((Message)arg0).getFrom().substring(startIndex, sender.length);
                 
                 String s = ((Message)arg0).getBody();
-                s = s.substring(1);
-                int id = Integer.parseInt(s);
-                s = s.substring(s.indexOf('#') + 1);
-                RoomPanel.addMessage(From+" : "+s,id);
+				s = s.substring(1);
+				
+				int nr = -1;
+                int id = -1;
+								
+				try{
+					nr = Integer.parseInt(s.substring(0, s.indexOf("#")));
+				} catch(Exception e){}
 
-                if(RoomPanel.ref == true && RoomPanel.reference != -1){
-                    RoomPanel.addReference(RoomPanel.source, RoomPanel.reference);
-                    RoomPanel.ref = false;
-                    RoomPanel.reference = -1;
-                    RoomPanel.source = -1;
-                }
+                s = s.substring(s.indexOf('#') + 1);
+				
+				try{				
+					id = Integer.parseInt(s.substring(0, s.indexOf("#")));
+				} catch(Exception e){}
+
+                s = s.substring(s.indexOf('#') + 1);
+				System.out.println("pfff " + s +  "  " +  " nr " + nr +  " id " + id);
+                if (ClientConnection.user.first_id == -1)
+                    ClientConnection.user.first_id = nr;
+
+                RoomPanel.addMessage(From+" : "+s, nr);
+                
+				
+				if (RoomPanel.ref == true && id != -1){
+					// am primit referinta de la server
+					RoomPanel.addReference(nr-ClientConnection.user.first_id, id-ClientConnection.user.first_id);
+				}
             }
 
         });
@@ -213,8 +224,8 @@ public class Room {
     }
 
     public void sendMessage() throws XMPPException{
-        String s = "#"+RoomPanel.reference+"#"+RoomPanel.chatMessage.getText()+ "#";
-        muc.sendMessage(RoomPanel.chatMessage.getText());
+        String s = "#"+RoomPanel.reference+"#"+RoomPanel.chatMessage.getText();
+        muc.sendMessage(s);
     }
     public void sendStatus(String status) throws XMPPException{
 

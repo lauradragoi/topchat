@@ -81,7 +81,7 @@ public class LoginGUI extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel4.setText("Server");
 
-        serverField.setText("jabber.org");
+        serverField.setText("localhost");
         serverField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
