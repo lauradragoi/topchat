@@ -14,15 +14,23 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.data;
 
+/**
+ * A DataObserver handles DataEvents that it previously registered to receive
+ * from a DataHandler.
+ */
 public abstract class DataObserver
 {
 
 	/**
-	 * @param string
-	 * @param s
+	 * Method called to handle a DataEvent with certain arguments
+	 * 
+	 * @param event
+	 *            the DataEvent that occurred
+	 * @param args
+	 *            the arguments of the event
 	 */
 	public abstract void handle(DataEvent event, String[] args);
 

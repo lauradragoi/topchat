@@ -26,7 +26,7 @@ public interface DataHandlerInterface
 {
 
 	/**
-	 * Method called in order to determine the handling of the received data
+	 * Method called when new data is received
 	 * 
 	 * @param s
 	 *            the received data
@@ -34,7 +34,7 @@ public interface DataHandlerInterface
 	void handleReceived(String s);
 
 	/**
-	 * Method called in order to determine the handling of the sent data
+	 * Method called when new data is sent
 	 * 
 	 * @param s
 	 *            the sent data
@@ -42,34 +42,56 @@ public interface DataHandlerInterface
 	void handleSent(String s);
 
 	/**
+	 * Method called when a room is created
+	 * 
 	 * @param room
+	 *            the room that is created
 	 */
 	void handleRoomCreated(String room);
 
 	/**
+	 * Method called when a room is destroyed
+	 * 
 	 * @param room
+	 *            the room being destroyed
 	 */
 	void handleRoomDestroyed(String room);
 
 	/**
+	 * Method called when a room is joined by a user
+	 * 
 	 * @param roomName
+	 *            the name of the room
 	 * @param roomUser
+	 *            the nickname of the user in the room
 	 */
 	void handleRoomJoined(String roomName, String roomUser);
 
 	/**
+	 * Method called when a message is sent to a room.
+	 * 
 	 * @param roomUser
+	 *            the nickname of the user sending the message
 	 * @param roomName
+	 *            the name of the room
 	 * @param body
+	 *            the body of the message
 	 * @param numMessages
+	 *            the numerical id of the message in the group conversation
 	 * @param ref
+	 *            the numerical id of the message referred by this message or 0
+	 *            if no such reference
 	 */
 	void handleGroupMessage(String roomUser, String roomName, String body,
 			int numMessages, int ref);
 
 	/**
+	 * Method called when a user leaves a room
+	 * 
 	 * @param name
+	 *            the name of the room
 	 * @param roomUser
+	 *            the nickname of the user in the room
 	 */
 	void handleRoomLeft(String name, String roomUser);
 

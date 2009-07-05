@@ -17,6 +17,9 @@
 */
 package topchat.server.data;
 
+/**
+ * Contains the type of data events that are announced to data observers.
+ */
 public enum DataEvent
 {
 	HANDLE_RECEIVED,
