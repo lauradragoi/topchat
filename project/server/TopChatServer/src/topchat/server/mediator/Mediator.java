@@ -122,6 +122,9 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator,
 	{
 		gui.addRoom(room);
 		gui.setStatus("Room " + room + " created.");
+		
+		data.handleRoomCreated(room);
+		
 		logger.info("Room " + room + " created.");
 	}
 
@@ -138,6 +141,9 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator,
 	{
 		gui.removeRoom(room);
 		gui.setStatus("Room " + room + " destroyed.");
+		
+		data.handleRoomDestroyed(room);
+		
 		logger.info("Room " + room + " destroyed.");
 	}
 
@@ -193,5 +199,35 @@ public class Mediator implements GuiMediator, NetMediator, ProtocolMediator,
 		logger.debug("Announce send " + s);
 
 		data.handleSent(s);
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ProtocolMediator#announceRoomJoined(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void announceRoomJoined(String roomName, String roomUser)
+	{
+		data.handleRoomJoined(roomName, roomUser);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ProtocolMediator#announceGroupMessage(java.lang.String, java.lang.String, java.lang.String, int, int)
+	 */
+	@Override
+	public void announceGroupMessage(String roomUser, String roomName,
+			String body, int numMessages, int ref)
+	{
+		data.handleGroupMessage(roomUser, roomName, body, numMessages, ref);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.interfaces.ProtocolMediator#announceRoomLeft(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void announceRoomLeft(String name, String roomUser)
+	{
+		data.handleRoomLeft(name, roomUser);
 	}
 }

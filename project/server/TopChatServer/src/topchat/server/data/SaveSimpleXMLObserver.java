@@ -14,24 +14,17 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 package topchat.server.data;
 
 import java.util.HashMap;
+
 import org.apache.log4j.Logger;
+
 import topchat.server.db.DatabaseConnector;
-import topchat.server.interfaces.DataHandlerInterface;
-import topchat.server.interfaces.DataMediator;
 
-/**
- * This module is responsible for processing the data received/sent by the
- * server. It currently saves all this data in a database.
- */
-public class SaveSimpleXMLHandler implements DataHandlerInterface
+public class SaveSimpleXMLObserver extends DataObserver
 {
-
-	/** Connection to mediator */
-	private DataMediator med = null;
 
 	/** Name of the table where the data will be saved */
 	private String table = null;
@@ -39,26 +32,32 @@ public class SaveSimpleXMLHandler implements DataHandlerInterface
 	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
 
-	private static Logger logger = Logger.getLogger(SaveAllHandler.class);
+	private DataHandler handler;
+
+	private static Logger logger = Logger.getLogger(SaveAllObserver.class);
 
 	/**
 	 * Constructs a SaveAllHandler connected to a DataMediator and initiates the
 	 * connection to the database used for saving the data.
 	 * 
-	 * @param med
+	 * @param dataHandler
 	 *            the DataMediator to which the DataHandler connects
 	 * @throws Exception
 	 *             if the database connection cannot be initiated
 	 */
-	public SaveSimpleXMLHandler(DataMediator med) throws Exception
+	public SaveSimpleXMLObserver(DataHandler dataHandler) throws Exception
 	{
-		this.med = med;
-		med.setDataHandler(this);
-
+		this.handler = dataHandler;
+		
 		dbConnector = init();
+	
+		handler.registerObserver(this, DataEvent.ROOM_JOINED);
+		handler.registerObserver(this, DataEvent.ROOM_LEFT);
+		handler.registerObserver(this, DataEvent.GROUP_MESSAGE);
 
-		logger.info("Data handling module initiated.");
+		logger.info("SaveSimpleXMLObserver initiated.");
 	}
+	
 
 	/**
 	 * Initiate a connection to the database used for saving data.
@@ -71,11 +70,11 @@ public class SaveSimpleXMLHandler implements DataHandlerInterface
 	private DatabaseConnector init() throws Exception
 	{
 		// init properties
-		String ip = med.getProperty("data.server");
-		String db = med.getProperty("data.db");
-		String user = med.getProperty("data.user");
-		String pass = med.getProperty("data.pass");
-		String table = med.getProperty("data.table");
+		String ip = handler.getProperty("data.simplexml.server");
+		String db = handler.getProperty("data.simplexml.db");
+		String user = handler.getProperty("data.simplexml.user");
+		String pass = handler.getProperty("data.simplexml.pass");
+		String table = handler.getProperty("data.simplexml.table");
 
 		setTable(table);
 
@@ -97,7 +96,6 @@ public class SaveSimpleXMLHandler implements DataHandlerInterface
 	 * @param s
 	 *            the received message
 	 */
-	@Override
 	public void handleReceived(String s)
 	{
 
@@ -117,7 +115,6 @@ public class SaveSimpleXMLHandler implements DataHandlerInterface
 	 * @param s
 	 *            the sent message
 	 */
-	@Override
 	public void handleSent(String s)
 	{
 		HashMap<String, String> values = new HashMap<String, String>();
@@ -128,4 +125,89 @@ public class SaveSimpleXMLHandler implements DataHandlerInterface
 
 		logger.debug("insert in " + table + " of sent " + s + " was " + result);
 	}
+
+	@Override
+	public void handle(DataEvent event, String[] args)
+	{
+		switch (event)
+		{
+			case HANDLE_RECEIVED :
+				handleReceived(args[0]);
+				break;
+			case HANDLE_SENT :
+				handleSent(args[0]);
+				break;		
+			case ROOM_JOINED:
+				handleRoomJoined(args[0], args[1]);
+				break;
+			case ROOM_LEFT:
+				handleRoomLeft(args[0], args[1]);
+				break;
+			case GROUP_MESSAGE:
+				handleGroupMessage(args[0], args[1], args[2], args[3], args[4]);
+				break;
+			default :
+				break;
+		}
+		
+	}
+
+
+	private void handleRoomLeft(String room, String user)
+	{
+		HashMap<String, String> values = new HashMap<String, String>();		
+		values.put("nick", user);
+		values.put("room", room);
+		values.put("type", "leave");
+		values.put("message", "left room.");
+
+		boolean result = dbConnector.insertValues(table, values);
+
+		logger.debug("insert in " + table + " of room left was " + result);
+	}
+
+
+	/**
+	 * @param string
+	 * @param string2
+	 */
+	private void handleRoomJoined(String room, String user)
+	{
+		HashMap<String, String> values = new HashMap<String, String>();		
+		values.put("nick", user);
+		values.put("room", room);
+		values.put("type", "join");
+		values.put("message", "joined room.");
+
+
+		boolean result = dbConnector.insertValues(table, values);
+
+		logger.debug("insert in " + table + " of joined was " + result);
+		
+	}
+	
+	/**
+	 * @param roomUser
+	 * @param roomName
+	 * @param body
+	 * @param numMessages
+	 * @param ref
+	 */
+	private void handleGroupMessage(String roomUser, String roomName, String body,
+			String id, String ref)
+	{
+		HashMap<String, String> values = new HashMap<String, String>();		
+		values.put("nick", roomUser);
+		values.put("room", roomName);	
+		values.put("type", "message");
+		values.put("message", body);
+		values.put("msg_id", id);
+		values.put("reference", ref);
+
+		boolean result = dbConnector.insertValues(table, values);
+
+		logger.debug("insert in " + table + " of group message was " + result);
+	}
+
+
 }

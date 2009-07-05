@@ -202,6 +202,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	public Room roomJoined(String roomName, User user, String roomUser)
 	{
 		logger.debug("Room joined " + roomName);
+						
 		Room room = createdRooms.get(roomName);
 
 		if (room == null)
@@ -233,6 +234,8 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			participant.getUser().manager.send(presenceMsg.getBytes());
 		}
 
+		med.announceRoomJoined(roomName, roomUser);
+		
 		return room;
 	}
 
@@ -282,27 +285,29 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 			logger.debug("Sending group message to " + roomName);
 			
 			room.incNumMessages();
+			
+			String body = message.getData("body");
+			int ref = -1;
+			// obtain the reference from the body
+			if (body != null && body.startsWith("#"))
+			{
+				logger.debug("body" + body);
+				body = body.substring(1);
+				ref = Integer.parseInt(body.substring(0, body.indexOf("#")));
+				body = body.substring(body.indexOf("#") + 1);
+				
+				logger.debug("body now " + body + " ref " +  ref);
+			}
+			
+			if (body == null)
+				body = "";
+			
+			med.announceGroupMessage(sender.getRoomUser(), roomName, body, room.getNumMessages(), ref);
 
 			for (RoomParticipant participant : room.getParticipants())
 			{
 				if (participant == null)
 					continue;
-
-				String body = message.getData("body");
-				int ref = -1;
-				// obtain the reference from the body
-				if (body != null && body.startsWith("#"))
-				{
-					logger.debug("body" + body);
-					body = body.substring(1);
-					ref = Integer.parseInt(body.substring(0, body.indexOf("#")));
-					body = body.substring(body.indexOf("#") + 1);
-					
-					logger.debug("body now " + body + " ref " +  ref);
-				}
-				
-				if (body == null)
-					body = "";
 
 				String msg = "<message id='" + message.getAttribute("id")
 						+ "' to='" + participant.getUser().toString() + "'"
@@ -343,6 +348,7 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 				{
 					RoomParticipant participant = room.removeUser(user);
 					logger.debug("User " + user + " removed from " + roomName);
+					med.announceRoomLeft(roomName, participant.getRoomUser());
 
 					if (room.getParticipants().size() == 0)
 					{
@@ -389,6 +395,8 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 
 		logger.debug("announcing participants in " + room.getName() + " that "
 				+ leavingParticipant.getRoomUser() + " is leaving");
+		
+		med.announceRoomLeft(room.getName(), leavingParticipant.getRoomUser());
 
 		// announce other participants that the new participant has left the
 		// room

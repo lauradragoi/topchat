@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 
 import topchat.server.authentication.AuthenticationHandler;
 import topchat.server.configuration.ConfigurationHandler;
-import topchat.server.data.SaveAllHandler;
+import topchat.server.data.DataHandler;
 import topchat.server.gui.ServerGui;
 import topchat.server.interfaces.AuthenticationHandlerInterface;
 import topchat.server.interfaces.ConfigurationHandlerInterface;
@@ -83,7 +83,7 @@ public class TopChatServer
 		try
 		{
 			@SuppressWarnings("unused")
-			DataHandlerInterface saveAllHandler = new SaveAllHandler(med);
+			DataHandlerInterface dataHandler = new DataHandler(med);
 		} catch (Exception e)
 		{
 			logger.fatal("Unable to initialize data handling module " + e);
