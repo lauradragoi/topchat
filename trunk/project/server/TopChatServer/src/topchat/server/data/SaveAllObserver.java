@@ -27,11 +27,9 @@ import topchat.server.interfaces.DataMediator;
  * This module is responsible for processing the data received/sent by the
  * server. It currently saves all this data in a database.
  */
-public class SaveAllHandler implements DataHandlerInterface
+public class SaveAllObserver extends DataObserver
 {
 
-	/** Connection to mediator */
-	private DataMediator med = null;
 
 	/** Name of the table where the data will be saved */
 	private String table = null;
@@ -39,25 +37,29 @@ public class SaveAllHandler implements DataHandlerInterface
 	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
 
-	private static Logger logger = Logger.getLogger(SaveAllHandler.class);
+	private DataHandler handler;
+
+	private static Logger logger = Logger.getLogger(SaveAllObserver.class);
 
 	/**
 	 * Constructs a SaveAllHandler connected to a DataMediator and initiates the
 	 * connection to the database used for saving the data.
 	 * 
-	 * @param med
+	 * @param dataHandler
 	 *            the DataMediator to which the DataHandler connects
 	 * @throws Exception
 	 *             if the database connection cannot be initiated
 	 */
-	public SaveAllHandler(DataMediator med) throws Exception
+	public SaveAllObserver(DataHandler dataHandler) throws Exception
 	{
-		this.med = med;
-		med.setDataHandler(this);
-
+		this.handler = dataHandler;
+		
 		dbConnector = init();
+		
+		handler.registerObserver(this, DataEvent.HANDLE_RECEIVED);
+		handler.registerObserver(this, DataEvent.HANDLE_SENT);
 
-		logger.info("Data handling module initiated.");
+		logger.info("SaveAllObserver initiated.");
 	}
 
 	/**
@@ -71,11 +73,11 @@ public class SaveAllHandler implements DataHandlerInterface
 	private DatabaseConnector init() throws Exception
 	{
 		// init properties
-		String ip = med.getProperty("data.server");
-		String db = med.getProperty("data.db");
-		String user = med.getProperty("data.user");
-		String pass = med.getProperty("data.pass");
-		String table = med.getProperty("data.table");
+		String ip = handler.getProperty("data.saveall.server");
+		String db = handler.getProperty("data.saveall.db");
+		String user = handler.getProperty("data.saveall.user");
+		String pass = handler.getProperty("data.saveall.pass");
+		String table = handler.getProperty("data.saveall.table");
 
 		setTable(table);
 
@@ -97,7 +99,6 @@ public class SaveAllHandler implements DataHandlerInterface
 	 * @param s
 	 *            the received message
 	 */
-	@Override
 	public void handleReceived(String s)
 	{
 
@@ -117,7 +118,6 @@ public class SaveAllHandler implements DataHandlerInterface
 	 * @param s
 	 *            the sent message
 	 */
-	@Override
 	public void handleSent(String s)
 	{
 		HashMap<String, String> values = new HashMap<String, String>();
@@ -127,5 +127,26 @@ public class SaveAllHandler implements DataHandlerInterface
 		boolean result = dbConnector.insertValues(table, values);
 
 		logger.debug("insert in " + table + " of sent " + s + " was " + result);
+	}
+
+	/* (non-Javadoc)
+	 * @see topchat.server.data.DataObserver#handle(topchat.server.data.DataEvent, java.lang.String)
+	 */
+	@Override
+	public void handle(DataEvent event, String[] args)
+	{
+		switch (event)
+		{
+			case HANDLE_RECEIVED :
+				handleReceived(args[0]);
+				break;
+			case HANDLE_SENT :
+				handleSent(args[0]);
+				break;				
+
+			default :
+				break;
+		}
+		
 	}
 }

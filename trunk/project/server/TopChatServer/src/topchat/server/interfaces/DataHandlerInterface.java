@@ -41,4 +41,36 @@ public interface DataHandlerInterface
 	 */
 	void handleSent(String s);
 
+	/**
+	 * @param room
+	 */
+	void handleRoomCreated(String room);
+
+	/**
+	 * @param room
+	 */
+	void handleRoomDestroyed(String room);
+
+	/**
+	 * @param roomName
+	 * @param roomUser
+	 */
+	void handleRoomJoined(String roomName, String roomUser);
+
+	/**
+	 * @param roomUser
+	 * @param roomName
+	 * @param body
+	 * @param numMessages
+	 * @param ref
+	 */
+	void handleGroupMessage(String roomUser, String roomName, String body,
+			int numMessages, int ref);
+
+	/**
+	 * @param name
+	 * @param roomUser
+	 */
+	void handleRoomLeft(String name, String roomUser);
+
 }

@@ -91,4 +91,26 @@ public interface ProtocolMediator
 	 *            the sent data
 	 */
 	public void announceSend(String string);
+
+	/**
+	 * @param roomName
+	 * @param roomUser
+	 */
+	public void announceRoomJoined(String roomName, String roomUser);
+
+	/**
+	 * @param roomUser
+	 * @param roomName
+	 * @param body
+	 * @param numMessages
+	 * @param ref
+	 */
+	public void announceGroupMessage(String roomUser, String roomName,
+			String body, int numMessages, int ref);
+
+	/**
+	 * @param name
+	 * @param roomUser
+	 */
+	public void announceRoomLeft(String name, String roomUser);
 }
