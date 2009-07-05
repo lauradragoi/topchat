@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package topchat.server.data;
 
 import java.util.HashMap;
@@ -23,6 +23,10 @@ import org.apache.log4j.Logger;
 
 import topchat.server.db.DatabaseConnector;
 
+/**
+ * Saves information about users entering/leaving rooms and conversations in
+ * rooms into a table, to be further exported as XML.
+ */
 public class SaveSimpleXMLObserver extends DataObserver
 {
 
@@ -32,32 +36,32 @@ public class SaveSimpleXMLObserver extends DataObserver
 	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
 
+	/** The DataHandler this DataObserver connects to */
 	private DataHandler handler;
 
 	private static Logger logger = Logger.getLogger(SaveAllObserver.class);
 
 	/**
-	 * Constructs a SaveAllHandler connected to a DataMediator and initiates the
-	 * connection to the database used for saving the data.
+	 * Constructs a SaveSimpleXMLHandler connected to a DataHandler and
+	 * initiates the connection to the database used for saving the data.
 	 * 
 	 * @param dataHandler
-	 *            the DataMediator to which the DataHandler connects
+	 *            the DataHandler to which the DataObserver connects
 	 * @throws Exception
 	 *             if the database connection cannot be initiated
 	 */
 	public SaveSimpleXMLObserver(DataHandler dataHandler) throws Exception
 	{
 		this.handler = dataHandler;
-		
+
 		dbConnector = init();
-	
+
 		handler.registerObserver(this, DataEvent.ROOM_JOINED);
 		handler.registerObserver(this, DataEvent.ROOM_LEFT);
 		handler.registerObserver(this, DataEvent.GROUP_MESSAGE);
 
 		logger.info("SaveSimpleXMLObserver initiated.");
 	}
-	
 
 	/**
 	 * Initiate a connection to the database used for saving data.
@@ -90,72 +94,37 @@ public class SaveSimpleXMLObserver extends DataObserver
 		this.table = table;
 	}
 
-	/**
-	 * Save a received message in the database.
-	 * 
-	 * @param s
-	 *            the received message
-	 */
-	public void handleReceived(String s)
-	{
-
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put("type", "receive");
-		values.put("message", s);
-
-		boolean result = dbConnector.insertValues(table, values);
-
-		logger.debug("Insert in " + table + " of received msg " + s + " was "
-				+ result);
-	}
-
-	/**
-	 * Save a sent message in the database.
-	 * 
-	 * @param s
-	 *            the sent message
-	 */
-	public void handleSent(String s)
-	{
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put("type", "sent");
-		values.put("message", s);
-
-		boolean result = dbConnector.insertValues(table, values);
-
-		logger.debug("insert in " + table + " of sent " + s + " was " + result);
-	}
-
 	@Override
 	public void handle(DataEvent event, String[] args)
 	{
 		switch (event)
 		{
-			case HANDLE_RECEIVED :
-				handleReceived(args[0]);
-				break;
-			case HANDLE_SENT :
-				handleSent(args[0]);
-				break;		
-			case ROOM_JOINED:
+			case ROOM_JOINED :
 				handleRoomJoined(args[0], args[1]);
 				break;
-			case ROOM_LEFT:
+			case ROOM_LEFT :
 				handleRoomLeft(args[0], args[1]);
 				break;
-			case GROUP_MESSAGE:
+			case GROUP_MESSAGE :
 				handleGroupMessage(args[0], args[1], args[2], args[3], args[4]);
 				break;
 			default :
 				break;
 		}
-		
+
 	}
 
-
+	/**
+	 * Handles the event of one user leaving a room
+	 * 
+	 * @param room
+	 *            the name of the room
+	 * @param user
+	 *            the nickname of the user
+	 */
 	private void handleRoomLeft(String room, String user)
 	{
-		HashMap<String, String> values = new HashMap<String, String>();		
+		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("nick", user);
 		values.put("room", room);
 		values.put("type", "leave");
@@ -166,39 +135,49 @@ public class SaveSimpleXMLObserver extends DataObserver
 		logger.debug("insert in " + table + " of room left was " + result);
 	}
 
-
 	/**
-	 * @param string
-	 * @param string2
+	 * Handles the event of one user joining a room
+	 * 
+	 * @param room
+	 *            the name of the room
+	 * @param user
+	 *            the nickname of the user
 	 */
 	private void handleRoomJoined(String room, String user)
 	{
-		HashMap<String, String> values = new HashMap<String, String>();		
+		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("nick", user);
 		values.put("room", room);
 		values.put("type", "join");
 		values.put("message", "joined room.");
 
-
 		boolean result = dbConnector.insertValues(table, values);
 
 		logger.debug("insert in " + table + " of joined was " + result);
-		
+
 	}
-	
+
 	/**
+	 * Handles the event of a group message.
+	 * 
 	 * @param roomUser
+	 *            the nickname of the user sending the message
 	 * @param roomName
+	 *            the name of the room where the message is sent
 	 * @param body
-	 * @param numMessages
+	 *            the body of the message
+	 * @param id
+	 *            the numerical id of the message in the conversation
 	 * @param ref
+	 *            the numerical id of the message it reffers to, 0 if no such
+	 *            message
 	 */
-	private void handleGroupMessage(String roomUser, String roomName, String body,
-			String id, String ref)
+	private void handleGroupMessage(String roomUser, String roomName,
+			String body, String id, String ref)
 	{
-		HashMap<String, String> values = new HashMap<String, String>();		
+		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("nick", roomUser);
-		values.put("room", roomName);	
+		values.put("room", roomName);
 		values.put("type", "message");
 		values.put("message", body);
 		values.put("msg_id", id);
@@ -208,6 +187,5 @@ public class SaveSimpleXMLObserver extends DataObserver
 
 		logger.debug("insert in " + table + " of group message was " + result);
 	}
-
 
 }

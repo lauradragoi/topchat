@@ -20,42 +20,39 @@ package topchat.server.data;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import topchat.server.db.DatabaseConnector;
-import topchat.server.interfaces.DataHandlerInterface;
-import topchat.server.interfaces.DataMediator;
 
 /**
  * This module is responsible for processing the data received/sent by the
- * server. It currently saves all this data in a database.
+ * server. It currently saves all this data in a table.
  */
 public class SaveAllObserver extends DataObserver
 {
-
-
 	/** Name of the table where the data will be saved */
 	private String table = null;
 
 	/** Connection to the database where the data will be saved */
 	private DatabaseConnector dbConnector = null;
 
+	/** The DataHandler this DataObserver connects to */
 	private DataHandler handler;
 
 	private static Logger logger = Logger.getLogger(SaveAllObserver.class);
 
 	/**
-	 * Constructs a SaveAllHandler connected to a DataMediator and initiates the
+	 * Constructs a SaveAllHandler connected to a DataHandler and initiates the
 	 * connection to the database used for saving the data.
 	 * 
 	 * @param dataHandler
-	 *            the DataMediator to which the DataHandler connects
+	 *            the DataHandler to which the DataObserver connects
 	 * @throws Exception
 	 *             if the database connection cannot be initiated
 	 */
 	public SaveAllObserver(DataHandler dataHandler) throws Exception
 	{
 		this.handler = dataHandler;
-		
+
 		dbConnector = init();
-		
+
 		handler.registerObserver(this, DataEvent.HANDLE_RECEIVED);
 		handler.registerObserver(this, DataEvent.HANDLE_SENT);
 
@@ -93,13 +90,31 @@ public class SaveAllObserver extends DataObserver
 		this.table = table;
 	}
 
+	@Override
+	public void handle(DataEvent event, String[] args)
+	{
+		switch (event)
+		{
+			case HANDLE_RECEIVED :
+				handleReceived(args[0]);
+				break;
+			case HANDLE_SENT :
+				handleSent(args[0]);
+				break;
+
+			default :
+				break;
+		}
+
+	}
+
 	/**
 	 * Save a received message in the database.
 	 * 
 	 * @param s
 	 *            the received message
 	 */
-	public void handleReceived(String s)
+	private void handleReceived(String s)
 	{
 
 		HashMap<String, String> values = new HashMap<String, String>();
@@ -118,7 +133,7 @@ public class SaveAllObserver extends DataObserver
 	 * @param s
 	 *            the sent message
 	 */
-	public void handleSent(String s)
+	private void handleSent(String s)
 	{
 		HashMap<String, String> values = new HashMap<String, String>();
 		values.put("type", "sent");
@@ -127,26 +142,5 @@ public class SaveAllObserver extends DataObserver
 		boolean result = dbConnector.insertValues(table, values);
 
 		logger.debug("insert in " + table + " of sent " + s + " was " + result);
-	}
-
-	/* (non-Javadoc)
-	 * @see topchat.server.data.DataObserver#handle(topchat.server.data.DataEvent, java.lang.String)
-	 */
-	@Override
-	public void handle(DataEvent event, String[] args)
-	{
-		switch (event)
-		{
-			case HANDLE_RECEIVED :
-				handleReceived(args[0]);
-				break;
-			case HANDLE_SENT :
-				handleSent(args[0]);
-				break;				
-
-			default :
-				break;
-		}
-		
 	}
 }
