@@ -1,4 +1,4 @@
-#summary Details on the implementation of the topchat server
+#summary Details on the topchat server
 #labels Featured
 
 = Introduction =
