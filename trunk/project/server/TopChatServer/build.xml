@@ -9,6 +9,7 @@
 	<property name="lib.dir" 			location="lib"/>
 	<property name="dist.dir" 			location="dist"/>
 	<property name="config.dir" 		location="config"/>
+	<property name="config_dumber.dir" 	location="config_dumber"/>
 	<property name="doc.dir"			location="doc"/>
 	<property name="tests.dir"			location="tests"/>
 	
@@ -22,7 +23,7 @@
 	<property name="jar.name"			value="TopChatServer.jar" />
 	<property name="main.class"			value="topchat.server.core.TopChatServer" />
 	<property name="dumb.client.name" 	value="topchat.server.dummyclient.DumbClient"/>
-
+	<property name="dumber.client.name" 	value="topchat.server.dummyclient.DumberClient"/>
 	
 	<target name="init" depends="clean">
 		<mkdir dir="${bin.dir}"/>
@@ -82,7 +83,7 @@
 	<target name="run_client" depends="" description="run the dumb client" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning client..." />
-		<java classname="${dumb.client.class}"  fork="true">
+		<java classname="${dumb.client.name}"  fork="true">
 			<classpath>
 				<pathelement location="${bin.dir}"/>
 				<pathelement location="${lib.dir}/${log4j.lib}"/>
@@ -95,6 +96,23 @@
 		<echo message="Finished." />
 	</target>	
 
+	<target name="run_client2" depends="" description="run the dumber client" >
+		<!-- Run the program in a VM different from the VM ant is running in -->
+		<echo message="Runnning client..." />
+		<java classname="${dumber.client.name}"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config_dumber.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+			<arg line="${user} ${pass}"/>
+		</java>
+		<echo message="Finished." />
+	</target>		
+	
 	<target name="test" depends="compile" description="Run JUnit tests">
 		<!-- Run defined tests -->
 		<mkdir dir="${tests.dir}" />
