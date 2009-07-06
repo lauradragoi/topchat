@@ -1,1 +1,0 @@
-java -server -jar TopChatServer.jar
