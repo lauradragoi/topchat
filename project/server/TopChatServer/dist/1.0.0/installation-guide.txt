@@ -1,0 +1,54 @@
+
+TopChatServer
+
+Installation Guide
+
+v1.0.0
+
+
+
+The TopChatServer application is distributed as JAR which can be executed which requires a Java Runtime Environment.
+The JRE version requirement is 1.6.
+
+In order to launch the application the following command should be issued in the folder where the JAR is located.
+	java -server -jar TopChatServer.jar
+
+(on Windows you could simply use the launch.bat batch file provided in the distribution, provided java is in your system path).
+
+In order to run properly the server needs some security information: a certificate, the keystore and the truststore.
+These are provided in the distribution and should exist in a folder named security located in the same folder as the JAR file.
+
+The server also needs to connect to a MySQL database to retrieve information such as authentication and save messages.
+
+
+The following properties should be configured in topchatserver.properties in order for the connection to the database to work properly:
+
+# the properties of the MySQL  server where the authentication database exists
+authentication.server=127.0.0.1
+authentication.db=topchatserver
+authentication.user=root
+authentication.pass=
+authentication.table=users
+
+# the properties of the MySQL server where the database used for saving groupchats that will be exported to XML # exists
+data.simplexml.server=127.0.0.1
+data.simplexml.db=topchatserver
+data.simplexml.user=root
+data.simplexml.pass=
+data.simplexml.table=simplexml
+
+# the properties of the  MySQL server where the database used for saving sent/received messages  exists
+data.saveall.server=127.0.0.1
+data.saveall.db=topchatserver
+data.saveall.user=root
+data.saveall.pass=
+data.saveall.table=messages
+
+In this example the same server and database was used to contain the tables required by the application.
+A sql script to generate a MySQL database with the needed structure can be found in the WebApp/db folder.
+
+The web application can be found under WebApp/topchat and should be copied into a Web Server with PHP and MySQL enabled like Apache HTTP Server. WAMP Server was used while developing the application.
+The web application is currently configured to run on the same server as the MySQL server with the user name and password and table names specified above.
+
+
+
