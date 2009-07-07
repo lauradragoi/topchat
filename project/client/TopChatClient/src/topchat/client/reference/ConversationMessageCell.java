@@ -1,6 +1,7 @@
 package topchat.client.reference;
 
 import java.awt.Font;
+import java.awt.Rectangle;
 import javax.swing.JTextArea;
 
 /**
@@ -43,5 +44,7 @@ public class ConversationMessageCell extends JTextArea
 
 		super(msg);
         this.id = id;
+        this.setSize(300,300);
+        this.setRows(10);
 	}
 }

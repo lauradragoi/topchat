@@ -5,10 +5,10 @@
 
 package topchat.client.chat;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +35,8 @@ public class Room {
     public ChatPanel RoomPanel;
     public String roomName;
     public JoinNewRoom joinedRoom;
+    public int first_id=-1;
+    public boolean hack = true;
     //ChatGUI roomChatGUI;
 
 
@@ -53,6 +55,7 @@ public class Room {
 
             public void interceptPacket(Packet arg0) {
                 System.out.println("status_incerceptor " + arg0);
+                
             }
         });
        
@@ -82,7 +85,7 @@ public class Room {
                     }
             }
 
-            public void left(String newName) {
+            public synchronized void left(String newName) {
                     char[] newRoom = new char[newName.length()];
                     String newUserNick;
                     String newRoomAddress;
@@ -98,11 +101,11 @@ public class Room {
                     newRoomAddress = newName.substring(0, endIndex);
                     newUserNick = newName.substring(startIndex, newRoom.length);
                     System.out.println("address: " + newRoomAddress + " nick: " + newUserNick);
-                    if (isUserInRoom(newUserNick)==true)
-                    {
+                    //if (isUserInRoom(newUserNick)==true)
+                    
                         RoomPanel.usersListModel.removeElement(newUserNick);//+" - "+joinedRoom.jTextField3.getText());
                         //ClientConnection.user.userRooms.remove(newRoomAddress);
-                    }
+                    
             }
             public void kicked(String arg0, String arg1, String arg2) {
             }
@@ -132,16 +135,32 @@ public class Room {
             }
         }
        );
-       RoomPanel.send.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
+        RoomPanel.send.addMouseListener(new MouseListener() {
+
+            
+
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            public void mousePressed(MouseEvent e) {
                 try {
                     sendMessage();
 
                 } catch (XMPPException ex) {
                     Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+
+            public void mouseReleased(MouseEvent e) {
                 RoomPanel.chatMessage.setText("");
+                RoomPanel.reference = -1;//test
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
             }
         });
        RoomPanel.chatMessage.addKeyListener(new KeyListener() {
@@ -156,17 +175,22 @@ public class Room {
                     } catch (XMPPException ex) {
                         Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    RoomPanel.chatMessage.setText("");
+                   // RoomPanel.chatMessage.setText("");
                 }
             }
-            public void keyReleased(KeyEvent e) {                
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    RoomPanel.chatMessage.setText("");
+                    RoomPanel.reference = -1;//test
+                }
             }
         });
 
        muc.addMessageListener(new PacketListener() {
 
-            public void processPacket(Packet arg0) {
-                System.out.println(((Message)arg0).getBody());
+            public synchronized void processPacket(Packet arg0) {
+
+                System.out.println("cucu!!!!!!!!!!!!!!!!!!!!!!!");
                 char[] sender = new char[((Message)arg0).getFrom().length()];
                 String From;
                 int startIndex = 0;
@@ -195,16 +219,35 @@ public class Room {
 				} catch(Exception e){}
 
                 s = s.substring(s.indexOf('#') + 1);
-				System.out.println("pfff " + s +  "  " +  " nr " + nr +  " id " + id);
-                if (ClientConnection.user.first_id == -1)
+				System.out.println("am primit: " + s +  "  " +  " nr_mesaj " + nr +  " id_ref " + id);
+
+                if (first_id == -1)
+                    first_id = nr;
+
+                if (ClientConnection.user.last_id == nr)
+                    return ;
+                ClientConnection.user.last_id = nr;
+                /*
+                if (ClientConnection.user.first_id == -1){
                     ClientConnection.user.first_id = nr;
 
-                RoomPanel.addMessage(From+" : "+s, nr);
+                System.out.println("first_id =  " + ClientConnection.user.first_id);}*/
+
                 
+                
+                RoomPanel.addMessage(From+" : "+s, nr-first_id);
+                int ceva = nr-first_id;
+                System.out.println("am adaugat mesaj: "+ceva);
 				
-				if (RoomPanel.ref == true && id != -1){
+				if ( id > -1){
 					// am primit referinta de la server
-					RoomPanel.addReference(nr-ClientConnection.user.first_id, id-ClientConnection.user.first_id);
+					//RoomPanel.addReference(nr-ClientConnection.user.first_id, id-ClientConnection.user.first_id);
+                    RoomPanel.addReference(nr-first_id, id-first_id);
+                    int ceva1 = nr-first_id;
+                    int ceva2 = id-first_id;
+                    System.out.println("am adaugat ref: "+ceva1+" "+ceva2);
+                    RoomPanel.ref = false;
+
 				}
             }
 
@@ -224,8 +267,20 @@ public class Room {
     }
 
     public void sendMessage() throws XMPPException{
-        String s = "#"+RoomPanel.reference+"#"+RoomPanel.chatMessage.getText();
+        int ceva;
+        
+        if (RoomPanel.reference != -1)
+            //ceva = RoomPanel.reference+ClientConnection.user.first_id;
+            ceva = RoomPanel.reference+first_id;
+        else
+            ceva = RoomPanel.reference;
+
+        String s = "#"+ceva+"#"+RoomPanel.chatMessage.getText();
+        System.out.println("send message: "+s);
         muc.sendMessage(s);
+        hack = false;
+       
+        
     }
     public void sendStatus(String status) throws XMPPException{
 
