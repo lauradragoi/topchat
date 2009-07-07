@@ -102,4 +102,15 @@ public class User
 	{
 		joinedRooms.add(roomName);
 	}
+	
+	/**
+	 * Method called when a User leaves a room
+	 * 
+	 * @param roomName
+	 *            the name of the Room
+	 */
+	public void leave(String roomName)
+	{
+		joinedRooms.remove(roomName);
+	}
 }

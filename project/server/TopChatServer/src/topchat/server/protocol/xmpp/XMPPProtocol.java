@@ -238,6 +238,49 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 		
 		return room;
 	}
+	
+	/**
+	 * Announces that a user has left a room
+	 * 
+	 * @param roomName
+	 *            the name of the room
+	 * @param user
+	 *            the User entity
+	 * @param roomUser
+	 *            the nickname used by the user in the room
+	 * @return a reference to the Room left by the user
+	 */
+	public void roomLeft(String roomName, User user)
+	{
+		Room room = createdRooms.get(roomName);
+
+		if (room != null)
+		{
+			RoomParticipant participant = room.removeUser(user);
+			if (participant == null)
+			{
+				logger.warn("user already removed from room " + user.toString());
+				return;
+			}
+			logger.debug("User " + user + " removed from " + roomName);
+			med.announceRoomLeft(roomName, participant.getRoomUser());
+
+			if (room.getParticipants().size() == 0)
+			{
+				// remove the room
+				createdRooms.remove(roomName);
+				logger
+						.debug("Room "
+								+ roomName
+								+ " was removed due to the fact that it was empty.");
+
+				med.removeRoom(roomName);
+			} else
+			{
+				userLeftRoom(room, participant);
+			}
+		}
+	}	
 
 	/**
 	 * Check if a room was created
@@ -330,43 +373,18 @@ public class XMPPProtocol implements Protocol, XMPPConstants
 	@Override
 	public void connectionClosed(SocketChannel socketChannel)
 	{
-
 		XMPPConnectionManager manager = connectionManagers.get(socketChannel);
 
 		// user is leaving
 		User user = manager.getUser();
 		if (user != null)
 		{
-
 			med.removeUser(user.toString());
 
 			for (String roomName : user.joinedRooms)
 			{
-				Room room = createdRooms.get(roomName);
-
-				if (room != null)
-				{
-					RoomParticipant participant = room.removeUser(user);
-					logger.debug("User " + user + " removed from " + roomName);
-					med.announceRoomLeft(roomName, participant.getRoomUser());
-
-					if (room.getParticipants().size() == 0)
-					{
-						// remove the room
-						createdRooms.remove(roomName);
-						logger
-								.debug("Room "
-										+ roomName
-										+ " was removed due to the fact that it was empty.");
-
-						med.removeRoom(roomName);
-					} else
-					{
-						userLeftRoom(room, participant);
-					}
-				}
+				roomLeft(roomName, user);				
 			}
-
 		}
 
 		manager.announceClosed();

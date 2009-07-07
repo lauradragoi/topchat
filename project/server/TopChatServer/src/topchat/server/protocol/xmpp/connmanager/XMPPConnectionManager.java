@@ -378,6 +378,22 @@ public class XMPPConnectionManager extends DefaultConnectionManager
 	}
 
 	/**
+	 * Called when the user corresponding to this connection leaves a room
+	 * 
+	 * @param roomName
+	 *            the name of the room
+	 * @param roomUser
+	 *            the nickname of the user in the room
+	 * @return the Room being joined
+	 */
+	public void leaveRoom(String roomName)
+	{
+		logger.debug("Leave room " + roomName + " user " + user);
+		user.leave(roomName);
+		protocol.roomLeft(roomName, user);
+	}	
+	
+	/**
 	 * Checks if a room is created.
 	 * 
 	 * @param roomName
