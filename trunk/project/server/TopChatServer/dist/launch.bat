@@ -1,0 +1,1 @@
+java -jar client.jar eu parola 10.20.11.71

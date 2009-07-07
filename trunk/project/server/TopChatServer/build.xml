@@ -96,6 +96,27 @@
 		<echo message="Finished." />
 	</target>	
 
+	<target name="jar_client" depends="compile" description="package the program">
+		<mkdir dir="dist"/>
+		<jar destfile="${dist.dir}/client.jar" basedir="${bin.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${dumber.client.name}"/>
+			</manifest>			
+			<zipfileset src="${lib.dir}/${log4j.lib}" />
+			<zipfileset src="${lib.dir}/${junit.lib}" />
+			<zipfileset src="${lib.dir}/${smack.lib}" />
+			<zipfileset src="${lib.dir}/${smackx.lib}" />
+			<zipfileset src="${lib.dir}/${connectorj.lib}"/>	
+			<zipfileset dir="${config.dir}" />
+	    </jar>
+	</target>
+	
+	<target name="run_jar_client" description="run the packaged program">
+        <java jar="dist/client.jar" fork="true">
+			<arg line="${user} ${pass} ${server} "/>
+		</java>
+    </target>
+	
 	<target name="run_client2" depends="" description="run the dumber client" >
 		<!-- Run the program in a VM different from the VM ant is running in -->
 		<echo message="Runnning client..." />
@@ -112,6 +133,58 @@
 		</java>
 		<echo message="Finished." />
 	</target>		
+	
+	<target name="run_client10" depends="" description="run the dumber client" >
+		<!-- Run the program in a VM different from the VM ant is running in -->
+		<echo message="Runnning client..." />
+		<parallel>
+		<java classname="${dumber.client.name}"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config_dumber.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+			<arg line="${user} ${pass}"/>
+		</java>
+		<java classname="${dumber.client.name}"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config_dumber.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+			<arg line="${user} ${pass}"/>
+		</java>
+				<java classname="${dumber.client.name}"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config_dumber.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+			<arg line="${user} ${pass}"/>
+		</java>
+		<java classname="${dumber.client.name}"  fork="true">
+			<classpath>
+				<pathelement location="${bin.dir}"/>
+				<pathelement location="${lib.dir}/${log4j.lib}"/>
+				<pathelement location="${lib.dir}/${smack.lib}"/>
+				<pathelement location="${lib.dir}/${smackx.lib}"/>
+				<pathelement location="${config_dumber.dir}"/>
+				<pathelement path="${java.class.path}"/>
+			</classpath>
+			<arg line="${user} ${pass}"/>
+		</java>		
+		</parallel>
+		<echo message="Finished." />
+	</target>	
 	
 	<target name="test" depends="compile" description="Run JUnit tests">
 		<!-- Run defined tests -->
