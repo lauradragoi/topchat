@@ -1,0 +1,1 @@
+ant run_client2 -Duser=eu -Dpass=parola

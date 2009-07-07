@@ -1,0 +1,7 @@
+
+
+Version changes
+
+1.0.1
+
+	Fixed bugs in implementation of users leaving rooms

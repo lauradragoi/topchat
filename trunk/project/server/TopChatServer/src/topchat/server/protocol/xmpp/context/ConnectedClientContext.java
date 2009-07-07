@@ -114,8 +114,33 @@ public class ConnectedClientContext extends XMPPContext
 	private void processPresence(PresenceStanza presenceStanza)
 	{
 		processStatus(presenceStanza);
+		
+		processAvailability(presenceStanza);
+
 
 		processXElement(presenceStanza);
+	}
+
+	private void processAvailability(PresenceStanza presenceStanza)
+	{
+		// if unavailable is received from connected client check if it is trying
+		// to exit a room
+		if ("unavailable".equals(presenceStanza.getAttribute("type")))
+		{
+			String to = presenceStanza.getAttribute("to");
+			
+			if (to != null)
+			{
+				String[] toElements = to.split("/");
+				String roomName = toElements[0];
+				
+
+				if (getXMPPManager().isRoomCreated(roomName))
+				{
+					getXMPPManager().leaveRoom(roomName);
+				}
+			}
+		}		
 	}
 
 	/**
@@ -230,6 +255,7 @@ public class ConnectedClientContext extends XMPPContext
 		}
 
 	}
+	
 
 	/**
 	 * Called to process any status information sent with a presence
