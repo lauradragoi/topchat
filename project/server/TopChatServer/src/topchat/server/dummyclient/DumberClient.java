@@ -37,6 +37,7 @@ public class DumberClient implements Runnable
 
 	private static String user = null;
 	private static String pass = null;
+	private static String server = null;
 	private static Logger logger = Logger.getLogger(DumbClient.class);
 
 	/**
@@ -49,7 +50,7 @@ public class DumberClient implements Runnable
 	public static void makeConnection() throws XMPPException
 	{
 		ConnectionConfiguration config = new ConnectionConfiguration(
-				"localhost", 5222);
+				server, 5222);
 		conn = new XMPPConnection(config);
 		try
 		{
@@ -66,10 +67,11 @@ public class DumberClient implements Runnable
 		}
 	}
 
-	public DumberClient(String user, String password)
+	public DumberClient(String user, String password, String server)
 	{
 		this.user = user;
 		this.pass = password;
+		this.server = server;
 	}
 	
 	/**
@@ -94,7 +96,12 @@ public class DumberClient implements Runnable
 
 		while (running)
 		{
-
+			try
+			{
+				Thread.sleep(100);
+			} catch (Exception e)
+			{
+			}
 		}
 	}
 
@@ -107,7 +114,7 @@ public class DumberClient implements Runnable
 	public static void main(String[] args)
 	{
 
-		(new Thread(new DumberClient(args[0], args[1]))).start();
+		(new Thread(new DumberClient(args[0], args[1], args[2]))).start();
 	}
 
 }
