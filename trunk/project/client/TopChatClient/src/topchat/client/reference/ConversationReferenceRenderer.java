@@ -15,7 +15,7 @@ public class ConversationReferenceRenderer extends ConversationReferenceCell imp
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		System.out.println("Drawing reference at " + row + " " + column);
+		//System.out.println("Drawing reference at " + row + " " + column);
 		try
 		{
 			return (ConversationReferenceCell)table.getModel().getValueAt(row, column);

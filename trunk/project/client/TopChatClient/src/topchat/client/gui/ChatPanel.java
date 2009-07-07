@@ -117,7 +117,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
             public void keyPressed(KeyEvent e) {
                 int key = e.getKeyCode();
 
-                if (key == e.VK_ENTER){
+                if (key == KeyEvent.VK_ENTER){
                     SendButtonKeyPressed(e);
                 }
             }
@@ -151,6 +151,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
         {
            Room room = ClientConnection.user.getRoom(this);
            ClientConnection.user.removeRoom(room);
+           this.getParent().remove(this);
            this.usersListModel.removeElement(ClientConnection.user.nickname);
         }
     }

@@ -23,6 +23,7 @@ public class User {
      * ca apoi cand deseneaza referintele sa faca diferenta
      */
     public int first_id = -1;
+    public int last_id = -1;
 
     public User(String userName, String passwd, String nick, String stat) throws XMPPException{
         this.username = userName;
@@ -56,6 +57,7 @@ public class User {
 
     public void removeRoom(Room room){
         userRooms.remove(room);
+        //room.muc.changeAvailabilityStatus(status, Presence.Mode.available);
         room.muc.leave();
     }
     public String  getUserStatus(String nick,String room){

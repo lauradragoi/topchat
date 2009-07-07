@@ -15,7 +15,7 @@ public class ConversationMessageRenderer extends ConversationMessageCell impleme
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		System.out.println("Drawing message at " + row + " " + column);
+		//System.out.println("Drawing message at " + row + " " + column);
 		try
 		{
 			return (ConversationMessageCell)table.getModel().getValueAt(row, column);
