@@ -1,5 +1,4 @@
 #summary Details on the topchat server
-#labels Featured
 
 = Introduction =
 
