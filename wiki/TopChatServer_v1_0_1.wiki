@@ -4,6 +4,9 @@
 
 === Packaging ===
 
+The [http://topchat.googlecode.com/files/1.0.1.zip release package]
+
+
 === Installation guide ===
 
 
