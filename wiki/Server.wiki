@@ -1,4 +1,5 @@
 #summary Details on the topchat server
+#labels TopChatServer
 
 = Introduction =
 
@@ -11,8 +12,8 @@ TopChatServer is a software system consisting of a Java XMPP-based server used f
 
 == Current release ==
 
-[TopChatServer 1.0.1]
+[http://code.google.com/p/topchat/wiki/TopChatServer_v1_0_1 TopChatServer 1.0.1]
 
 == Previous releases ==
 
-[TopChatServer 1.0.0]
+[http://code.google.com/p/topchat/wiki/TopChatServer_v1_0_0 TopChatServer 1.0.0]
