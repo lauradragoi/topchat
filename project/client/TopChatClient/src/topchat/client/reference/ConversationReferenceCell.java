@@ -1,6 +1,7 @@
 package topchat.client.reference;
 
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Vector;
 import javax.swing.JPanel;
@@ -24,10 +25,10 @@ public class ConversationReferenceCell extends JPanel
 		this.row = row;
 	}
 
-	public synchronized void addReference(int source, int destination)
+	public synchronized void addReference(int source, int destination,Color c)
 	{
 		System.out.println("adding reference " + source + " dest " + destination + " at " + row);
-		references.add(new Reference(source, destination));
+		references.add(new Reference(source, destination,c));
 		//this.append("[" + source + "," + destination + "]");
 	}
 
@@ -44,7 +45,7 @@ public class ConversationReferenceCell extends JPanel
 			//int x = (int) ((r.getSource() - r.getDestination()) / (r.getSource() * 1.0) * (w - pad));
 			int x = (int) ((r.getDestination()) / (r.getSource() * 1.0) * (w - 2 * pad)) + pad;
 			System.out.println("referinta "+ r.getSource() + " " + r.getDestination() + " r " + row + " x = " +x);
-
+            g.setColor(r.color);
 			if (row == r.getSource())
 			{
 				g.drawLine(x, h/2, w, h/2);

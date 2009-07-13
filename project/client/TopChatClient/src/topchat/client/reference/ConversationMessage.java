@@ -1,5 +1,6 @@
 package topchat.client.reference;
 
+import java.awt.Color;
 import java.util.Vector;
 
 /**
@@ -7,15 +8,17 @@ import java.util.Vector;
  */
 public class ConversationMessage extends Vector
 {
-	public ConversationMessage(String msg, int row,int id)
+	public ConversationMessage(String msg, int row,int id,Color c)
 	{
 		super();
     	this.add(new ConversationReferenceCell(row));
         
-        ConversationMessageCell cell = new ConversationMessageCell(msg,id);
+        ConversationMessageCell cell = new ConversationMessageCell(msg,id,c);
         cell.setFont();
         cell.setWrapStyleWord();
         cell.setLineWrap();
+        //cell.setBackground(c);
+        cell.setForeground(c);
         
     	this.add(cell);
 	}

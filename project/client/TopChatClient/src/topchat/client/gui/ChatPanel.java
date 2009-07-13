@@ -23,13 +23,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import org.jivesoftware.smack.XMPPException;
 import topchat.client.chat.Room;
 import topchat.client.connection.ClientConnection;
 import topchat.client.reference.ConversationMessage;
@@ -47,6 +51,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
     public DefaultListModel usersListModel;
     public PopupMenu popup;
     public MenuItem item;
+    public int hrow=-1,hcol=-1;
 
     String[] columnNames = {"Referinte" , "Replici"};
     Vector columnNamesV = new Vector(Arrays.asList(columnNames));
@@ -64,9 +69,8 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
     public ChatPanel() {
         usersListModel = new DefaultListModel();
         initComponents();
-
-        // Set component with initial focus; must be done before the frame is made visible
-        //this.chatMessage.requestFocus();
+        this.jScrollPane1.setBackground(Color.WHITE);
+        this.jScrollPane2.setBackground(Color.WHITE);
 
         popup = new PopupMenu();
         item = new MenuItem("Leave room!");
@@ -84,29 +88,45 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
             }
         };
         table.setGridColor(Color.WHITE);
+        table.setBackground(Color.WHITE);
         table.setIntercellSpacing(new Dimension(1, 1));
     	table.getColumnModel().getColumn(0).setCellRenderer(new ConversationReferenceRenderer());
-    	table.getColumnModel().getColumn(1).setCellRenderer(new ConversationMessageRenderer());
+    	table.getColumnModel().getColumn(1).setCellRenderer(new ConversationMessageRenderer(this));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.jScrollPane1.setViewportView(table);
+
         // Listen for value changes in the scroll pane's scrollbars
         MyAdjustmentListener l = new MyAdjustmentListener();
         this.jScrollPane1.getVerticalScrollBar().addAdjustmentListener(l);
 
+        
+        table.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e)
+            {
+
+                hrow = table.rowAtPoint(e.getPoint());
+                hcol = table.columnAtPoint(e.getPoint());
+                table.repaint();
+            }
+        });
+
         table.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
+            }
+            public void mousePressed(MouseEvent e) {
                 ref = true;
                 //id-ul mesajului la care fac referinta e dat de linia selectata
                 reference = table.getSelectedRow();
                 source = table.getRowCount();
-            }
-            public void mousePressed(MouseEvent e) {
             }
             public void mouseReleased(MouseEvent e) {
             }
             public void mouseEntered(MouseEvent e) {
             }
             public void mouseExited(MouseEvent e) {
+                hrow = -1;
+                hcol = -1;
             }
         });
 
@@ -135,7 +155,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
     {
         super.processMouseEvent(mouseevent);
         //this.chatMessage.setFocusable(true);
-        this.chatMessage.requestFocus();
+        //this.chatMessage.requestFocus();
         //check if popup triggered
         if(mouseevent.isPopupTrigger())
         {
@@ -150,9 +170,13 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
         if(actionevent.getSource().equals(item))
         {
            Room room = ClientConnection.user.getRoom(this);
-           ClientConnection.user.removeRoom(room);
+            try {
+                ClientConnection.user.removeRoom(room);
+            } catch (XMPPException ex) {
+                Logger.getLogger(ChatPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
            this.getParent().remove(this);
-           this.usersListModel.removeElement(ClientConnection.user.nickname);
+           //this.usersListModel.removeElement(ClientConnection.user.nickname);
         }
     }
 
@@ -172,6 +196,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
         usersList = new javax.swing.JList();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
+        jComboBox1 = new javax.swing.JComboBox();
 
         setBackground(new java.awt.Color(204, 204, 255));
         setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
@@ -202,20 +227,25 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
         usersList.setModel(usersListModel);
         jScrollPane2.setViewportView(usersList);
 
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setAutoscrolls(true);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 505, Short.MAX_VALUE)
+            .addGap(0, 538, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 227, Short.MAX_VALUE)
+            .addGap(0, 243, Short.MAX_VALUE)
         );
 
         jScrollPane1.setViewportView(jPanel1);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Black", "Blue", "Red", "Green", "Purple" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -223,20 +253,23 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(chatMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(send))
-                    .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(51, 51, 51)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(70, 70, 70)
-                        .addComponent(jLabel1)))
-                .addGap(20, 20, 20))
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(51, 51, 51)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -246,17 +279,19 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(23, 23, 23)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(chatMessage, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
+                        .addComponent(chatMessage, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(send, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(send, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(23, 23, 23))))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -277,8 +312,9 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JTextField chatMessage;
+    public javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
+    public javax.swing.JPanel jPanel1;
     public javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     public javax.swing.JButton send;
@@ -291,11 +327,11 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
      * @param source
      * @param destination
      */
-    public synchronized void addReference(int source, int destination)
+    public synchronized void addReference(int source, int destination,Color c)
     {
     	if (source < destination)
     	{
-    		addReference(destination, source);
+    		addReference(destination, source,c);
     		return;
     	}
 
@@ -304,7 +340,7 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
     	for (int i = destination; i <= source; i++)
     	{
     		ConversationReferenceCell myCell = ((ConversationReferenceCell)model.getValueAt(i, 0));
-    		myCell.addReference(source, destination);
+    		myCell.addReference(source, destination,c);
 
     		model.setValueAt(myCell, i, 0);
     	}
@@ -315,17 +351,18 @@ public class ChatPanel extends javax.swing.JPanel implements ActionListener{
     /**
      * Adauga un mesaj
      */
-    public synchronized void addMessage(String msg,int id)
+    public synchronized void addMessage(String msg,int id,Color c)
     {
 
 		DefaultTableModel defmodel =  (DefaultTableModel)table.getModel();
 
-		ConversationMessage message = new ConversationMessage(msg, defmodel.getRowCount(),id);
+		ConversationMessage message = new ConversationMessage(msg, defmodel.getRowCount(),id,c);
 		defmodel.addRow(message);
 
 		System.out.println("message added " + msg);
     }
 }
+
 
 class MyAdjustmentListener implements AdjustmentListener {
         // This method is called whenever the value of a scrollbar is changed,

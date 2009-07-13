@@ -13,6 +13,7 @@ package topchat.client.gui;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.jivesoftware.smack.XMPPException;
 import topchat.client.connection.ClientConnection;
 import topchat.client.core.Main;
@@ -157,6 +158,11 @@ public class LoginGUI extends javax.swing.JFrame {
             chat_gui.show();
             //ClientConnection.user.getContacts();
         }
+        else{
+            JOptionPane.showMessageDialog(this,"Authentification error!","ERROR",JOptionPane.ERROR_MESSAGE);
+        }
+
+
     }//GEN-LAST:event_LoginButton
 
     /**

@@ -1,7 +1,7 @@
 package topchat.client.reference;
 
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.Rectangle;
 import javax.swing.JTextArea;
 
 /**
@@ -10,9 +10,11 @@ import javax.swing.JTextArea;
 public class ConversationMessageCell extends JTextArea
 {
     public int id;
-
+    public Color color;
+    
     public void setFont() {
-        super.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        Font f = new Font("Times New Roman", Font.PLAIN, 12);
+        super.setFont(f);
     }
 
     public void setWrapStyleWord() {
@@ -40,10 +42,11 @@ public class ConversationMessageCell extends JTextArea
 
 	}
 
-	public ConversationMessageCell(String msg,int id){
+	public ConversationMessageCell(String msg,int id,Color c){
 
 		super(msg);
         this.id = id;
+        this.color = c;
         this.setSize(300,300);
         this.setRows(10);
 	}
