@@ -38,14 +38,17 @@ public class User {
         newRoom.createRoom(nick);
         newRoom.joinRoom(nick);
         userRooms.add(newRoom);
-        roomPanel.usersListModel.addElement(nick+" - "+status);
+        if(!newRoom.isUserInRoom(nick)){
+            roomPanel.usersListModel.addElement(nick+" - "+status);
+        }
     }
     public void joinRoom(String addr,String nick,String status,ChatPanel roomPanel) throws XMPPException{
         Room newRoom = new Room(addr, nick,roomPanel);
         newRoom.joinRoom(nick);
         newRoom.muc.changeAvailabilityStatus(status, Presence.Mode.available);
         userRooms.add(newRoom);
-        roomPanel.usersListModel.addElement(nick+" - "+status);
+        if(!newRoom.isUserInRoom(nick))
+            roomPanel.usersListModel.addElement(nick+" - "+status);
     }
 
     public Room getRoom(ChatPanel panel){
@@ -55,10 +58,11 @@ public class User {
         return null;
     }
 
-    public void removeRoom(Room room){
+    public void removeRoom(Room room) throws XMPPException{
         userRooms.remove(room);
         //room.muc.changeAvailabilityStatus(status, Presence.Mode.available);
-        room.muc.leave();
+        //room.muc.leave();
+        room.muc.destroy(null,null);
     }
     public String  getUserStatus(String nick,String room){
         ArrayList<User> roomUsers;

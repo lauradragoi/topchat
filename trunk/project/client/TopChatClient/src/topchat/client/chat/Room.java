@@ -5,11 +5,13 @@
 
 package topchat.client.chat;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jivesoftware.smack.PacketInterceptor;
@@ -38,7 +40,7 @@ public class Room {
     public int first_id=-1;
     public boolean hack = true;
     //ChatGUI roomChatGUI;
-
+    public Vector colors = new Vector(5);
 
     public Room(String roomName,String roomNick){
        muc = new MultiUserChat(ClientConnection.connection, roomName);
@@ -46,6 +48,11 @@ public class Room {
     }
     public Room(String roomName,String roomNick,ChatPanel roomPanel) throws XMPPException{
 
+       colors.add("000000");
+       colors.add("0000ff");
+       colors.add("ff0000");
+       colors.add("00ff00");
+       colors.add("ff00ff");
        muc = new MultiUserChat(ClientConnection.connection, roomName);
        this.RoomPanel = roomPanel;
        this.roomName = roomName;
@@ -81,11 +88,16 @@ public class Room {
                     //System.out.println("address: " + newRoomAddress + " nick: " + newRoomNick);
                     if (!isUserInRoom(newUserNick))
                     {
+                        try {
+                            addUserInRoom(new User("", "", newUserNick, ""));
+                        } catch (XMPPException ex) {
+                            Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         RoomPanel.usersListModel.addElement(newUserNick);//+" - "+joinedRoom.jTextField3.getText());
                     }
             }
 
-            public synchronized void left(String newName) {
+            public void left(String newName) {
                     char[] newRoom = new char[newName.length()];
                     String newUserNick;
                     String newRoomAddress;
@@ -103,7 +115,7 @@ public class Room {
                     System.out.println("address: " + newRoomAddress + " nick: " + newUserNick);
                     //if (isUserInRoom(newUserNick)==true)
                     
-                        RoomPanel.usersListModel.removeElement(newUserNick);//+" - "+joinedRoom.jTextField3.getText());
+                        RoomPanel.usersListModel.removeElement(newUserNick);
                         //ClientConnection.user.userRooms.remove(newRoomAddress);
                     
             }
@@ -219,30 +231,29 @@ public class Room {
 				} catch(Exception e){}
 
                 s = s.substring(s.indexOf('#') + 1);
-				System.out.println("am primit: " + s +  "  " +  " nr_mesaj " + nr +  " id_ref " + id);
+                String mesaj = s.substring(0, s.indexOf("~"));
+               // s = s.substring(s.indexOf('~') + 1);
+               // s = s.substring(0, s.indexOf('~'));
 
+                String color = s.substring(s.indexOf('~') + 1);
+                Color newColor = new Color(Integer.parseInt( color ,16) );
+
+                System.out.println("am primit: " + s +  "  " +  " nr_mesaj " + nr +  " id_ref " + id+ " color:"+color);
                 if (first_id == -1)
                     first_id = nr;
 
                 if (ClientConnection.user.last_id == nr)
                     return ;
-                ClientConnection.user.last_id = nr;
-                /*
-                if (ClientConnection.user.first_id == -1){
-                    ClientConnection.user.first_id = nr;
-
-                System.out.println("first_id =  " + ClientConnection.user.first_id);}*/
-
+                ClientConnection.user.last_id = nr;                
                 
-                
-                RoomPanel.addMessage(From+" : "+s, nr-first_id);
+                RoomPanel.addMessage(From+" : "+mesaj, nr-first_id, newColor);
                 int ceva = nr-first_id;
                 System.out.println("am adaugat mesaj: "+ceva);
 				
 				if ( id > -1){
 					// am primit referinta de la server
 					//RoomPanel.addReference(nr-ClientConnection.user.first_id, id-ClientConnection.user.first_id);
-                    RoomPanel.addReference(nr-first_id, id-first_id);
+                    RoomPanel.addReference(nr-first_id, id-first_id,newColor);
                     int ceva1 = nr-first_id;
                     int ceva2 = id-first_id;
                     System.out.println("am adaugat ref: "+ceva1+" "+ceva2);
@@ -275,7 +286,8 @@ public class Room {
         else
             ceva = RoomPanel.reference;
 
-        String s = "#"+ceva+"#"+RoomPanel.chatMessage.getText();
+        int index = RoomPanel.jComboBox1.getSelectedIndex();
+        String s = "#"+ceva+"#"+RoomPanel.chatMessage.getText()+"~"+(String)colors.elementAt(index);
         System.out.println("send message: "+s);
         muc.sendMessage(s);
         hack = false;

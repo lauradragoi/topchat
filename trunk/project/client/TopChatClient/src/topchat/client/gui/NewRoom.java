@@ -46,7 +46,7 @@ public class NewRoom extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -65,7 +65,7 @@ public class NewRoom extends javax.swing.JFrame {
         jLabel2.setText("      Address");
         jLabel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 14));
         jLabel3.setText("          Nick");
         jLabel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
@@ -74,8 +74,8 @@ public class NewRoom extends javax.swing.JFrame {
         jLabel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jButton1.setText("Save Room");
-        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 SaveRoomButton(evt);
             }
         });
@@ -144,7 +144,7 @@ public class NewRoom extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void SaveRoomButton(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SaveRoomButton
+    private void SaveRoomButton(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveRoomButton
         ChatPanel newRoom = new ChatPanel();
         mainGUI.TabbedRooms.add(jTextField1.getText(), newRoom);//.add(newRoom.popup);
         mainGUI.count++;
