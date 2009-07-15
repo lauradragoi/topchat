@@ -1,19 +1,17 @@
-#summary Details on TopChatServer
+#summary Details on TopChat Server
 #labels TopChatServer
 
 = Introduction =
 
-TopChatServer is a software system consisting of a Java XMPP-based server used for connecting clients and a web application used for managing user accounts and exporting conversation logs.
+TopChat Server is a software system consisting of a Java XMPP-based server used for connecting clients and a web application used for managing user accounts and exporting conversation logs.
+
+----
 
 = Details =
 
+----
 
 = Releases =
 
-== Current release ==
-
-[http://code.google.com/p/topchat/wiki/TopChatServer_v1_0_1 TopChatServer 1.0.1]
-
-== Previous releases ==
-
-[http://code.google.com/p/topchat/wiki/TopChatServer_v1_0_0 TopChatServer 1.0.0]
+ * [http://topchat.googlecode.com/files/1.0.1.zip TopChatServer 1.0.1]
+ * [http://topchat.googlecode.com/files/TopChatServer_v1_0_0.zip TopChatServer 1.0.0]
