@@ -14,4 +14,4 @@ TopChat Server is a software system consisting of a Java XMPP-based server used 
 = Releases =
 
  * [http://topchat.googlecode.com/files/1.0.1.zip TopChatServer 1.0.1]
- * [http://topchat.googlecode.com/files/TopChatServer_v1_0_0.zip TopChatServer 1.0.0]
+ * [http://topchat.googlecode.com/files/TopChatServer_v1.0.0.zip TopChatServer 1.0.0]
