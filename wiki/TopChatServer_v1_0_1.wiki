@@ -2,10 +2,7 @@
 #labels Release
 
 
-=== Packaging ===
-
-The [http://topchat.googlecode.com/files/1.0.1.zip release package]
-
+Download the [http://topchat.googlecode.com/files/1.0.1.zip release package] and follow the instructions in order to successfully install.
 
 === Installation guide ===
 
