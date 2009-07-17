@@ -43,7 +43,8 @@
   * For securing the communication between the server and the clients the following __*[http://java.sun.com/javase/technologies/security/ Java Security]*__ mechanisms were used: 
       * __*[http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html Java Secure Socket Extension (JSSE)]*__ for implementing the Transport Layer Protocol required by XMPP while using non-blocking input/output.
       * __*[http://java.sun.com/javase/6/docs/technotes/guides/security/sasl/sasl-refguide.html The Java SASL API]*__ used for including Simple Authentication and Security Layer as required by the XMPP specification.
-
+  * For parsing and creating XML elements used for communicating between the clients and the server as the XMPP protocol specifies, the __*Java Streaming API for XML (StAX)*__ is used. This is a pull-parsing API, offering the application the entire control of the flow of XML tokens to be parsed and efficiently using CPU and memory. It is also quite easy to use.
+  * The server application communicates with databases for obtaining authentication information and for saving conversations. The connection is made possible through the __*[http://java.sun.com/products/jdbc/overview.html Java Database Connectivity API]*__. The JDBC driver that was used is __*MySQL Connector/J*__.
 
 
 
