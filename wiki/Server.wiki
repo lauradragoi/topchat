@@ -30,7 +30,7 @@
 
  This section describes the protocols and technologies used in TopChat Server.
   * TopChat Server uses the __*[http://xmpp.org/ Extensible Messaging and Presence Protocol (XMPP)]*__, implementing features defined in [http://xmpp.org/rfcs/rfc3920.html RFC 3920], [http://xmpp.org/rfcs/rfc3921.html RFC 3921] and the [http://xmpp.org/extensions/xep-0045.html Multi-User Chat extension]. XMPP was chosen due to the fact that it is an open-standard, used in a large number of applications and well documented with support for extensions. I also considered the fact that using this standard protocol allows for interoperability with existing software. 
-  * The __*Java Standard Edition Platform*__ was chosen for the development of the server application based on the following considerations:
+  * The __*[http://java.sun.com/javase/ Java Standard Edition Platform]*__ was chosen for the development of the server application based on the following considerations:
     * Rapid application development
     * Multithreading support
     * Asynchronous input/output support
@@ -40,6 +40,9 @@
     * Easy delivery of the application
   * The __*Java Concurrency API*__ was necessary to implement multithreading in the application. The TopChat Server is supposed to accept new connection while handling communication with already connected clients and saving information in the database and updating the GUI. All these take place in a multithreaded environment to ensure rapid application response and efficiency. Also if running the server on a multi processor computer or a cluster, the application can better benefit from the available resources rather than if it were single threaded.
   * The __*Java New Input/Output (NIO) API*__ was used for its asynchronous input/output and I/O multiplexing capabilities and also because it can be integrated with Transport Layer Security implementation in SSLEngine since Java SE 1.5.
+  * For securing the communication between the server and the clients the following __*[http://java.sun.com/javase/technologies/security/ Java Security]*__ mechanisms were used: 
+      * __*[http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html Java Secure Socket Extension (JSSE)]*__ for implementing the Transport Layer Protocol required by XMPP while using non-blocking input/output.
+      * __*[http://java.sun.com/javase/6/docs/technotes/guides/security/sasl/sasl-refguide.html The Java SASL API]*__ used for including Simple Authentication and Security Layer as required by the XMPP specification.
 
 
 
