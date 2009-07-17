@@ -28,9 +28,12 @@
 
  * == Technologies ==
 
-<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/OD_3YxQRmCS9CZ3LqfjIug?feat=embedwebsite"><img src="http://lh6.ggpht.com/_SWZTDK5kuus/SmBqfxmCh6I/AAAAAAAACeA/ivvOZDOKqsY/s400/topchatserver_tech.jpg" /></a></td></tr></table>
+<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/OD_3YxQRmCS9CZ3LqfjIug?feat=embedwebsite"><img src="http://lh6.ggpht.com/_SWZTDK5kuus/SmBqfxmCh6I/AAAAAAAACeA/ivvOZDOKqsY/s400/topchatserver_tech.jpg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Technologies used in TopChat Server</td></tr></table>
 
  * == Architecture ==
+
+<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/ORZjrzx8rs-0veYipQY4Iw?feat=embedwebsite"><img src="http://lh3.ggpht.com/_SWZTDK5kuus/SmBzkRwptZI/AAAAAAAACec/7UumbLR6res/s400/topchatserver_arch.jpeg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Architecture of TopChat Server</td></tr></table>
+
 ----
 
 = Releases =
