@@ -17,7 +17,9 @@
   * Accepting connections from clients
   * Authenticating connected clients based on username and password 
   * Hosting chat rooms and allowing clients to create/join these rooms
-  * Sending and storing chat messages
+  * Sending messages to their recipients
+  * Storing chat messages and events (join, part room) to a database for future analysis
+  * Assigning numerical IDs to messages in a group conversation to be used by the client when defining semantic references between messages
 
  and the _web application_ is used for:
   * Creating new user accounts
@@ -26,7 +28,12 @@
 
  * == Technologies ==
 
+ This section describes the protocols and technologies used in TopChat Server.
+  * TopChat Server uses the [http://xmpp.org/ Extensible Messaging and Presence Protocol (XMPP)], implementing features defined in [http://xmpp.org/rfcs/rfc3920.html RFC 3920], [http://xmpp.org/rfcs/rfc3921.html RFC 3921] and the [http://xmpp.org/extensions/xep-0045.html Multi-User Chat extension].
+
+
 <table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/OD_3YxQRmCS9CZ3LqfjIug?feat=embedwebsite"><img src="http://lh6.ggpht.com/_SWZTDK5kuus/SmBqfxmCh6I/AAAAAAAACeA/ivvOZDOKqsY/s400/topchatserver_tech.jpg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Technologies used in TopChat Server</td></tr></table>
+
 
  * == Architecture ==
 
