@@ -5,25 +5,23 @@
 
 = Introduction =
 
-  __*TopChat Server*__ is a software system consisting of a Java XMPP-based server used for connecting clients and a web application used for managing user accounts and exporting conversation logs.
+  __*TopChat Server*__ is a software system consisting of a _Java server_ used for connecting clients and a _web application_ used for managing user accounts and exporting conversation logs.
 
 ----
 
 = Details =
 
- * == Functionalities ==
+ * == Features ==
 
- __*TopChat Server*__ includes a Java _server application_ in charge of:
+ The Java _server application_ is in charge of:
   * Accepting connections from clients
   * Authenticating connected clients based on username and password 
   * Hosting chat rooms and allowing clients to create/join these rooms
   * Sending and storing chat messages
 
- and a _web application_ used for:
+ and the _web application_ is used for:
   * Creating new user accounts
   * Exporting conversation logs in order for these to be further analysed
-
-
 
 
  * == Technologies ==
