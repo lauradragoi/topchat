@@ -50,12 +50,31 @@
   * The __*[http://logging.apache.org/log4j/ Log4j]*__ logging framework offered by Apache was used throughout the application to provide a flexible, standard way of recording messages about the activity of the server that can be used for debugging purposes in case of a system failure.
 
 
-<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/OD_3YxQRmCS9CZ3LqfjIug?feat=embedwebsite"><img src="http://lh6.ggpht.com/_SWZTDK5kuus/SmBqfxmCh6I/AAAAAAAACeA/ivvOZDOKqsY/s400/topchatserver_tech.jpg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Technologies used by TopChat Server</td></tr></table>
+<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/OD_3YxQRmCS9CZ3LqfjIug?feat=embedwebsite"><img src="http://lh6.ggpht.com/_SWZTDK5kuus/SmBqfxmCh6I/AAAAAAAACeA/ivvOZDOKqsY/s400/topchatserver_tech.jpg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Technologies used by *TopChat Server*</td></tr></table>
 
 
  * == Architecture ==
 
-<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/ORZjrzx8rs-0veYipQY4Iw?feat=embedwebsite"><img src="http://lh3.ggpht.com/_SWZTDK5kuus/SmBzkRwptZI/AAAAAAAACec/7UumbLR6res/s400/topchatserver_arch.jpeg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Architecture of TopChat Server</td></tr></table>
+ This section describes the architecture of TopChat? Server.
+<table style="width:auto;"><tr><td><a href="http://picasaweb.google.com/lh/photo/ORZjrzx8rs-0veYipQY4Iw?feat=embedwebsite"><img src="http://lh3.ggpht.com/_SWZTDK5kuus/SmBzkRwptZI/AAAAAAAACec/7UumbLR6res/s400/topchatserver_arch.jpeg" /></a></td></tr><tr align="center"><td style="font-family:arial,sans-serif; font-size:11px; text-align:center">Architecture of *TopChat Server* Java application</td></tr></table>
+
+ * The *Java server application* was built around the *Mediator design pattern*: there is a central component, the _Mediator_, that connects all the other modules to each other. Loosely coupling the modules ensures they can be easily modified without affecting all the other modules. Also the Mediator actually works with interfaces describing the application modules, so that the actual implementation of the modules can be changed without having to modify any other component, as long as the same interface is used.
+ One exception from the mediator pattern is that the _network_ module and the _protocol_ module are also coupled to each other due to performance constraints, to eliminate the overhead added by communicating through the mediator.
+  The modules are:
+     * the _Mediator_ module, connecting the other modules
+     * the _Network_ module, handling all the network communication 
+     * the _Protocol_ module, containing the implementation of the XMPP protocol
+     * the _Authentication_ module, responsible for verifying user information
+     * the _Data Processing_ module, handling the data from the conversations
+     * the _Configuration_ module, useful for modifying properties like database server address
+     * the _GUI_ module, minimalist user interface to notify of server status
+
+  * The *web application* consists of two modules:
+     * The _Add user account_ module
+     * The _Export conversation_ module, which exports a conversation from a specified room to XML
+
+
+
 
 ----
 
